@@ -56,11 +56,13 @@ export const processAttendanceRecord = (pin, datetimeStr, statusRaw, sn = 'UNKNO
   const isCheckIn = String(statusRaw).trim() === '0' || String(statusRaw).trim() === '4';
   const statusAbsen = isCheckIn ? 'Masuk' : 'Pulang';
 
-  // Match employee by NIP or ID
+  // Match employee by NIP, pinMesin, or ID
   const matchedUser = users.find(u => 
     String(u.nip).trim() === cleanPin || 
+    String(u.pinMesin || '').trim() === cleanPin ||
     String(u.id).trim() === cleanPin ||
-    String(u.nip).endsWith(cleanPin)
+    String(u.id).replace('PEG-', '').trim() === cleanPin.padStart(3, '0') ||
+    (cleanPin.length >= 4 && String(u.nip).endsWith(cleanPin))
   ) || {
     nama: `Pegawai (ID: ${cleanPin})`,
     jabatan: "Staf Pegawai",

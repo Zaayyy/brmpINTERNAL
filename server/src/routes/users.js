@@ -7,15 +7,18 @@ const router = Router();
 router.get('/', (req, res) => {
   res.json({
     success: true,
+    total: users.length,
     data: users.map(u => ({
       id: u.id,
       nip: u.nip,
       nama: u.nama,
       jabatan: u.jabatan,
+      golongan: u.golongan || '',
       divisi: u.divisi,
       systemRole: u.systemRole,
       approvalRole: u.approvalRole,
       roleLabel: u.roleLabel,
+      pinMesin: u.pinMesin || '',
       sisaCuti: u.sisaCuti,
       cutiTerpakai: u.cutiTerpakai || 0,
       expiredCuti: u.expiredCuti
@@ -23,19 +26,19 @@ router.get('/', (req, res) => {
   });
 });
 
-// PUT /api/users/:id/role - Admin mengganti role pegawai
+// PUT /api/users/:id/role - Admin mengganti role & PIN mesin pegawai
 router.put('/:id/role', (req, res) => {
   const { id } = req.params;
-  const { systemRole, approvalRole } = req.body;
+  const { systemRole, approvalRole, pinMesin } = req.body;
 
-  if (!approvalRole && !systemRole) {
+  if (!approvalRole && !systemRole && pinMesin === undefined) {
     return res.status(400).json({
       success: false,
-      message: 'systemRole atau approvalRole wajib dikirim'
+      message: 'systemRole, approvalRole, atau pinMesin wajib dikirim'
     });
   }
 
-  const updatedUser = updateUserRole(id, { systemRole, approvalRole });
+  const updatedUser = updateUserRole(id, { systemRole, approvalRole, pinMesin });
 
   if (!updatedUser) {
     return res.status(404).json({
@@ -46,7 +49,7 @@ router.put('/:id/role', (req, res) => {
 
   res.json({
     success: true,
-    message: `Role untuk pegawai ${updatedUser.nama} berhasil diperbarui menjadi ${updatedUser.roleLabel}`,
+    message: `Data pegawai ${updatedUser.nama} berhasil diperbarui (Role: ${updatedUser.roleLabel}, PIN Mesin: ${updatedUser.pinMesin})`,
     data: updatedUser
   });
 });

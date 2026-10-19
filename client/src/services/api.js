@@ -225,12 +225,12 @@ export const apiService = {
     }
   },
 
-  async updateUserRole(userId, { systemRole, approvalRole }) {
+  async updateUserRole(userId, { systemRole, approvalRole, pinMesin }) {
     try {
       const res = await fetch(`${API_BASE_URL}/users/${userId}/role`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ systemRole, approvalRole })
+        body: JSON.stringify({ systemRole, approvalRole, pinMesin })
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.message);

@@ -1,120 +1,63 @@
-// In-memory data store for BRMP DIY
-export let users = [
-  {
-    id: "PEG-ADM",
-    nip: "198001012005011001",
-    passwordDefaultYear: "1980",
-    nama: "ADMINISTRATOR KEPEGAWAIAN",
-    jabatan: "Pranata Komputer Ahli Muda / Admin Kepegawaian",
-    divisi: "Sub Bagian Tata Usaha & Kepegawaian",
-    systemRole: "admin", // admin | pegawai
-    approvalRole: "admin", // admin | pemohon | verifikator_1 | verifikator_2
-    roleLabel: "Administrator Kepegawaian",
-    sisaCuti: 12,
-    cutiTerpakai: 0,
-    expiredCuti: "31-12-2026",
-    jamMasuk: "07:15:00",
-    jamPulang: "16:00:00",
-    jamKerja: "07:30:00 - 16:00:00"
-  },
-  {
-    id: "PEG-001",
-    nip: "199808062014032001",
-    passwordDefaultYear: "1998",
-    nama: "AGNITA VERDIANI PUTRI, A.Md.",
-    jabatan: "Pengelola Standardisasi Teknis",
-    divisi: "Balai Penerapan Standar Instrumen Pertanian DIY",
-    systemRole: "pegawai",
-    approvalRole: "pemohon",
-    roleLabel: "Pegawai (Pemohon Cuti)",
-    sisaCuti: 12,
-    cutiTerpakai: 0,
-    expiredCuti: "14-06-2026",
-    jamMasuk: "07:23:54",
-    jamPulang: "16:08:55",
-    jamKerja: "07:30:00 - 16:00:00"
-  },
-  {
-    id: "PEG-004",
-    nip: "198906012015032004",
-    passwordDefaultYear: "1989",
-    nama: "Devi Eka Nuvitasari, S.H.",
-    jabatan: "Penelaah Teknis Kebijakan",
-    divisi: "Tim Kerja Pengelolaan Sumber Daya Manusia",
-    systemRole: "pegawai",
-    approvalRole: "pemohon",
-    roleLabel: "Pegawai (Pemohon Cuti)",
-    sisaCuti: 10,
-    cutiTerpakai: 2,
-    expiredCuti: "31-12-2026",
-    jamMasuk: "07:28:10",
-    jamPulang: "16:05:00",
-    jamKerja: "07:30:00 - 16:00:00"
-  },
-  {
-    id: "PEG-003",
-    nip: "198604092011012024",
-    passwordDefaultYear: "1986",
-    nama: "Dwi Dinia Rahayu, S.Kom, M.T.I",
-    jabatan: "Ketua Tim Kerja SDM / Analis SDM Aparatur",
-    divisi: "Tim Kerja Pengelolaan Sumber Daya Manusia",
-    systemRole: "pegawai",
-    approvalRole: "verifikator_1",
-    roleLabel: "Verifikator 1 (Ketua Tim Kerja SDM)",
-    sisaCuti: 12,
-    cutiTerpakai: 0,
-    expiredCuti: "31-12-2026",
-    jamMasuk: "07:20:12",
-    jamPulang: "16:15:30",
-    jamKerja: "07:30:00 - 16:00:00"
-  },
-  {
-    id: "PEG-017",
-    nip: "197106141992032001",
-    passwordDefaultYear: "1971",
-    nama: "Yuni Pratiwi, S.ST., Ars",
-    jabatan: "Ketua Tim Kerja Tata Usaha / Arsiparis Penyelia",
-    divisi: "Tim Kerja Tata Usaha dan Rumah Tangga",
-    systemRole: "pegawai",
-    approvalRole: "verifikator_1",
-    roleLabel: "Verifikator 1 (Ketua Tim Kerja TU)",
-    sisaCuti: 11,
-    cutiTerpakai: 1,
-    expiredCuti: "31-12-2026",
-    jamMasuk: "07:18:45",
-    jamPulang: "16:10:00",
-    jamKerja: "07:30:00 - 16:00:00"
-  },
-  {
-    id: "PEG-002",
-    nip: "198101312009121004",
-    passwordDefaultYear: "1981",
-    nama: "Agung Ariyanto, SEI., M.Ec., Dev.",
-    jabatan: "Ketua Bagian Tata Usaha (Kobag TU)",
-    divisi: "Bagian Tata Usaha BRMP DIY",
-    systemRole: "pegawai",
-    approvalRole: "verifikator_2",
-    roleLabel: "Verifikator 2 (Kepala Bagian TU / Approval Final)",
-    sisaCuti: 14,
-    cutiTerpakai: 0,
-    expiredCuti: "31-12-2026",
-    jamMasuk: "07:10:00",
-    jamPulang: "16:30:00",
-    jamKerja: "07:30:00 - 16:00:00"
-  }
-];
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-export const updateUserRole = (userId, { systemRole, approvalRole }) => {
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const pegawaiJsonPath = path.join(__dirname, 'pegawaiData.json');
+
+// In-memory data store for BRMP DIY loaded from official employee database
+export let users = [];
+try {
+  if (fs.existsSync(pegawaiJsonPath)) {
+    users = JSON.parse(fs.readFileSync(pegawaiJsonPath, 'utf8'));
+  }
+} catch (err) {
+  console.error('[Store] Failed loading pegawaiData.json, using fallback:', err.message);
+}
+
+if (!users || users.length === 0) {
+  users = [
+    {
+      id: "PEG-ADM",
+      nip: "198001012005011001",
+      passwordDefaultYear: "1980",
+      nama: "ADMINISTRATOR KEPEGAWAIAN",
+      jabatan: "Pranata Komputer Ahli Muda / Admin Kepegawaian",
+      divisi: "Sub Bagian Tata Usaha & Kepegawaian",
+      systemRole: "admin",
+      approvalRole: "admin",
+      roleLabel: "Administrator Kepegawaian",
+      pinMesin: "999",
+      sisaCuti: 12,
+      cutiTerpakai: 0,
+      expiredCuti: "31-12-2026",
+      jamMasuk: "07:15:00",
+      jamPulang: "16:00:00",
+      jamKerja: "07:30:00 - 16:00:00"
+    }
+  ];
+}
+
+export const updateUserRole = (userId, { systemRole, approvalRole, pinMesin }) => {
   const index = users.findIndex(u => String(u.id) === String(userId) || u.nip === String(userId));
   if (index !== -1) {
     if (systemRole) users[index].systemRole = systemRole;
+    if (pinMesin !== undefined) users[index].pinMesin = String(pinMesin).trim();
     if (approvalRole) {
       users[index].approvalRole = approvalRole;
       if (approvalRole === 'admin') users[index].roleLabel = 'Administrator Kepegawaian';
-      else if (approvalRole === 'verifikator_1') users[index].roleLabel = 'Verifikator 1 (Atasan / Ketimker)';
-      else if (approvalRole === 'verifikator_2') users[index].roleLabel = 'Verifikator 2 (Kepala TU / Balai)';
+      else if (approvalRole === 'verifikator_1') users[index].roleLabel = 'Verifikator 1 (Ketua Tim Kerja)';
+      else if (approvalRole === 'verifikator_2') users[index].roleLabel = 'Verifikator 2 (Kepala Bagian TU)';
       else users[index].roleLabel = 'Pegawai (Pemohon Cuti)';
     }
+
+    try {
+      fs.writeFileSync(pegawaiJsonPath, JSON.stringify(users, null, 2), 'utf8');
+    } catch (e) {
+      console.error('[Store] Failed saving updated users:', e.message);
+    }
+
     return users[index];
   }
   return null;

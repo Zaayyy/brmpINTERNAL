@@ -55,6 +55,7 @@ export default function PengajuanCuti({ user: initialUser, onSwitchUser }) {
   // Filter & Search states
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [userSearchTerm, setUserSearchTerm] = useState('');
 
   // Loading & Alert states
   const [loading, setLoading] = useState(false);
@@ -256,6 +257,29 @@ export default function PengajuanCuti({ user: initialUser, onSwitchUser }) {
       }
     } catch (err) {
       setErrorMsg(err.message || 'Gagal memperbarui role pegawai.');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  // Admin Change Fingerprint Machine PIN
+  const handleChangePin = async (targetUserId, currentPin) => {
+    const newPin = window.prompt(`Masukkan Nomor PIN Mesin Absensi Baru (saat ini: ${currentPin || '-'}):`, currentPin || '');
+    if (newPin === null) return;
+    const clean = newPin.trim();
+    if (!clean) {
+      alert('PIN tidak boleh kosong');
+      return;
+    }
+    try {
+      setActionLoading(true);
+      const res = await apiService.updateUserRole(targetUserId, { pinMesin: clean });
+      if (res.success) {
+        setSuccessMsg(`PIN Mesin untuk ${res.data.nama} berhasil diubah ke: ${clean}`);
+        await loadCutiData();
+      }
+    } catch (err) {
+      setErrorMsg(err.message || 'Gagal mengubah PIN Mesin.');
     } finally {
       setActionLoading(false);
     }
@@ -1270,13 +1294,33 @@ export default function PengajuanCuti({ user: initialUser, onSwitchUser }) {
                 <span>Manajemen Hak Akses & Role Pegawai</span>
               </h3>
               <span style={{ fontSize: '0.75rem', color: '#64748b' }}>
-                Ganti peran kedinasan pegawai (Pemohon Cuti, Verifikator 1, Verifikator 2, atau Admin) secara langsung
+                Kelola 115 pegawai BRMP DIY: ganti peran cuti (Pemohon, Verifikator 1, Verifikator 2, Admin) dan mapping PIN Mesin Absensi Fingerprint.
               </span>
             </div>
 
             <span style={{ background: '#eff6ff', color: '#2563eb', padding: '6px 12px', borderRadius: '8px', fontSize: '0.8rem', fontWeight: 700 }}>
               {allUsers.length} Pegawai Terdaftar
             </span>
+          </div>
+
+          {/* Search Box */}
+          <div style={{ marginBottom: '1.25rem', position: 'relative', maxWidth: '420px' }}>
+            <Search size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
+            <input
+              type="text"
+              placeholder="Cari nama, NIP, tim kerja, atau PIN mesin..."
+              value={userSearchTerm}
+              onChange={(e) => setUserSearchTerm(e.target.value)}
+              style={{
+                width: '100%',
+                padding: '9px 12px 9px 36px',
+                border: '1px solid #cbd5e1',
+                borderRadius: '8px',
+                fontSize: '0.85rem',
+                outline: 'none',
+                background: '#ffffff'
+              }}
+            />
           </div>
 
           <div style={{ overflowX: 'auto' }}>
@@ -1286,22 +1330,56 @@ export default function PengajuanCuti({ user: initialUser, onSwitchUser }) {
                   <th>NO</th>
                   <th>NIP & NAMA PEGAWAI</th>
                   <th>JABATAN / DIVISI</th>
+                  <th style={{ textAlign: 'center' }}>PIN MESIN</th>
                   <th>SISA CUTI</th>
                   <th>PERAN AKTIF (ROLE)</th>
                   <th style={{ minWidth: '220px' }}>GANTI ROLE PEGAWAI</th>
                 </tr>
               </thead>
               <tbody>
-                {allUsers.map((peg, idx) => (
+                {allUsers
+                  .filter(peg => 
+                    (peg.nama || '').toLowerCase().includes(userSearchTerm.toLowerCase()) ||
+                    (peg.nip || '').includes(userSearchTerm) ||
+                    (peg.jabatan || '').toLowerCase().includes(userSearchTerm.toLowerCase()) ||
+                    (peg.divisi || '').toLowerCase().includes(userSearchTerm.toLowerCase()) ||
+                    (peg.pinMesin || '').includes(userSearchTerm)
+                  )
+                  .map((peg, idx) => (
                   <tr key={peg.id || idx}>
                     <td style={{ fontWeight: 700 }}>{idx + 1}</td>
                     <td>
                       <strong style={{ color: '#0f172a' }}>{peg.nama}</strong>
-                      <div style={{ fontSize: '0.75rem', color: '#64748b' }}>NIP: {peg.nip}</div>
+                      <div style={{ fontSize: '0.75rem', color: '#64748b' }}>
+                        NIP: {peg.nip} {peg.golongan ? `• Gol: ${peg.golongan}` : ''}
+                      </div>
                     </td>
                     <td>
                       <div style={{ fontSize: '0.8rem', fontWeight: 600, color: '#334155' }}>{peg.jabatan}</div>
                       <div style={{ fontSize: '0.72rem', color: '#64748b' }}>{peg.divisi}</div>
+                    </td>
+                    <td style={{ textAlign: 'center' }}>
+                      <button
+                        type="button"
+                        onClick={() => handleChangePin(peg.id || peg.nip, peg.pinMesin)}
+                        title="Klik untuk mengubah PIN Mesin Fingerprint"
+                        style={{
+                          background: '#f1f5f9',
+                          border: '1px solid #cbd5e1',
+                          padding: '4px 10px',
+                          borderRadius: '6px',
+                          fontWeight: 700,
+                          fontSize: '0.8rem',
+                          color: '#1e293b',
+                          cursor: 'pointer',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '4px'
+                        }}
+                      >
+                        <span>PIN: {peg.pinMesin || '-'}</span>
+                        <span style={{ fontSize: '0.65rem', color: '#64748b' }}>✏️</span>
+                      </button>
                     </td>
                     <td>
                       <span style={{ background: '#f0fdf4', color: '#15803d', padding: '3px 8px', borderRadius: '6px', fontWeight: 700, fontSize: '0.8rem' }}>

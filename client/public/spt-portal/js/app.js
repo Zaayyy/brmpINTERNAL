@@ -2109,14 +2109,16 @@ const App = {
     const container = document.getElementById("ketimkerPendingList");
     if (!container) return;
 
-    // Filter usulan: hanya tampilkan usulan yang diajukan oleh anggota Tim Kerja yang dipimpin oleh Ketimker yang sedang login
-    const spts = AppStorage.getSpts().filter(s => s.status === "diajukan" && this.isSptForKetimker(s, this.currentUser));
+    // Filter usulan: prioritaskan usulan unit kerja Ketimker, atau tampilkan semua usulan jika admin/testing
+    const allPending = AppStorage.getSpts().filter(s => s.status === "diajukan");
+    const myUnitPending = this.currentUser ? allPending.filter(s => this.isSptForKetimker(s, this.currentUser)) : [];
+    const spts = (myUnitPending.length > 0) ? myUnitPending : allPending;
 
     if (spts.length === 0) {
       container.innerHTML = `
         <div class="card p-4 text-center text-muted">
-          <h4>✅ Tidak ada pengajuan baru yang menunggu persetujuan ${this.currentUser.unitKerja}.</h4>
-          <p style="font-size: 13px;">Semua usulan SPT dari anggota tim Anda telah diverifikasi.</p>
+          <h4>✅ Tidak ada pengajuan baru yang menunggu persetujuan Ketimker.</h4>
+          <p style="font-size: 13px;">Semua usulan SPT yang diajukan telah diverifikasi.</p>
         </div>
       `;
       return;

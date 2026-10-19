@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Search, Bell, LogOut, ShieldCheck, UserCheck, ChevronDown, Menu, X } from 'lucide-react';
+import { Search, Bell, LogOut, ShieldCheck, UserCheck, ChevronDown, Menu, X, Settings } from 'lucide-react';
 
-export default function Navbar({ user, onLogout, onSwitchUser, isMobileMenuOpen, onToggleMobileMenu }) {
+export default function Navbar({ user, onLogout, onSwitchUser, onNavigate, isMobileMenuOpen, onToggleMobileMenu }) {
   const [showRoleMenu, setShowRoleMenu] = useState(false);
 
   const demoAccounts = [
@@ -194,7 +194,12 @@ export default function Navbar({ user, onLogout, onSwitchUser, isMobileMenuOpen,
         </button>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <div className="navbar-user-info" style={{ textAlign: 'right', display: 'flex', flexDirection: 'column' }}>
+          <div 
+            className="navbar-user-info" 
+            onClick={() => onNavigate && onNavigate('pengaturan-akun')}
+            title="Klik untuk membuka Pengaturan Akun & Profil"
+            style={{ textAlign: 'right', display: 'flex', flexDirection: 'column', cursor: 'pointer', padding: '2px 6px', borderRadius: '6px' }}
+          >
             <span style={{ fontSize: '0.82rem', fontWeight: 700, maxWidth: '140px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
               {user?.nama || 'Agnita V. Putri'}
             </span>
@@ -202,6 +207,27 @@ export default function Navbar({ user, onLogout, onSwitchUser, isMobileMenuOpen,
               NIP: {user?.nip || '199808062014032001'}
             </span>
           </div>
+
+          <button
+            onClick={() => onNavigate && onNavigate('pengaturan-akun')}
+            title="Pengaturan Akun & Profil"
+            className="navbar-settings-btn"
+            style={{
+              background: 'rgba(255, 255, 255, 0.15)',
+              border: '1px solid rgba(255, 255, 255, 0.25)',
+              color: '#ffffff',
+              padding: '6px',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              transition: 'all 0.2s'
+            }}
+          >
+            <Settings size={15} />
+          </button>
+
           <button
             onClick={onLogout}
             title="Keluar"

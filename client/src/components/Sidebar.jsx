@@ -356,8 +356,21 @@ export default function Sidebar({ currentView, setCurrentView, user, isOpen, onC
           )}
         </div>
 
+        {/* Pengaturan Akun & Profil */}
+        <div style={{ marginTop: '1.25rem', paddingTop: '1rem', borderTop: '1px solid #f1f5f9' }}>
+          <button 
+            className={`nav-item-btn ${currentView === 'pengaturan-akun' ? 'active' : ''}`}
+            onClick={() => navigateTo('pengaturan-akun')}
+          >
+            <div className="nav-item-left">
+              <Settings size={18} />
+              <span>Pengaturan Akun</span>
+            </div>
+          </button>
+        </div>
+
         {/* Information badge */}
-        <div style={{ marginTop: 'auto', paddingTop: '1.5rem', borderTop: '1px solid #f1f5f9' }}>
+        <div style={{ marginTop: 'auto', paddingTop: '0.75rem' }}>
           <div style={{ padding: '8px 12px', background: '#f8fafc', borderRadius: '8px', fontSize: '0.75rem', color: '#64748b' }}>
             <span style={{ fontWeight: 700, color: '#15803d', display: 'block', marginBottom: '2px' }}>Modul E-SPT Digital</span>
             <span>Standar Pertanian RI</span>

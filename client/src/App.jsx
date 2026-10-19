@@ -7,6 +7,7 @@ import AbsensiBulanan from './components/AbsensiBulanan';
 import AbsensiChart from './components/AbsensiChart';
 import AdmsMonitor from './components/AdmsMonitor';
 import PengajuanCuti from './components/PengajuanCuti';
+import PengaturanAkun from './components/PengaturanAkun';
 import SptProgram from './components/SptProgram';
 import { 
   LayoutDashboard, 
@@ -78,6 +79,7 @@ export default function App() {
         user={user} 
         onLogout={handleLogout} 
         onSwitchUser={handleSwitchUser} 
+        onNavigate={setCurrentView}
         isMobileMenuOpen={isMobileMenuOpen}
         onToggleMobileMenu={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
       />
@@ -124,6 +126,10 @@ export default function App() {
 
           {currentView === 'pengajuan-cuti' && (
             <PengajuanCuti user={user} onSwitchUser={handleSwitchUser} />
+          )}
+
+          {currentView === 'pengaturan-akun' && (
+            <PengaturanAkun user={user} onUpdateUser={handleSwitchUser} />
           )}
 
           {/* Program Asli SPT (brmpSPT Digital Standar Kementan RI) */}

@@ -242,7 +242,7 @@ export default function Sidebar({ currentView, setCurrentView, user, isOpen, onC
                 {!isSuperAdmin && (
                   <>
                     <div className="submenu-category">
-                      {isAdminSekretariat ? 'Layanan Persuratan' : role === 'user' ? 'Layanan SPT Saya' : 'Layanan Pengajuan'}
+                      {isAdminSekretariat ? 'Layanan SPT & Persuratan' : role === 'user' ? 'Layanan SPT Saya' : 'Layanan Pengajuan'}
                     </div>
                     <button 
                       className={`submenu-spt-btn ${currentView === 'spt-pengajuan' ? 'active' : ''}`}
@@ -251,7 +251,7 @@ export default function Sidebar({ currentView, setCurrentView, user, isOpen, onC
                       <div className="submenu-spt-left">
                         <PenSquare size={15} />
                         <span>
-                          {role === 'ketimker' ? 'Buat SPT Tim' : isAdminSekretariat ? 'Input Pengajuan SPT' : 'Ajukan SPT Baru'}
+                          {role === 'ketimker' ? 'Buat SPT Tim' : 'Ajukan SPT Baru'}
                         </span>
                       </div>
                     </button>

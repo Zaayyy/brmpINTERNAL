@@ -694,10 +694,10 @@ const App = {
           <span>Admin Sekretariat</span>
           <span class="nav-badge alert-count">${pendingSekretariatCount}</span>
         </a>
-        <div class="menu-category">Layanan Persuratan</div>
+        <div class="menu-category">Layanan Pengajuan SPT</div>
         <a class="nav-link ${this.currentView === 'pengajuan' ? 'active' : ''}" onclick="App.navigateTo('pengajuan')">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
-          <span>Input Pengajuan SPT</span>
+          <span>Ajukan SPT Baru</span>
         </a>
         <a class="nav-link ${this.currentView === 'tracking' ? 'active' : ''}" onclick="App.navigateTo('tracking')">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
@@ -846,7 +846,10 @@ const App = {
             Selamat bertugas, <strong>${this.currentUser.nama}</strong>. Anda memiliki kewenangan penuh terhadap penomoran dinas, konsiderans Menimbang, Dasar hukum, Database personil, dan pengelolaan pengguna.
           </div>
         </div>
-        <div>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+          <button class="btn btn-primary" onclick="App.navigateTo('pengajuan')">
+            ✍️ Ajukan SPT Baru
+          </button>
           <button class="btn btn-warning" onclick="App.navigateTo('admin-sekretariat')">
             ⚙️ Kelola Seluruh Administrasi
           </button>
@@ -886,8 +889,15 @@ const App = {
       </div>
 
       <!-- Action Shortcut Cards -->
-      <h4 class="mb-3">Aksi Cepat Administrasi Sekretariat:</h4>
+      <h4 class="mb-3">Aksi Cepat Administrasi & Layanan SPT:</h4>
       <div class="shortcuts-grid">
+        <div class="shortcut-card" onclick="App.navigateTo('pengajuan');">
+          <div class="shortcut-icon-box" style="background: #ecfdf5; color: #16a34a;">✍️</div>
+          <div class="shortcut-info">
+            <strong>Ajukan SPT Baru</strong>
+            <span>Buat usulan surat tugas kedinasan</span>
+          </div>
+        </div>
         <div class="shortcut-card" onclick="App.navigateTo('admin-sekretariat'); App.showAdminSubTab('penerbitan');">
           <div class="shortcut-icon-box" style="background: #e0f2fe; color: #0284c7;">📝</div>
           <div class="shortcut-info">

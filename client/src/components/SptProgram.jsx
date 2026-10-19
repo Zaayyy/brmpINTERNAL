@@ -64,18 +64,7 @@ export default function SptProgram({ user, targetView }) {
   }, [user, targetView]);
 
   return (
-    <div 
-      style={{ 
-        width: '100%', 
-        height: 'calc(100vh - 64px)', 
-        margin: 0, 
-        padding: 0, 
-        overflow: 'hidden',
-        background: '#f8fafc',
-        display: 'flex',
-        flexDirection: 'column'
-      }}
-    >
+    <div className="spt-program-container">
       <iframe
         ref={iframeRef}
         id="brmpSptAppIframe"

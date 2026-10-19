@@ -609,14 +609,15 @@ export default function PengajuanCuti({ user: initialUser, onSwitchUser }) {
       )}
 
       {/* Modern Main Tab Navigation */}
-      <div style={{
+      <div className="cuti-tabs-nav" style={{
         display: 'flex',
         alignItems: 'center',
         gap: '8px',
         borderBottom: '2px solid #e2e8f0',
         marginBottom: '1.5rem',
         overflowX: 'auto',
-        paddingBottom: '2px'
+        paddingBottom: '2px',
+        WebkitOverflowScrolling: 'touch'
       }}>
         <button
           onClick={() => setActiveTab('form')}
@@ -624,15 +625,17 @@ export default function PengajuanCuti({ user: initialUser, onSwitchUser }) {
             display: 'flex',
             alignItems: 'center',
             gap: '8px',
-            padding: '10px 18px',
+            padding: '10px 16px',
             background: 'transparent',
             border: 'none',
             borderBottom: activeTab === 'form' ? '3px solid #2563eb' : '3px solid transparent',
             color: activeTab === 'form' ? '#2563eb' : '#64748b',
             fontWeight: activeTab === 'form' ? 700 : 500,
-            fontSize: '0.9rem',
+            fontSize: '0.88rem',
             cursor: 'pointer',
-            transition: 'all 0.15s'
+            transition: 'all 0.15s',
+            whiteSpace: 'nowrap',
+            flexShrink: 0
           }}
         >
           <CalendarOff size={17} />
@@ -645,15 +648,17 @@ export default function PengajuanCuti({ user: initialUser, onSwitchUser }) {
             display: 'flex',
             alignItems: 'center',
             gap: '8px',
-            padding: '10px 18px',
+            padding: '10px 16px',
             background: 'transparent',
             border: 'none',
             borderBottom: activeTab === 'my-history' ? '3px solid #2563eb' : '3px solid transparent',
             color: activeTab === 'my-history' ? '#2563eb' : '#64748b',
             fontWeight: activeTab === 'my-history' ? 700 : 500,
-            fontSize: '0.9rem',
+            fontSize: '0.88rem',
             cursor: 'pointer',
-            transition: 'all 0.15s'
+            transition: 'all 0.15s',
+            whiteSpace: 'nowrap',
+            flexShrink: 0
           }}
         >
           <Clock size={17} />
@@ -671,15 +676,17 @@ export default function PengajuanCuti({ user: initialUser, onSwitchUser }) {
               display: 'flex',
               alignItems: 'center',
               gap: '8px',
-              padding: '10px 18px',
+              padding: '10px 16px',
               background: 'transparent',
               border: 'none',
               borderBottom: activeTab === 'verification' ? '3px solid #2563eb' : '3px solid transparent',
               color: activeTab === 'verification' ? '#2563eb' : '#64748b',
               fontWeight: activeTab === 'verification' ? 700 : 500,
-              fontSize: '0.9rem',
+              fontSize: '0.88rem',
               cursor: 'pointer',
-              transition: 'all 0.15s'
+              transition: 'all 0.15s',
+              whiteSpace: 'nowrap',
+              flexShrink: 0
             }}
           >
             <ShieldCheck size={17} />
@@ -702,15 +709,17 @@ export default function PengajuanCuti({ user: initialUser, onSwitchUser }) {
               display: 'flex',
               alignItems: 'center',
               gap: '8px',
-              padding: '10px 18px',
+              padding: '10px 16px',
               background: 'transparent',
               border: 'none',
               borderBottom: activeTab === 'user-roles' ? '3px solid #2563eb' : '3px solid transparent',
               color: activeTab === 'user-roles' ? '#2563eb' : '#64748b',
               fontWeight: activeTab === 'user-roles' ? 700 : 500,
-              fontSize: '0.9rem',
+              fontSize: '0.88rem',
               cursor: 'pointer',
-              transition: 'all 0.15s'
+              transition: 'all 0.15s',
+              whiteSpace: 'nowrap',
+              flexShrink: 0
             }}
           >
             <Users size={17} />
@@ -721,7 +730,7 @@ export default function PengajuanCuti({ user: initialUser, onSwitchUser }) {
 
       {/* TAB 1: FORMULIR PENGAJUAN CUTI */}
       {activeTab === 'form' && (
-        <div style={{ display: 'grid', gridTemplateColumns: 'minmax(350px, 480px) 1fr', gap: '1.75rem', alignItems: 'start' }}>
+        <div className="cuti-form-grid">
           {/* Left: Input Form */}
           <div className="brmp-card" style={{ padding: '1.75rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '1.25rem', paddingBottom: '0.75rem', borderBottom: '1px solid #f1f5f9' }}>
@@ -1449,7 +1458,9 @@ export default function PengajuanCuti({ user: initialUser, onSwitchUser }) {
             borderRadius: '12px',
             maxWidth: '520px',
             width: '100%',
-            padding: '1.75rem',
+            maxHeight: '90vh',
+            overflowY: 'auto',
+            padding: '1.5rem',
             boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
             border: '1px solid #cbd5e1'
           }}>

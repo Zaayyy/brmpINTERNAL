@@ -8,6 +8,13 @@ import AbsensiChart from './components/AbsensiChart';
 import AdmsMonitor from './components/AdmsMonitor';
 import PengajuanCuti from './components/PengajuanCuti';
 import SptProgram from './components/SptProgram';
+import { 
+  LayoutDashboard, 
+  CalendarCheck2, 
+  CalendarOff, 
+  FileText, 
+  Menu 
+} from 'lucide-react';
 
 export default function App() {
   const [user, setUser] = useState(() => {
@@ -16,6 +23,18 @@ export default function App() {
   });
 
   const [currentView, setCurrentView] = useState('dashboard');
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  // Close mobile drawer whenever viewport resizes to desktop or view changes
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth > 768) {
+        setIsMobileMenuOpen(false);
+      }
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const handleLoginSuccess = (userData) => {
     setUser(userData);
@@ -53,20 +72,36 @@ export default function App() {
   const isSptView = currentView.includes('spt');
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', background: '#f8fafc' }}>
+    <div className="app-shell" style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', background: '#f8fafc' }}>
       {/* Top Header Navbar with Quick Role Switcher */}
       <Navbar 
         user={user} 
         onLogout={handleLogout} 
         onSwitchUser={handleSwitchUser} 
+        isMobileMenuOpen={isMobileMenuOpen}
+        onToggleMobileMenu={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
       />
 
-      <div style={{ display: 'flex', flex: 1 }}>
+      <div style={{ display: 'flex', flex: 1, position: 'relative' }}>
+        {/* Mobile Backdrop Overlay */}
+        {isMobileMenuOpen && (
+          <div 
+            className="sidebar-backdrop"
+            onClick={() => setIsMobileMenuOpen(false)}
+            aria-label="Tutup Menu"
+          />
+        )}
+
         {/* Sidebar Nav */}
         <Sidebar 
           currentView={currentView} 
-          setCurrentView={setCurrentView} 
+          setCurrentView={(v) => {
+            setCurrentView(v);
+            setIsMobileMenuOpen(false);
+          }} 
           user={user} 
+          isOpen={isMobileMenuOpen}
+          onClose={() => setIsMobileMenuOpen(false)}
         />
 
         {/* Dynamic Main View */}
@@ -100,6 +135,49 @@ export default function App() {
           )}
         </main>
       </div>
+
+      {/* Modern Mobile Bottom Navigation Bar (Very User Friendly on Mobile) */}
+      <nav className="mobile-bottom-nav no-print">
+        <button 
+          className={`bottom-nav-item ${currentView === 'dashboard' ? 'active' : ''}`}
+          onClick={() => { setCurrentView('dashboard'); setIsMobileMenuOpen(false); }}
+        >
+          <LayoutDashboard size={20} />
+          <span>Beranda</span>
+        </button>
+
+        <button 
+          className={`bottom-nav-item ${currentView.includes('absensi') ? 'active' : ''}`}
+          onClick={() => { setCurrentView('absensi-bulanan'); setIsMobileMenuOpen(false); }}
+        >
+          <CalendarCheck2 size={20} />
+          <span>Absensi</span>
+        </button>
+
+        <button 
+          className={`bottom-nav-item ${currentView === 'pengajuan-cuti' ? 'active' : ''}`}
+          onClick={() => { setCurrentView('pengajuan-cuti'); setIsMobileMenuOpen(false); }}
+        >
+          <CalendarOff size={20} />
+          <span>Cuti</span>
+        </button>
+
+        <button 
+          className={`bottom-nav-item ${currentView.includes('spt') ? 'active' : ''}`}
+          onClick={() => { setCurrentView('spt-dashboard'); setIsMobileMenuOpen(false); }}
+        >
+          <FileText size={20} />
+          <span>SPT</span>
+        </button>
+
+        <button 
+          className={`bottom-nav-item ${isMobileMenuOpen ? 'active' : ''}`}
+          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+        >
+          <Menu size={20} />
+          <span>Menu</span>
+        </button>
+      </nav>
     </div>
   );
 }

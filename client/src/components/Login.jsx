@@ -94,11 +94,11 @@ export default function Login({ onLoginSuccess }) {
   };
 
   return (
-    <div className="login-screen" style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1.5rem', background: '#f8fafc' }}>
-      <div style={{ maxWidth: '920px', width: '100%', display: 'grid', gridTemplateColumns: 'minmax(320px, 420px) 1fr', gap: '2rem', background: '#ffffff', borderRadius: '16px', boxShadow: '0 20px 40px rgba(0,0,0,0.08)', border: '1px solid #e2e8f0', overflow: 'hidden' }}>
+    <div className="login-screen">
+      <div className="login-card-container">
         
         {/* Left Side: Login Form */}
-        <div style={{ padding: '2.5rem', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+        <div className="login-form-pane">
           {/* Logo BRMP DIY */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '1.5rem' }}>
             <div style={{ width: '44px', height: '44px', background: 'linear-gradient(135deg, #2563eb, #1d4ed8)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', boxShadow: '0 4px 10px rgba(37,99,235,0.3)' }}>
@@ -216,7 +216,7 @@ export default function Login({ onLoginSuccess }) {
         </div>
 
         {/* Right Side: 4 Akun untuk Masing-Masing Role (1-Click Test) */}
-        <div style={{ background: '#f8fafc', padding: '2.5rem', borderLeft: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column' }}>
+        <div className="login-demo-pane">
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '0.5rem' }}>
             <Sparkles size={18} className="text-amber-500" />
             <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 800, color: '#0f172a' }}>

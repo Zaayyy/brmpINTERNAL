@@ -12,10 +12,11 @@ import {
   Clock,
   ShieldCheck,
   BookOpen,
-  Settings
+  Settings,
+  X
 } from 'lucide-react';
 
-export default function Sidebar({ currentView, setCurrentView, user }) {
+export default function Sidebar({ currentView, setCurrentView, user, isOpen, onClose }) {
   // Accordion state for submenus
   const [openAbsensi, setOpenAbsensi] = useState(
     currentView === 'absensi-bulanan' || currentView === 'absensi-chart'
@@ -24,6 +25,12 @@ export default function Sidebar({ currentView, setCurrentView, user }) {
     currentView === 'pengajuan-cuti'
   );
   const [openSpt, setOpenSpt] = useState(true);
+
+  // Helper to change view and close mobile drawer
+  const navigateTo = (view) => {
+    setCurrentView(view);
+    if (onClose) onClose();
+  };
 
   // Determine user role in brmpSPT
   const role = user?.role || (
@@ -37,12 +44,28 @@ export default function Sidebar({ currentView, setCurrentView, user }) {
     const nextState = !openSpt;
     setOpenSpt(nextState);
     if (nextState && !currentView.startsWith('spt')) {
-      setCurrentView('spt-dashboard');
+      navigateTo('spt-dashboard');
     }
   };
 
   return (
-    <aside className="app-sidebar no-print">
+    <aside className={`app-sidebar no-print ${isOpen ? 'sidebar-open' : ''}`}>
+      {/* Mobile Close Button Header */}
+      <div className="sidebar-mobile-header">
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <ShieldCheck size={20} className="text-blue-600" />
+          <span style={{ fontWeight: 800, fontSize: '0.9rem', color: '#1e3a8a' }}>KITA BRMP DIY</span>
+        </div>
+        <button 
+          className="sidebar-close-btn"
+          onClick={onClose}
+          aria-label="Tutup navigasi"
+          title="Tutup navigasi"
+        >
+          <X size={20} />
+        </button>
+      </div>
+
       {/* Profile Section */}
       <div className="sidebar-profile">
         <div className="profile-avatar-wrap">
@@ -61,7 +84,7 @@ export default function Sidebar({ currentView, setCurrentView, user }) {
         {/* Dashboard */}
         <button 
           className={`nav-item-btn ${currentView === 'dashboard' ? 'active' : ''}`}
-          onClick={() => setCurrentView('dashboard')}
+          onClick={() => navigateTo('dashboard')}
         >
           <div className="nav-item-left">
             <LayoutDashboard size={18} />
@@ -86,19 +109,19 @@ export default function Sidebar({ currentView, setCurrentView, user }) {
             <div className="submenu-list">
               <button 
                 className={`submenu-btn ${currentView === 'absensi-bulanan' ? 'active' : ''}`}
-                onClick={() => setCurrentView('absensi-bulanan')}
+                onClick={() => navigateTo('absensi-bulanan')}
               >
                 <span>• Bulanan</span>
               </button>
               <button 
                 className={`submenu-btn ${currentView === 'absensi-chart' ? 'active' : ''}`}
-                onClick={() => setCurrentView('absensi-chart')}
+                onClick={() => navigateTo('absensi-chart')}
               >
                 <span>• Chart</span>
               </button>
               <button 
                 className={`submenu-btn ${currentView === 'adms-monitor' ? 'active' : ''}`}
-                onClick={() => setCurrentView('adms-monitor')}
+                onClick={() => navigateTo('adms-monitor')}
               >
                 <span>• Mesin Absensi (ADMS)</span>
               </button>
@@ -112,7 +135,7 @@ export default function Sidebar({ currentView, setCurrentView, user }) {
             className={`nav-item-btn ${currentView === 'pengajuan-cuti' ? 'active' : ''}`}
             onClick={() => {
               setOpenCuti(!openCuti);
-              setCurrentView('pengajuan-cuti');
+              navigateTo('pengajuan-cuti');
             }}
           >
             <div className="nav-item-left">
@@ -126,7 +149,7 @@ export default function Sidebar({ currentView, setCurrentView, user }) {
             <div className="submenu-list">
               <button 
                 className={`submenu-btn ${currentView === 'pengajuan-cuti' ? 'active' : ''}`}
-                onClick={() => setCurrentView('pengajuan-cuti')}
+                onClick={() => navigateTo('pengajuan-cuti')}
               >
                 <span>• Pengajuan & Verifikasi (2 Tahap)</span>
               </button>
@@ -153,7 +176,7 @@ export default function Sidebar({ currentView, setCurrentView, user }) {
               <div className="submenu-category">Utama</div>
               <button 
                 className={`submenu-spt-btn ${currentView === 'spt-dashboard' || currentView === 'spt' ? 'active' : ''}`}
-                onClick={() => setCurrentView('spt-dashboard')}
+                onClick={() => navigateTo('spt-dashboard')}
               >
                 <div className="submenu-spt-left">
                   <LayoutGrid size={15} />
@@ -172,7 +195,7 @@ export default function Sidebar({ currentView, setCurrentView, user }) {
                   <div className="submenu-category">Verifikasi Tim Kerja</div>
                   <button 
                     className={`submenu-spt-btn ${currentView === 'spt-approval-ketimker' ? 'active' : ''}`}
-                    onClick={() => setCurrentView('spt-approval-ketimker')}
+                    onClick={() => navigateTo('spt-approval-ketimker')}
                   >
                     <div className="submenu-spt-left">
                       <CheckCircle2 size={15} />
@@ -182,7 +205,7 @@ export default function Sidebar({ currentView, setCurrentView, user }) {
                   </button>
                   <button 
                     className={`submenu-spt-btn ${currentView === 'spt-pengajuan' ? 'active' : ''}`}
-                    onClick={() => setCurrentView('spt-pengajuan')}
+                    onClick={() => navigateTo('spt-pengajuan')}
                   >
                     <div className="submenu-spt-left">
                       <PenSquare size={15} />
@@ -191,7 +214,7 @@ export default function Sidebar({ currentView, setCurrentView, user }) {
                   </button>
                   <button 
                     className={`submenu-spt-btn ${currentView === 'spt-tracking' ? 'active' : ''}`}
-                    onClick={() => setCurrentView('spt-tracking')}
+                    onClick={() => navigateTo('spt-tracking')}
                   >
                     <div className="submenu-spt-left">
                       <Clock size={15} />
@@ -206,7 +229,7 @@ export default function Sidebar({ currentView, setCurrentView, user }) {
                   <div className="submenu-category">Layanan SPT Saya</div>
                   <button 
                     className={`submenu-spt-btn ${currentView === 'spt-pengajuan' ? 'active' : ''}`}
-                    onClick={() => setCurrentView('spt-pengajuan')}
+                    onClick={() => navigateTo('spt-pengajuan')}
                   >
                     <div className="submenu-spt-left">
                       <PenSquare size={15} />
@@ -215,7 +238,7 @@ export default function Sidebar({ currentView, setCurrentView, user }) {
                   </button>
                   <button 
                     className={`submenu-spt-btn ${currentView === 'spt-tracking' ? 'active' : ''}`}
-                    onClick={() => setCurrentView('spt-tracking')}
+                    onClick={() => navigateTo('spt-tracking')}
                   >
                     <div className="submenu-spt-left">
                       <Clock size={15} />
@@ -231,7 +254,7 @@ export default function Sidebar({ currentView, setCurrentView, user }) {
                   <div className="submenu-category">Persetujuan Eksekutif</div>
                   <button 
                     className={`submenu-spt-btn ${currentView === 'spt-approval-kobag' ? 'active' : ''}`}
-                    onClick={() => setCurrentView('spt-approval-kobag')}
+                    onClick={() => navigateTo('spt-approval-kobag')}
                   >
                     <div className="submenu-spt-left">
                       <ShieldCheck size={15} />
@@ -241,7 +264,7 @@ export default function Sidebar({ currentView, setCurrentView, user }) {
                   </button>
                   <button 
                     className={`submenu-spt-btn ${currentView === 'spt-monitoring-kopoks' ? 'active' : ''}`}
-                    onClick={() => setCurrentView('spt-monitoring-kopoks')}
+                    onClick={() => navigateTo('spt-monitoring-kopoks')}
                   >
                     <div className="submenu-spt-left">
                       <BookOpen size={15} />
@@ -250,7 +273,7 @@ export default function Sidebar({ currentView, setCurrentView, user }) {
                   </button>
                   <button 
                     className={`submenu-spt-btn ${currentView === 'spt-tracking' ? 'active' : ''}`}
-                    onClick={() => setCurrentView('spt-tracking')}
+                    onClick={() => navigateTo('spt-tracking')}
                   >
                     <div className="submenu-spt-left">
                       <Clock size={15} />
@@ -265,7 +288,7 @@ export default function Sidebar({ currentView, setCurrentView, user }) {
                   <div className="submenu-category">Pemantauan Substansi</div>
                   <button 
                     className={`submenu-spt-btn ${currentView === 'spt-monitoring-kopoks' ? 'active' : ''}`}
-                    onClick={() => setCurrentView('spt-monitoring-kopoks')}
+                    onClick={() => navigateTo('spt-monitoring-kopoks')}
                   >
                     <div className="submenu-spt-left">
                       <BookOpen size={15} />
@@ -274,7 +297,7 @@ export default function Sidebar({ currentView, setCurrentView, user }) {
                   </button>
                   <button 
                     className={`submenu-spt-btn ${currentView === 'spt-tracking' ? 'active' : ''}`}
-                    onClick={() => setCurrentView('spt-tracking')}
+                    onClick={() => navigateTo('spt-tracking')}
                   >
                     <div className="submenu-spt-left">
                       <Clock size={15} />
@@ -289,7 +312,7 @@ export default function Sidebar({ currentView, setCurrentView, user }) {
                   <div className="submenu-category">Administrasi Tata Persuratan</div>
                   <button 
                     className={`submenu-spt-btn ${currentView === 'spt-admin-sekretariat' ? 'active' : ''}`}
-                    onClick={() => setCurrentView('spt-admin-sekretariat')}
+                    onClick={() => navigateTo('spt-admin-sekretariat')}
                   >
                     <div className="submenu-spt-left">
                       <Settings size={15} />
@@ -299,7 +322,7 @@ export default function Sidebar({ currentView, setCurrentView, user }) {
                   </button>
                   <button 
                     className={`submenu-spt-btn ${currentView === 'spt-pengajuan' ? 'active' : ''}`}
-                    onClick={() => setCurrentView('spt-pengajuan')}
+                    onClick={() => navigateTo('spt-pengajuan')}
                   >
                     <div className="submenu-spt-left">
                       <PenSquare size={15} />
@@ -308,7 +331,7 @@ export default function Sidebar({ currentView, setCurrentView, user }) {
                   </button>
                   <button 
                     className={`submenu-spt-btn ${currentView === 'spt-tracking' ? 'active' : ''}`}
-                    onClick={() => setCurrentView('spt-tracking')}
+                    onClick={() => navigateTo('spt-tracking')}
                   >
                     <div className="submenu-spt-left">
                       <Clock size={15} />
@@ -322,7 +345,7 @@ export default function Sidebar({ currentView, setCurrentView, user }) {
               <div className="submenu-category">Regulasi & Pedoman</div>
               <button 
                 className={`submenu-spt-btn ${currentView === 'spt-sop' ? 'active' : ''}`}
-                onClick={() => setCurrentView('spt-sop')}
+                onClick={() => navigateTo('spt-sop')}
               >
                 <div className="submenu-spt-left">
                   <FileText size={15} />

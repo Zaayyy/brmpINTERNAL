@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Search, Bell, LogOut, ShieldCheck, UserCheck, ChevronDown } from 'lucide-react';
+import { Search, Bell, LogOut, ShieldCheck, UserCheck, ChevronDown, Menu, X } from 'lucide-react';
 
-export default function Navbar({ user, onLogout, onSwitchUser }) {
+export default function Navbar({ user, onLogout, onSwitchUser, isMobileMenuOpen, onToggleMobileMenu }) {
   const [showRoleMenu, setShowRoleMenu] = useState(false);
 
   const demoAccounts = [
@@ -89,11 +89,21 @@ export default function Navbar({ user, onLogout, onSwitchUser }) {
   return (
     <header className="top-navbar no-print">
       <div className="brand-wrapper">
+        {/* Mobile Hamburger Menu Button */}
+        <button 
+          className="mobile-menu-toggle"
+          onClick={onToggleMobileMenu}
+          aria-label={isMobileMenuOpen ? "Tutup menu navigasi" : "Buka menu navigasi"}
+          title={isMobileMenuOpen ? "Tutup menu" : "Buka menu"}
+        >
+          {isMobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
+        </button>
+
         <div className="brand-logo-badge">
-          <ShieldCheck size={22} className="text-blue-600" />
+          <ShieldCheck size={20} className="text-blue-600" />
           <span>BRMP <span className="brand-tag">DIY</span></span>
         </div>
-        <span style={{ fontSize: '0.85rem', fontWeight: 600, opacity: 0.9 }}>
+        <span className="brand-title-text">
           KITA BRMP DIY
         </span>
       </div>
@@ -112,33 +122,22 @@ export default function Navbar({ user, onLogout, onSwitchUser }) {
         <div style={{ position: 'relative' }}>
           <button
             onClick={() => setShowRoleMenu(!showRoleMenu)}
-            style={{
-              background: 'rgba(255, 255, 255, 0.15)',
-              border: '1px solid rgba(255, 255, 255, 0.3)',
-              color: '#fff',
-              padding: '5px 10px',
-              borderRadius: '6px',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-              fontSize: '0.75rem',
-              fontWeight: 600
-            }}
+            className="navbar-role-btn"
             title="Ganti peran kedinasan (Multi-Role)"
           >
             <UserCheck size={14} />
-            <span>Ganti Peran</span>
+            <span className="role-btn-text">Ganti Peran</span>
             <ChevronDown size={13} />
           </button>
 
           {showRoleMenu && (
             <div
+              className="navbar-role-dropdown"
               style={{
                 position: 'absolute',
                 right: 0,
                 top: '38px',
-                width: '320px',
+                width: 'min(320px, calc(100vw - 24px))',
                 background: '#ffffff',
                 color: '#1e293b',
                 borderRadius: '8px',
@@ -188,36 +187,42 @@ export default function Navbar({ user, onLogout, onSwitchUser }) {
 
         <button 
           title="Notifikasi" 
-          style={{ background: 'transparent', border: 'none', color: 'white', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+          className="navbar-bell-btn"
+          style={{ background: 'transparent', border: 'none', color: 'white', cursor: 'pointer', display: 'flex', alignItems: 'center', padding: '6px' }}
         >
           <Bell size={18} />
         </button>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <div style={{ textAlign: 'right', display: 'flex', flexDirection: 'column' }}>
-            <span style={{ fontSize: '0.85rem', fontWeight: 700 }}>{user?.nama || 'Agnita V. Putri'}</span>
-            <span style={{ fontSize: '0.7rem', opacity: 0.85 }}>NIP: {user?.nip || '199808062014032001'}</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div className="navbar-user-info" style={{ textAlign: 'right', display: 'flex', flexDirection: 'column' }}>
+            <span style={{ fontSize: '0.82rem', fontWeight: 700, maxWidth: '140px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              {user?.nama || 'Agnita V. Putri'}
+            </span>
+            <span className="navbar-user-nip" style={{ fontSize: '0.68rem', opacity: 0.85 }}>
+              NIP: {user?.nip || '199808062014032001'}
+            </span>
           </div>
           <button
             onClick={onLogout}
             title="Keluar"
+            className="navbar-logout-btn"
             style={{
               background: 'rgba(239, 68, 68, 0.2)',
               border: '1px solid rgba(239, 68, 68, 0.4)',
               color: '#fee2e2',
-              padding: '6px 12px',
+              padding: '6px 10px',
               borderRadius: '8px',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
               gap: '6px',
-              fontSize: '0.8rem',
+              fontSize: '0.78rem',
               fontWeight: 600,
               transition: 'all 0.2s'
             }}
           >
             <LogOut size={14} />
-            <span>Keluar</span>
+            <span className="logout-btn-text">Keluar</span>
           </button>
         </div>
       </div>

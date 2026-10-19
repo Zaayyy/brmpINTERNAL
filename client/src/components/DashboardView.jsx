@@ -194,42 +194,34 @@ export default function DashboardView({ user, onNavigate }) {
             <span>AGENDA</span>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <div className="calendar-actions-wrapper">
             <div className="calendar-controls">
               <button 
                 style={{ background: '#f1f5f9', border: '1px solid #cbd5e1', borderRadius: '6px', padding: '6px 10px', cursor: 'pointer' }}
                 onClick={() => {}}
+                aria-label="Bulan sebelumnya"
               >
                 <ChevronLeft size={16} />
               </button>
               <button 
                 style={{ background: '#f1f5f9', border: '1px solid #cbd5e1', borderRadius: '6px', padding: '6px 10px', cursor: 'pointer' }}
                 onClick={() => {}}
+                aria-label="Bulan berikutnya"
               >
                 <ChevronRight size={16} />
               </button>
-              <span style={{ fontSize: '0.95rem', fontWeight: 700, marginLeft: '6px', color: '#1e293b' }}>
+              <span style={{ fontSize: '0.92rem', fontWeight: 700, marginLeft: '4px', color: '#1e293b' }}>
                 {currentMonth}
               </span>
             </div>
 
             {/* View Switcher: Bulan, Minggu, Agenda */}
-            <div style={{ display: 'flex', background: '#f1f5f9', padding: '3px', borderRadius: '8px' }}>
+            <div className="calendar-view-switcher">
               {['Bulan', 'Minggu', 'Agenda'].map((mode) => (
                 <button
                   key={mode}
                   onClick={() => setCalendarViewMode(mode.toLowerCase())}
-                  style={{
-                    background: calendarViewMode === mode.toLowerCase() ? '#2563eb' : 'transparent',
-                    color: calendarViewMode === mode.toLowerCase() ? '#ffffff' : '#64748b',
-                    border: 'none',
-                    padding: '6px 12px',
-                    borderRadius: '6px',
-                    fontSize: '0.78rem',
-                    fontWeight: 700,
-                    cursor: 'pointer',
-                    transition: 'all 0.2s'
-                  }}
+                  className={`calendar-mode-btn ${calendarViewMode === mode.toLowerCase() ? 'active' : ''}`}
                 >
                   {mode}
                 </button>
@@ -238,8 +230,29 @@ export default function DashboardView({ user, onNavigate }) {
           </div>
         </div>
 
-        {/* Interactive Calendar Grid */}
-        <div className="calendar-grid">
+        {calendarViewMode === 'agenda' ? (
+          <div className="agenda-list-view">
+            {calendarCells
+              .filter(cell => cell.events.length > 0)
+              .map((cell, idx) => (
+                <div key={idx} className="agenda-list-item">
+                  <div className="agenda-date-badge">
+                    <span className="agenda-date-num">{cell.day}</span>
+                    <span className="agenda-date-month">Jun</span>
+                  </div>
+                  <div className="agenda-events-col">
+                    {cell.events.map((ev, eIdx) => (
+                      <div key={eIdx} className="agenda-item-card" style={{ borderLeftColor: ev.color }}>
+                        <span className="agenda-item-title">{ev.title}</span>
+                        <span className="agenda-item-time">08:00 - 15:30 WIB • Kantor Balai</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+          </div>
+        ) : (
+          <div className="calendar-grid">
           {daysHeader.map((d) => (
             <div key={d} className="calendar-day-header">{d}</div>
           ))}
@@ -263,6 +276,7 @@ export default function DashboardView({ user, onNavigate }) {
             </div>
           ))}
         </div>
+        )}
       </div>
     </div>
   );

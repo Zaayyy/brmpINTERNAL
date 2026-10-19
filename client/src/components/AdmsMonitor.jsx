@@ -160,7 +160,7 @@ export default function AdmsMonitor({ user }) {
       )}
 
       {/* Grid: Status Mesin & Simulator */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(320px, 450px) 1fr', gap: '1.5rem', marginBottom: '1.5rem', alignItems: 'start' }}>
+      <div className="adms-grid">
         
         {/* Left: Info Konfigurasi Mesin di Kantor */}
         <div className="brmp-card" style={{ padding: '1.5rem' }}>

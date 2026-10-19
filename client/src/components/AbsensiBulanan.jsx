@@ -77,8 +77,8 @@ export default function AbsensiBulanan() {
           <span>Filter Rekapitulasi Absensi</span>
         </div>
 
-        <form onSubmit={handleFilterSubmit} style={{ display: 'flex', alignItems: 'flex-end', gap: '1rem', flexWrap: 'wrap' }}>
-          <div className="form-group" style={{ minWidth: '200px' }}>
+        <form onSubmit={handleFilterSubmit} className="absensi-filter-form">
+          <div className="form-group absensi-filter-field">
             <label className="form-label">Pilih Bulan</label>
             <select
               className="form-input"
@@ -93,7 +93,7 @@ export default function AbsensiBulanan() {
             </select>
           </div>
 
-          <div className="form-group" style={{ minWidth: '160px' }}>
+          <div className="form-group absensi-filter-field">
             <label className="form-label">Tahun</label>
             <select
               className="form-input"
@@ -108,9 +108,8 @@ export default function AbsensiBulanan() {
 
           <button 
             type="submit" 
-            className="btn-primary" 
+            className="btn-primary absensi-filter-submit" 
             disabled={loading}
-            style={{ padding: '10px 24px', height: '42px' }}
           >
             <Search size={16} />
             <span>{loading ? 'Memuat...' : 'Lihat Data'}</span>

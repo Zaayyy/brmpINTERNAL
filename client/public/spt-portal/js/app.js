@@ -38,16 +38,16 @@ const App = {
     const pRole = String(portalUser.role || '').toLowerCase();
     
     let resolvedRole = 'user';
-    if (nip === '198101312009121004' || pRole === 'kobag_tu' || portalUser.id === 'PEG-002') {
-      resolvedRole = 'kobag_tu';
-    } else if (KETIMKER_NIPS.includes(nip) || pRole === 'ketimker' || portalUser.id === 'PEG-003' || portalUser.id === 'PEG-017') {
-      resolvedRole = 'ketimker';
-    } else if (nip === '197402062000032001' || pRole === 'kopoks' || portalUser.id === 'PEG-034') {
-      resolvedRole = 'kopoks';
-    } else if (nip === '199111042023212041' || pRole === 'admin_sekretariat' || pRole === 'admin' || portalUser.username === 'admin') {
+    if (['kobag_tu', 'ketimker', 'admin_sekretariat', 'kopoks', 'user'].includes(pRole)) {
+      resolvedRole = pRole;
+    } else if (pRole === 'admin' || nip === '199111042023212041' || nip === '199103102025211055' || portalUser.id === 'PEG-017' || portalUser.id === 'PEG-021' || portalUser.id === 'PEG-ADM' || portalUser.username === 'admin') {
       resolvedRole = 'admin_sekretariat';
-    } else if (pRole === 'user') {
-      resolvedRole = 'user';
+    } else if (nip === '198101312009121004' || portalUser.id === 'PEG-002') {
+      resolvedRole = 'kobag_tu';
+    } else if (KETIMKER_NIPS.includes(nip) || portalUser.id === 'PEG-003') {
+      resolvedRole = 'ketimker';
+    } else if (nip === '197402062000032001' || portalUser.id === 'PEG-053' || portalUser.id === 'PEG-034') {
+      resolvedRole = 'kopoks';
     }
 
     let matched = users.find(u => (u.nip && u.nip === portalUser.nip) || (u.pegawaiId && u.pegawaiId === portalUser.id) || u.id === portalUser.id);

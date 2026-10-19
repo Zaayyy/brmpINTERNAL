@@ -58,7 +58,7 @@ export default function Navbar({ user, onLogout, onSwitchUser, onNavigate, isMob
       sisaCuti: 12
     },
     {
-      id: "PEG-017",
+      id: "PEG-015",
       nip: "197106141992032001",
       nama: "Yuni Pratiwi, S.ST., Ars",
       role: "ketimker",
@@ -71,7 +71,7 @@ export default function Navbar({ user, onLogout, onSwitchUser, onNavigate, isMob
       sisaCuti: 11
     },
     {
-      id: "PEG-034",
+      id: "PEG-053",
       nip: "197402062000032001",
       nama: "Dr. Fibrianty, M.Si",
       role: "kopoks",

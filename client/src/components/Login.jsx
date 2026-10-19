@@ -19,12 +19,12 @@ export default function Login({ onLoginSuccess }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // 4 Demo Accounts for testing each specific role
+  // 5 Demo Accounts for testing each specific official role
   const demoAccounts = [
     {
-      roleTag: "ADMINISTRATOR",
-      title: "Administrator Kepegawaian",
-      desc: "Hak akses penuh, kelola role pegawai, pantau semua cuti",
+      roleTag: "ADMIN & SEKRETARIAT",
+      title: "Novita Widiyanti / Admin",
+      desc: "Hak akses penuh, penomoran persuratan & tata usaha",
       nip: "admin",
       pass: "admin",
       badgeColor: "#dc2626",
@@ -32,19 +32,19 @@ export default function Login({ onLoginSuccess }) {
       borderColor: "#fca5a5"
     },
     {
-      roleTag: "PEMOHON CUTI",
-      title: "Pegawai Biasa (Agnita)",
-      desc: "Mengajukan cuti, pantau riwayat 2 verifikasi",
-      nip: "199808062014032001",
-      pass: "1998",
-      badgeColor: "#16a34a",
-      badgeBg: "#dcfce7",
-      borderColor: "#86efac"
+      roleTag: "KOBAG TU",
+      title: "Agung Ariyanto, M.Ec., Dev.",
+      desc: "Approval Utama SPT (Tahap 2) & Verifikator 2 Cuti",
+      nip: "198101312009121004",
+      pass: "1981",
+      badgeColor: "#7c3aed",
+      badgeBg: "#f3e8ff",
+      borderColor: "#d8b4fe"
     },
     {
-      roleTag: "VERIFIKATOR 1",
-      title: "Atasan / Ketimker (Dwi Dinia)",
-      desc: "Verifikasi Tahap 1 (Persetujuan awal tim kerja)",
+      roleTag: "KETIMKER",
+      title: "Dwi Dinia Rahayu, M.T.I",
+      desc: "Approval Unit Kerja SPT (Tahap 1) & Verifikator 1 Cuti",
       nip: "198604092011012024",
       pass: "1986",
       badgeColor: "#2563eb",
@@ -52,14 +52,24 @@ export default function Login({ onLoginSuccess }) {
       borderColor: "#93c5fd"
     },
     {
-      roleTag: "VERIFIKATOR 2",
-      title: "Kepala Bagian TU (Agung Ariyanto)",
-      desc: "Verifikasi Tahap 2 (Persetujuan final & pemotongan kuota)",
-      nip: "198101312009121004",
-      pass: "1981",
+      roleTag: "KOPOKS",
+      title: "Dr. Fibrianty, SP, M.Si",
+      desc: "Monitoring penugasan & rekapitulasi balai",
+      nip: "197402062000032001",
+      pass: "1974",
       badgeColor: "#d97706",
       badgeBg: "#fef3c7",
       borderColor: "#fde68a"
+    },
+    {
+      roleTag: "PEMOHON / USER",
+      title: "Devi Eka Nuvitasari, S.H.",
+      desc: "Pengajuan mandiri SPT, tracking & pengajuan cuti",
+      nip: "198906012015032004",
+      pass: "1989",
+      badgeColor: "#16a34a",
+      badgeBg: "#dcfce7",
+      borderColor: "#86efac"
     }
   ];
 

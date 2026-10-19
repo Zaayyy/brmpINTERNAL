@@ -238,46 +238,41 @@ export default function Sidebar({ currentView, setCurrentView, user, isOpen, onC
                   </>
                 )}
 
-                {/* 3. LAYANAN PERSURATAN & PENGAJUAN (Pemohon, Ketimker, Admin Sekretariat, Super Admin) */}
-                {(role === 'user' || role === 'ketimker' || isAdminSekretariat || isSuperAdmin) && (
+                {/* 3. LAYANAN PENGAJUAN SPT (Semua Orang Bisa Mengajukan KECUALI Super Admin) */}
+                {!isSuperAdmin && (
                   <>
-                    <div className="submenu-category">{isAdminSekretariat ? 'Layanan Persuratan' : role === 'user' ? 'Layanan SPT Saya' : 'Layanan SPT'}</div>
+                    <div className="submenu-category">
+                      {isAdminSekretariat ? 'Layanan Persuratan' : role === 'user' ? 'Layanan SPT Saya' : 'Layanan Pengajuan'}
+                    </div>
                     <button 
                       className={`submenu-spt-btn ${currentView === 'spt-pengajuan' ? 'active' : ''}`}
                       onClick={() => navigateTo('spt-pengajuan')}
                     >
                       <div className="submenu-spt-left">
                         <PenSquare size={15} />
-                        <span>{role === 'ketimker' ? 'Buat SPT Tim' : isAdminSekretariat || isSuperAdmin ? 'Input Pengajuan SPT' : 'Ajukan SPT Baru'}</span>
-                      </div>
-                    </button>
-                    <button 
-                      className={`submenu-spt-btn ${currentView === 'spt-tracking' ? 'active' : ''}`}
-                      onClick={() => navigateTo('spt-tracking')}
-                    >
-                      <div className="submenu-spt-left">
-                        <Clock size={15} />
-                        <span>{isAdminSekretariat ? 'Daftar & Penomoran SPT' : role === 'user' ? 'Tracking & Unduh SPT' : 'Daftar Seluruh SPT'}</span>
+                        <span>
+                          {role === 'ketimker' ? 'Buat SPT Tim' : isAdminSekretariat ? 'Input Pengajuan SPT' : 'Ajukan SPT Baru'}
+                        </span>
                       </div>
                     </button>
                   </>
                 )}
 
-                {/* Khusus Kobag TU & Kopoks: Arsip / Rekapitulasi SPT */}
-                {(role === 'kobag_tu' || role === 'kopoks') && (
-                  <>
-                    <div className="submenu-category">Daftar & Arsip SPT</div>
-                    <button 
-                      className={`submenu-spt-btn ${currentView === 'spt-tracking' ? 'active' : ''}`}
-                      onClick={() => navigateTo('spt-tracking')}
-                    >
-                      <div className="submenu-spt-left">
-                        <Clock size={15} />
-                        <span>{role === 'kobag_tu' ? 'Arsip Seluruh SPT' : 'Rekapitulasi SPT'}</span>
-                      </div>
-                    </button>
-                  </>
-                )}
+                {/* 4. TRACKING, DAFTAR & ARSIP SPT (Semua Role Memiliki Akses Tracking/Arsip) */}
+                <div className="submenu-category">
+                  {role === 'kobag_tu' || role === 'kopoks' ? 'Daftar & Arsip SPT' : 'Daftar & Tracking'}
+                </div>
+                <button 
+                  className={`submenu-spt-btn ${currentView === 'spt-tracking' ? 'active' : ''}`}
+                  onClick={() => navigateTo('spt-tracking')}
+                >
+                  <div className="submenu-spt-left">
+                    <Clock size={15} />
+                    <span>
+                      {role === 'user' ? 'Tracking & Unduh SPT' : isAdminSekretariat ? 'Daftar & Penomoran SPT' : role === 'kobag_tu' ? 'Arsip Seluruh SPT' : role === 'kopoks' ? 'Rekapitulasi Penugasan SPT' : 'Daftar Seluruh SPT'}
+                    </span>
+                  </div>
+                </button>
 
                 {/* 4. VERIFIKASI & APPROVAL SPT (Hanya untuk Ketimker, Kobag TU, atau Super Admin — BUKAN Admin Sekretariat) */}
                 {(role === 'ketimker' || role === 'kobag_tu' || isSuperAdmin) && (

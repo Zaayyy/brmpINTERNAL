@@ -2446,4 +2446,38 @@ textarea.form-control {
   opacity: 0.75;
 }
 
+/* ==========================================================================
+   EMBEDDED MODE (PORTAL INTEGRATION)
+   ========================================================================== */
+body.embedded-mode .sidebar {
+  display: none !important;
+}
+
+body.embedded-mode .app-layout {
+  min-height: 100vh;
+}
+
+body.embedded-mode .main-wrapper {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin-left: 0 !important;
+  flex: 1;
+}
+
+body.embedded-mode .app-header {
+  padding: 10px 20px;
+  background: #ffffff;
+  border-bottom: 1px solid var(--border-color);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+body.embedded-mode .toggle-sidebar-btn {
+  display: none !important;
+}
+
+body.embedded-mode .btn-logout {
+  display: none !important;
+}
+
+
 

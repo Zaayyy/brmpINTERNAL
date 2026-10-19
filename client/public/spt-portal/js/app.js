@@ -27,28 +27,56 @@ const App = {
   syncPortalUser(portalUser, targetView) {
     if (!portalUser) return;
     const users = AppStorage.getUsers();
-    let matched = users.find(u => u.nip === portalUser.nip || u.pegawaiId === portalUser.id || u.id === portalUser.id);
+
+    const KETIMKER_NIPS = [
+      "198108262011012006", "198012072006042001", "196807121999031001", "197606072009011006",
+      "197206181999032001", "198003272009101001", "198302162011011008", "197106141992032001",
+      "198106212006042002", "198604092011012024"
+    ];
+
+    const nip = String(portalUser.nip || '').trim();
+    const pRole = String(portalUser.role || '').toLowerCase();
+    
+    let resolvedRole = 'user';
+    if (nip === '198101312009121004' || pRole === 'kobag_tu' || portalUser.id === 'PEG-002') {
+      resolvedRole = 'kobag_tu';
+    } else if (KETIMKER_NIPS.includes(nip) || pRole === 'ketimker' || portalUser.id === 'PEG-003' || portalUser.id === 'PEG-017') {
+      resolvedRole = 'ketimker';
+    } else if (nip === '197402062000032001' || pRole === 'kopoks' || portalUser.id === 'PEG-034') {
+      resolvedRole = 'kopoks';
+    } else if (nip === '199111042023212041' || pRole === 'admin_sekretariat' || pRole === 'admin' || portalUser.username === 'admin') {
+      resolvedRole = 'admin_sekretariat';
+    } else if (pRole === 'user') {
+      resolvedRole = 'user';
+    }
+
+    let matched = users.find(u => (u.nip && u.nip === portalUser.nip) || (u.pegawaiId && u.pegawaiId === portalUser.id) || u.id === portalUser.id);
+
+    const roleLabelMap = {
+      admin_sekretariat: "Admin Sekretariat",
+      kobag_tu: "Kobag TU (Approval Utama)",
+      ketimker: "Ketimker (Ketua Tim Kerja)",
+      kopoks: "Kopoks (Koordinator Poksi)",
+      user: "User (Pemohon/Pegawai)"
+    };
 
     if (!matched) {
-      let role = portalUser.role || (
-        portalUser.nip === '198101312009121004' ? 'kobag_tu' :
-        portalUser.nip === '198604092011012024' || portalUser.nip === '197106141992032001' ? 'ketimker' :
-        portalUser.nip === '199111042023212041' ? 'admin_sekretariat' :
-        portalUser.nip === '197402062000032001' ? 'kopoks' : 'user'
-      );
       matched = {
         id: `usr-${(portalUser.id || 'peg').toLowerCase()}`,
         pegawaiId: portalUser.id || 'PEG-001',
         username: (portalUser.nama || 'pegawai').toLowerCase().replace(/[^a-z]/g, '').slice(0, 10),
         nama: portalUser.nama || 'Pegawai BRMP',
         nip: portalUser.nip || '',
-        role: role,
-        roleLabel: portalUser.roleLabel || 'Pegawai',
+        role: resolvedRole,
+        roleLabel: roleLabelMap[resolvedRole] || 'Pegawai',
         jabatan: portalUser.jabatan || 'Staf',
         golongan: portalUser.golongan || '',
         unitKerja: portalUser.divisi || 'Balai Penerapan Standar Instrumen Pertanian DIY',
         avatar: portalUser.nama ? portalUser.nama.split(' ').map(p => p[0]).slice(0,2).join('').toUpperCase() : 'US'
       };
+    } else {
+      matched.role = resolvedRole;
+      matched.roleLabel = roleLabelMap[resolvedRole] || matched.roleLabel;
     }
 
     AppStorage.setAuthSession(matched);
@@ -176,6 +204,7 @@ const App = {
   },
 
   getRoleConfig(role) {
+    if (role === 'admin') role = 'admin_sekretariat';
     const configs = {
       admin_sekretariat: {
         gradient: "linear-gradient(135deg, #2563eb, #1d4ed8)",
@@ -646,8 +675,8 @@ const App = {
       `;
     }
 
-    // Role: Admin Sekretariat
-    if (this.currentRole === "admin_sekretariat") {
+    // Role: Admin Sekretariat / Administrator Sistem
+    if (this.currentRole === "admin_sekretariat" || this.currentRole === "admin") {
       html += `
         <div class="menu-category">Administrasi Tata Persuratan</div>
         <a class="nav-link ${this.currentView === 'admin-sekretariat' ? 'active' : ''}" onclick="App.navigateTo('admin-sekretariat')">
@@ -662,6 +691,21 @@ const App = {
         <a class="nav-link ${this.currentView === 'tracking' ? 'active' : ''}" onclick="App.navigateTo('tracking')">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
           <span>Daftar Seluruh SPT</span>
+        </a>
+        <div class="menu-category">Pengawasan & Approval</div>
+        <a class="nav-link ${this.currentView === 'approval-ketimker' ? 'active' : ''}" onclick="App.navigateTo('approval-ketimker')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+          <span>Approval Ketimker</span>
+          <span class="nav-badge alert-count">${pendingKetimkerCount}</span>
+        </a>
+        <a class="nav-link ${this.currentView === 'approval-kobag' ? 'active' : ''}" onclick="App.navigateTo('approval-kobag')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+          <span>Approval Kobag TU</span>
+          <span class="nav-badge alert-count">${pendingKobagCount}</span>
+        </a>
+        <a class="nav-link ${this.currentView === 'monitoring-kopoks' ? 'active' : ''}" onclick="App.navigateTo('monitoring-kopoks')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
+          <span>Monitoring Kopoks</span>
         </a>
       `;
     }
@@ -734,6 +778,7 @@ const App = {
     if (!container || !this.currentUser) return;
 
     switch (this.currentRole) {
+      case "admin":
       case "admin_sekretariat":
         this.renderDashboardAdmin(container);
         break;

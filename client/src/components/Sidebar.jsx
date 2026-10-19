@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { resolveSptRole } from './SptProgram';
 import { 
   LayoutDashboard, 
   CalendarCheck2, 
@@ -33,12 +34,7 @@ export default function Sidebar({ currentView, setCurrentView, user, isOpen, onC
   };
 
   // Determine user role in brmpSPT
-  const role = user?.role || (
-    user?.nip === '198101312009121004' ? 'kobag_tu' :
-    user?.nip === '198604092011012024' || user?.nip === '197106141992032001' ? 'ketimker' :
-    user?.nip === '199111042023212041' ? 'admin_sekretariat' :
-    user?.nip === '197402062000032001' ? 'kopoks' : 'user'
-  );
+  const role = resolveSptRole(user);
 
   const handleToggleSpt = () => {
     const nextState = !openSpt;
@@ -222,7 +218,72 @@ export default function Sidebar({ currentView, setCurrentView, user, isOpen, onC
               </button>
 
               {/* 2. SEKSI ROLE SPESIFIK */}
-              {role === 'ketimker' && (
+              {(role === 'admin_sekretariat' || user?.role === 'admin') && (
+                <>
+                  <div className="submenu-category">Tata Persuratan & Penerbitan</div>
+                  <button 
+                    className={`submenu-spt-btn ${currentView === 'spt-admin-sekretariat' ? 'active' : ''}`}
+                    onClick={() => navigateTo('spt-admin-sekretariat')}
+                  >
+                    <div className="submenu-spt-left">
+                      <Settings size={15} />
+                      <span>Admin Sekretariat (5 Subtab)</span>
+                    </div>
+                    <span className="submenu-badge">1</span>
+                  </button>
+                  <button 
+                    className={`submenu-spt-btn ${currentView === 'spt-pengajuan' ? 'active' : ''}`}
+                    onClick={() => navigateTo('spt-pengajuan')}
+                  >
+                    <div className="submenu-spt-left">
+                      <PenSquare size={15} />
+                      <span>Input Pengajuan SPT</span>
+                    </div>
+                  </button>
+                  <button 
+                    className={`submenu-spt-btn ${currentView === 'spt-tracking' ? 'active' : ''}`}
+                    onClick={() => navigateTo('spt-tracking')}
+                  >
+                    <div className="submenu-spt-left">
+                      <Clock size={15} />
+                      <span>Daftar Seluruh SPT</span>
+                    </div>
+                  </button>
+
+                  <div className="submenu-category">Verifikasi & Pengawasan</div>
+                  <button 
+                    className={`submenu-spt-btn ${currentView === 'spt-approval-ketimker' ? 'active' : ''}`}
+                    onClick={() => navigateTo('spt-approval-ketimker')}
+                  >
+                    <div className="submenu-spt-left">
+                      <CheckCircle2 size={15} />
+                      <span>Approval Ketimker</span>
+                    </div>
+                    <span className="submenu-badge">1</span>
+                  </button>
+                  <button 
+                    className={`submenu-spt-btn ${currentView === 'spt-approval-kobag' ? 'active' : ''}`}
+                    onClick={() => navigateTo('spt-approval-kobag')}
+                  >
+                    <div className="submenu-spt-left">
+                      <ShieldCheck size={15} />
+                      <span>Approval Kobag TU</span>
+                    </div>
+                    <span className="submenu-badge">1</span>
+                  </button>
+                  <button 
+                    className={`submenu-spt-btn ${currentView === 'spt-monitoring-kopoks' ? 'active' : ''}`}
+                    onClick={() => navigateTo('spt-monitoring-kopoks')}
+                  >
+                    <div className="submenu-spt-left">
+                      <BookOpen size={15} />
+                      <span>Monitoring Kopoks</span>
+                    </div>
+                  </button>
+                </>
+              )}
+
+              {role === 'ketimker' && user?.role !== 'admin' && (
                 <>
                   <div className="submenu-category">Verifikasi Tim Kerja</div>
                   <button 
@@ -256,7 +317,7 @@ export default function Sidebar({ currentView, setCurrentView, user, isOpen, onC
                 </>
               )}
 
-              {role === 'user' && (
+              {role === 'user' && user?.role !== 'admin' && (
                 <>
                   <div className="submenu-category">Layanan SPT Saya</div>
                   <button 
@@ -281,7 +342,7 @@ export default function Sidebar({ currentView, setCurrentView, user, isOpen, onC
                 </>
               )}
 
-              {role === 'kobag_tu' && (
+              {role === 'kobag_tu' && user?.role !== 'admin' && (
                 <>
                   <div className="submenu-category">Persetujuan Eksekutif</div>
                   <button 
@@ -315,7 +376,7 @@ export default function Sidebar({ currentView, setCurrentView, user, isOpen, onC
                 </>
               )}
 
-              {role === 'kopoks' && (
+              {role === 'kopoks' && user?.role !== 'admin' && (
                 <>
                   <div className="submenu-category">Pemantauan Substansi</div>
                   <button 
@@ -334,40 +395,6 @@ export default function Sidebar({ currentView, setCurrentView, user, isOpen, onC
                     <div className="submenu-spt-left">
                       <Clock size={15} />
                       <span>Rekapitulasi SPT</span>
-                    </div>
-                  </button>
-                </>
-              )}
-
-              {role === 'admin_sekretariat' && (
-                <>
-                  <div className="submenu-category">Administrasi Tata Persuratan</div>
-                  <button 
-                    className={`submenu-spt-btn ${currentView === 'spt-admin-sekretariat' ? 'active' : ''}`}
-                    onClick={() => navigateTo('spt-admin-sekretariat')}
-                  >
-                    <div className="submenu-spt-left">
-                      <Settings size={15} />
-                      <span>Admin Sekretariat</span>
-                    </div>
-                    <span className="submenu-badge">1</span>
-                  </button>
-                  <button 
-                    className={`submenu-spt-btn ${currentView === 'spt-pengajuan' ? 'active' : ''}`}
-                    onClick={() => navigateTo('spt-pengajuan')}
-                  >
-                    <div className="submenu-spt-left">
-                      <PenSquare size={15} />
-                      <span>Input Pengajuan SPT</span>
-                    </div>
-                  </button>
-                  <button 
-                    className={`submenu-spt-btn ${currentView === 'spt-tracking' ? 'active' : ''}`}
-                    onClick={() => navigateTo('spt-tracking')}
-                  >
-                    <div className="submenu-spt-left">
-                      <Clock size={15} />
-                      <span>Daftar Seluruh SPT</span>
                     </div>
                   </button>
                 </>

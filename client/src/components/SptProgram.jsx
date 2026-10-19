@@ -1,15 +1,38 @@
 import React, { useEffect, useRef } from 'react';
 
+export function resolveSptRole(user) {
+  if (!user) return 'user';
+  
+  const KETIMKER_NIPS = [
+    "198108262011012006", "198012072006042001", "196807121999031001", "197606072009011006",
+    "197206181999032001", "198003272009101001", "198302162011011008", "197106141992032001",
+    "198106212006042002", "198604092011012024"
+  ];
+
+  const nip = String(user.nip || '').trim();
+  const r = String(user.sptRole || user.role || '').toLowerCase();
+
+  if (nip === '198101312009121004' || r === 'kobag_tu' || user.id === 'PEG-002') {
+    return 'kobag_tu';
+  }
+  if (KETIMKER_NIPS.includes(nip) || r === 'ketimker' || user.id === 'PEG-003' || user.id === 'PEG-017') {
+    return 'ketimker';
+  }
+  if (nip === '197402062000032001' || r === 'kopoks' || user.id === 'PEG-034') {
+    return 'kopoks';
+  }
+  if (nip === '199111042023212041' || r === 'admin_sekretariat' || r === 'admin' || user.username === 'admin') {
+    return 'admin_sekretariat';
+  }
+
+  return 'user';
+}
+
 export default function SptProgram({ user, targetView }) {
   const iframeRef = useRef(null);
 
   // Determine user role in brmpSPT
-  const role = user?.role || (
-    user?.nip === '198101312009121004' ? 'kobag_tu' :
-    user?.nip === '198604092011012024' || user?.nip === '197106141992032001' ? 'ketimker' :
-    user?.nip === '199111042023212041' ? 'admin_sekretariat' :
-    user?.nip === '197402062000032001' ? 'kopoks' : 'user'
-  );
+  const role = resolveSptRole(user);
 
   const roleLabelMap = {
     admin_sekretariat: "Admin Sekretariat",

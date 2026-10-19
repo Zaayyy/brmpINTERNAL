@@ -113,7 +113,7 @@ export default function App() {
           )}
 
           {currentView === 'absensi-bulanan' && (
-            <AbsensiBulanan />
+            <AbsensiBulanan user={user} />
           )}
 
           {currentView === 'absensi-chart' && (

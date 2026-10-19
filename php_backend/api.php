@@ -636,10 +636,67 @@ if ($route === 'cuti' || str_starts_with($route, 'cuti/')) {
 // 4. ADMS LOGS & SIMULATOR
 // -------------------------------------------------------
 if ($route === 'adms/api/logs' || $route === 'adms/logs') {
-    $admsLogPath = __DIR__ . '/admsLogs.json';
-    $logs = file_exists($admsLogPath) ? json_decode(file_get_contents($admsLogPath), true) : [];
-    if (!is_array($logs)) $logs = [];
-    jsonResponse(['success' => true, 'data' => $logs]);
+    $nip = trim($_GET['nip'] ?? '');
+    $role = trim($_GET['role'] ?? '');
+
+    $logs = [];
+    if ($useMysql && $pdo) {
+        try {
+            if ($role === 'admin' && empty($nip)) {
+                $stmt = $pdo->query("SELECT * FROM tb_adms_logs ORDER BY id DESC LIMIT 300");
+                $rows = $stmt->fetchAll();
+            } else if (!empty($nip)) {
+                $stmt = $pdo->prepare("SELECT * FROM tb_adms_logs WHERE pin = ? OR pin LIKE ? OR nama LIKE ? ORDER BY id DESC LIMIT 150");
+                $stmt->execute([$nip, "%$nip%", "%$nip%"]);
+                $rows = $stmt->fetchAll();
+            } else {
+                $rows = [];
+            }
+            foreach ($rows as $r) {
+                $logs[] = [
+                    'id' => $r['id'],
+                    'sn' => $r['sn'],
+                    'pin' => $r['pin'],
+                    'nama' => $r['nama'],
+                    'jabatan' => $r['jabatan'],
+                    'datetime' => $r['datetime_log'],
+                    'tanggal' => $r['tanggal'],
+                    'jam' => $r['jam'],
+                    'statusAbsen' => $r['status_absen'],
+                    'keterangan' => $r['keterangan']
+                ];
+            }
+        } catch (Exception $e) {}
+    }
+
+    if (empty($logs)) {
+        $admsLogPath = __DIR__ . '/admsLogs.json';
+        $allLogs = file_exists($admsLogPath) ? json_decode(file_get_contents($admsLogPath), true) : [];
+        if (!is_array($allLogs)) $allLogs = [];
+
+        if ($role === 'admin' && empty($nip)) {
+            $logs = $allLogs;
+        } else if (!empty($nip)) {
+            $peg = findPegawai($nip, $pdo, $useMysql);
+            $userNip = $peg['nip'] ?? $nip;
+            $userPin = (string)($peg['pinMesin'] ?? '');
+            $userNama = strtolower(trim($peg['nama'] ?? ''));
+
+            $logs = array_values(array_filter($allLogs, function($l) use ($userNip, $userPin, $userNama) {
+                $lPin = (string)($l['pin'] ?? '');
+                $lNama = strtolower(trim($l['nama'] ?? ''));
+
+                if ($lPin === $userNip) return true;
+                if (!empty($userPin) && $lPin === $userPin) return true;
+                if (!empty($userNama) && ($lNama === $userNama || str_contains($lNama, $userNama))) return true;
+                return false;
+            }));
+        } else {
+            $logs = ($role === 'admin') ? $allLogs : [];
+        }
+    }
+
+    jsonResponse(['success' => true, 'total' => count($logs), 'role' => $role, 'data' => $logs]);
 }
 
 if ($route === 'adms/api/machines' || $route === 'adms/machines') {

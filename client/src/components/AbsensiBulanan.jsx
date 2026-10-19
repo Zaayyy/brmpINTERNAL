@@ -1,12 +1,34 @@
 import React, { useState, useEffect } from 'react';
 import { apiService } from '../services/api';
-import { CalendarCheck2, Filter, Search, CheckCircle2, Clock, AlertTriangle, XCircle, HeartPulse } from 'lucide-react';
+import { CalendarCheck2, Filter, Search, CheckCircle2, Clock, AlertTriangle, XCircle, HeartPulse, UserCheck, ShieldCheck } from 'lucide-react';
 
-export default function AbsensiBulanan() {
+export default function AbsensiBulanan({ user }) {
   const [selectedBulan, setSelectedBulan] = useState(6); // Juni
   const [selectedTahun, setSelectedTahun] = useState(2025);
   const [loading, setLoading] = useState(false);
   const [absensiData, setAbsensiData] = useState(null);
+  const [allUsers, setAllUsers] = useState([]);
+  const [selectedNip, setSelectedNip] = useState(user?.nip || '199808062014032001');
+
+  const isAdmin = 
+    user?.systemRole === 'admin' || 
+    user?.role === 'admin' || 
+    user?.approvalRole === 'admin' || 
+    user?.nip === '198001012005011001';
+
+  useEffect(() => {
+    if (isAdmin) {
+      apiService.getUsers().then(res => {
+        if (res && res.length > 0) setAllUsers(res);
+      }).catch(() => {});
+    }
+  }, [isAdmin]);
+
+  useEffect(() => {
+    if (!isAdmin && user?.nip) {
+      setSelectedNip(user.nip);
+    }
+  }, [user?.nip, isAdmin]);
 
   const monthOptions = [
     { val: 1, name: 'Januari' },
@@ -78,6 +100,26 @@ export default function AbsensiBulanan() {
         </div>
 
         <form onSubmit={handleFilterSubmit} className="absensi-filter-form">
+          {isAdmin && (
+            <div className="form-group absensi-filter-field" style={{ minWidth: '220px' }}>
+              <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <ShieldCheck size={14} className="text-blue-600" />
+                <span>Pilih Pegawai (Admin)</span>
+              </label>
+              <select
+                className="form-input"
+                value={selectedNip}
+                onChange={(e) => setSelectedNip(e.target.value)}
+              >
+                {allUsers.map((p) => (
+                  <option key={p.nip} value={p.nip}>
+                    {p.nama} ({p.nip})
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
           <div className="form-group absensi-filter-field">
             <label className="form-label">Pilih Bulan</label>
             <select
@@ -119,9 +161,20 @@ export default function AbsensiBulanan() {
 
       {/* Rekapitulasi Summary (Point 5) */}
       <div className="brmp-card" style={{ padding: '1.5rem', marginBottom: '1.5rem' }}>
-        <h3 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#1e293b', marginBottom: '1.25rem' }}>
-          Rekap Absensi Bulan {getMonthName(selectedBulan)} Tahun {selectedTahun}
-        </h3>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px', marginBottom: '1.25rem' }}>
+          <h3 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#1e293b', margin: 0 }}>
+            Rekap Absensi Bulan {getMonthName(selectedBulan)} Tahun {selectedTahun}
+          </h3>
+          <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#2563eb', background: '#eff6ff', padding: '4px 10px', borderRadius: '6px', display: 'flex', alignItems: 'center', gap: '5px' }}>
+            <UserCheck size={14} />
+            <span>
+              {isAdmin 
+                ? (allUsers.find(p => p.nip === selectedNip)?.nama || user?.nama || 'Pegawai')
+                : (user?.nama || 'Pegawai BRMP')
+              }
+            </span>
+          </span>
+        </div>
 
         <div className="rekap-card-grid">
           {/* Masuk */}

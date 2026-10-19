@@ -231,9 +231,30 @@ router.post('/devicecmd', handleDeviceCmd);
 
 // GET /api/adms/logs - Get live attendance logs from machines
 router.get('/api/logs', (req, res) => {
+  const { nip, role } = req.query;
+  let result = admsLogs;
+
+  if (role !== 'admin' && nip) {
+    const user = users.find(u => u.nip === nip || u.id === nip);
+    const userNip = user?.nip || nip;
+    const userPin = String(user?.pinMesin || '');
+    const userNama = (user?.nama || '').toLowerCase().trim();
+
+    result = admsLogs.filter(l => {
+      const pin = String(l.pin || '').trim();
+      const nama = String(l.nama || '').toLowerCase().trim();
+      if (pin === userNip) return true;
+      if (userPin && pin === userPin) return true;
+      if (userNama && (nama === userNama || nama.includes(userNama))) return true;
+      return false;
+    });
+  }
+
   res.json({
     success: true,
-    data: admsLogs
+    total: result.length,
+    role: role || 'pegawai',
+    data: result
   });
 });
 

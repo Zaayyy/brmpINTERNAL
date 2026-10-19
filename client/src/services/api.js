@@ -262,14 +262,30 @@ export const apiService = {
     }
   },
 
-  async getAdmsLogs() {
+  async getAdmsLogs(nip = '', role = '') {
     try {
-      const res = await fetch(`${API_BASE_URL}/adms/api/logs`);
+      const params = new URLSearchParams();
+      if (nip) params.append('nip', nip);
+      if (role) params.append('role', role);
+      const qs = params.toString() ? `?${params.toString()}` : '';
+      const res = await fetch(`${API_BASE_URL}/adms/api/logs${qs}`);
       const data = await res.json();
       if (!res.ok) throw new Error(data.message);
       return data.data || [];
     } catch (err) {
       console.warn('Get ADMS logs error:', err.message);
+      return [];
+    }
+  },
+
+  async getUsers() {
+    try {
+      const res = await fetch(`${API_BASE_URL}/users`);
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message);
+      return data.data || [];
+    } catch (err) {
+      console.warn('Get users error:', err.message);
       return [];
     }
   },

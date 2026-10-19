@@ -13,22 +13,38 @@ import {
   Play,
   ArrowRight,
   ShieldCheck,
-  Server
+  Server,
+  Search,
+  Filter,
+  Users
 } from 'lucide-react';
 
 export default function AdmsMonitor({ user }) {
   const [machines, setMachines] = useState([]);
   const [logs, setLogs] = useState([]);
+  const [allUsers, setAllUsers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [simLoading, setSimLoading] = useState(false);
   const [successMsg, setSuccessMsg] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
 
-  // Simulator states
-  const [simPin, setSimPin] = useState('199808062014032001');
+  // Check if current logged-in user is an Administrator
+  const isAdmin = 
+    user?.systemRole === 'admin' || 
+    user?.role === 'admin' || 
+    user?.approvalRole === 'admin' || 
+    user?.nip === '198001012005011001';
+
+  // Filters (for Admin mode)
+  const [filterEmployee, setFilterEmployee] = useState('all');
+  const [filterStatus, setFilterStatus] = useState('all');
+  const [searchQuery, setSearchQuery] = useState('');
+
+  // Simulator states (for Pegawai: locked to user.nip; for Admin: selectable)
+  const [simPin, setSimPin] = useState(user?.nip || '199808062014032001');
   const [simStatus, setSimStatus] = useState('Masuk');
 
-  const employeeOptions = [
+  const defaultEmployees = [
     { nip: "199808062014032001", nama: "AGNITA VERDIANI PUTRI, A.Md." },
     { nip: "198906012015032004", nama: "Devi Eka Nuvitasari, S.H." },
     { nip: "198604092011012024", nama: "Dwi Dinia Rahayu, S.Kom, M.T.I" },
@@ -40,7 +56,7 @@ export default function AdmsMonitor({ user }) {
       setLoading(true);
       const [mRes, lRes] = await Promise.all([
         apiService.getAdmsMachines(),
-        apiService.getAdmsLogs()
+        apiService.getAdmsLogs(user?.nip || '', isAdmin ? 'admin' : 'pegawai')
       ]);
       setMachines(mRes || []);
       setLogs(lRes || []);
@@ -56,7 +72,23 @@ export default function AdmsMonitor({ user }) {
     // Poll every 8 seconds for new logs from machine
     const interval = setInterval(loadData, 8000);
     return () => clearInterval(interval);
-  }, []);
+  }, [user?.nip, isAdmin]);
+
+  // Load employee list for Admin dropdown
+  useEffect(() => {
+    if (isAdmin) {
+      apiService.getUsers().then(res => {
+        if (res && res.length > 0) setAllUsers(res);
+      }).catch(() => {});
+    }
+  }, [isAdmin]);
+
+  // Keep simulator PIN synced when user changes
+  useEffect(() => {
+    if (!isAdmin && user?.nip) {
+      setSimPin(user.nip);
+    }
+  }, [user?.nip, isAdmin]);
 
   const handleSimulate = async (e) => {
     e.preventDefault();
@@ -80,6 +112,44 @@ export default function AdmsMonitor({ user }) {
       setSimLoading(false);
     }
   };
+
+  // Filter logs strictly: Regular employees only see their own logs; Admin can see all with filters
+  const displayedLogs = (logs || []).filter(item => {
+    if (!isAdmin) {
+      const uNip = String(user?.nip || '').trim();
+      const uPin = String(user?.pinMesin || '').trim();
+      const uNama = String(user?.nama || '').toLowerCase().trim();
+      const lPin = String(item.pin || '').trim();
+      const lNama = String(item.nama || '').toLowerCase().trim();
+
+      const matchNip = uNip && (lPin === uNip || (lPin.length >= 10 && lPin.includes(uNip)));
+      const matchPin = uPin && (lPin === uPin);
+      const matchNama = uNama && (lNama === uNama || lNama.includes(uNama));
+
+      return matchNip || matchPin || matchNama;
+    }
+
+    // Admin filters
+    if (filterEmployee !== 'all') {
+      const lPin = String(item.pin || '').trim();
+      if (lPin !== filterEmployee && !lPin.includes(filterEmployee)) return false;
+    }
+
+    if (filterStatus !== 'all') {
+      if (item.statusAbsen !== filterStatus) return false;
+    }
+
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase().trim();
+      const matchN = String(item.nama || '').toLowerCase().includes(q);
+      const matchP = String(item.pin || '').toLowerCase().includes(q);
+      const matchS = String(item.sn || '').toLowerCase().includes(q);
+      if (!matchN && !matchP && !matchS) return false;
+    }
+
+    return true;
+  });
+
 
   return (
     <div>
@@ -229,17 +299,28 @@ export default function AdmsMonitor({ user }) {
 
           <form onSubmit={handleSimulate} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             <div className="form-group">
-              <label className="form-label" style={{ fontWeight: 700, fontSize: '0.85rem' }}>Pilih Pegawai yang Scan</label>
-              <select
-                className="form-input"
-                value={simPin}
-                onChange={(e) => setSimPin(e.target.value)}
-                style={{ height: '42px' }}
-              >
-                {employeeOptions.map(p => (
-                  <option key={p.nip} value={p.nip}>{p.nama} ({p.nip})</option>
-                ))}
-              </select>
+              <label className="form-label" style={{ fontWeight: 700, fontSize: '0.85rem' }}>Pegawai yang Scan</label>
+              {!isAdmin ? (
+                <div style={{ background: '#f8fafc', padding: '10px 14px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.85rem' }}>
+                  <div style={{ fontWeight: 700, color: '#0f172a' }}>{user?.nama || 'Pegawai BRMP'}</div>
+                  <div style={{ fontSize: '0.75rem', color: '#64748b' }}>NIP: {user?.nip} &bull; PIN Mesin: {user?.pinMesin || '-'}</div>
+                  <div style={{ fontSize: '0.72rem', color: '#15803d', fontWeight: 600, marginTop: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <CheckCircle2 size={13} />
+                    <span>Simulasi terkunci khusus untuk akun Anda sendiri</span>
+                  </div>
+                </div>
+              ) : (
+                <select
+                  className="form-input"
+                  value={simPin}
+                  onChange={(e) => setSimPin(e.target.value)}
+                  style={{ height: '42px' }}
+                >
+                  {(allUsers.length > 0 ? allUsers : defaultEmployees).map(p => (
+                    <option key={p.nip || p.id} value={p.nip}>{p.nama} ({p.nip})</option>
+                  ))}
+                </select>
+              )}
             </div>
 
             <div className="form-group">
@@ -298,21 +379,151 @@ export default function AdmsMonitor({ user }) {
 
       {/* Tabel Log Absensi Real-time dari Mesin */}
       <div className="brmp-card" style={{ padding: '1.5rem' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', flexWrap: 'wrap', gap: '10px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.25rem', flexWrap: 'wrap', gap: '12px' }}>
           <div>
             <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 800, color: '#1e293b', display: 'flex', alignItems: 'center', gap: '8px' }}>
               <Clock size={20} className="text-blue-600" />
-              <span>Log Riwayat Scan Mesin ADMS</span>
+              <span>
+                {isAdmin ? 'Log Riwayat Scan Mesin ADMS (Seluruh Pegawai)' : 'Log Riwayat Presensi Pribadi Anda'}
+              </span>
             </h3>
-            <span style={{ fontSize: '0.75rem', color: '#64748b' }}>
-              Data otomatis terupdate saat pegawai tap jari / scan wajah di mesin kantor
+            <span style={{ fontSize: '0.75rem', color: '#64748b', marginTop: '2px', display: 'block' }}>
+              {isAdmin 
+                ? 'Mode Administrator: Memantau dan mengaudit seluruh catatan kehadiran pegawai dari mesin fingerprint kantor'
+                : `Hanya menampilkan catatan scan absensi untuk akun Anda: ${user?.nama || 'Pegawai'} (NIP: ${user?.nip})`
+              }
             </span>
           </div>
 
-          <span style={{ background: '#eff6ff', color: '#2563eb', padding: '4px 10px', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 700 }}>
-            {logs.length} Data Scan Masuk
-          </span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            {isAdmin ? (
+              <span style={{ background: '#fee2e2', color: '#b91c1c', padding: '4px 10px', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+                <ShieldCheck size={14} />
+                <span>Mode Admin ({displayedLogs.length} Data)</span>
+              </span>
+            ) : (
+              <span style={{ background: '#eff6ff', color: '#2563eb', padding: '4px 10px', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+                <UserCheck size={14} />
+                <span>{displayedLogs.length} Riwayat Scan Anda</span>
+              </span>
+            )}
+          </div>
         </div>
+
+        {/* Admin Filter Controls Toolbar */}
+        {isAdmin && (
+          <div style={{
+            background: '#f8fafc',
+            border: '1px solid #e2e8f0',
+            borderRadius: '10px',
+            padding: '12px 14px',
+            marginBottom: '1.25rem',
+            display: 'flex',
+            flexWrap: 'wrap',
+            alignItems: 'center',
+            gap: '12px'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.82rem', fontWeight: 700, color: '#334155' }}>
+              <Filter size={15} className="text-blue-600" />
+              <span>Filter Data:</span>
+            </div>
+
+            {/* Filter by Pegawai */}
+            <select
+              value={filterEmployee}
+              onChange={(e) => setFilterEmployee(e.target.value)}
+              style={{
+                padding: '7px 12px',
+                borderRadius: '8px',
+                border: '1px solid #cbd5e1',
+                fontSize: '0.82rem',
+                background: '#ffffff',
+                minWidth: '200px'
+              }}
+            >
+              <option value="all">Semua Pegawai ({logs.length} Log)</option>
+              {(allUsers.length > 0 ? allUsers : defaultEmployees).map(p => (
+                <option key={p.nip || p.id} value={p.nip}>{p.nama} ({p.nip})</option>
+              ))}
+            </select>
+
+            {/* Filter by Status */}
+            <select
+              value={filterStatus}
+              onChange={(e) => setFilterStatus(e.target.value)}
+              style={{
+                padding: '7px 12px',
+                borderRadius: '8px',
+                border: '1px solid #cbd5e1',
+                fontSize: '0.82rem',
+                background: '#ffffff'
+              }}
+            >
+              <option value="all">Semua Status (Masuk & Pulang)</option>
+              <option value="Masuk">Masuk Saja</option>
+              <option value="Pulang">Pulang Saja</option>
+            </select>
+
+            {/* Search Input */}
+            <div style={{ position: 'relative', flex: 1, minWidth: '220px' }}>
+              <Search size={14} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
+              <input
+                type="text"
+                placeholder="Cari nama pegawai, NIP, atau SN mesin..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '7px 12px 7px 32px',
+                  borderRadius: '8px',
+                  border: '1px solid #cbd5e1',
+                  fontSize: '0.82rem',
+                  background: '#ffffff'
+                }}
+              />
+            </div>
+
+            {(filterEmployee !== 'all' || filterStatus !== 'all' || searchQuery.trim()) && (
+              <button
+                type="button"
+                onClick={() => { setFilterEmployee('all'); setFilterStatus('all'); setSearchQuery(''); }}
+                style={{
+                  padding: '6px 12px',
+                  borderRadius: '6px',
+                  border: '1px solid #e2e8f0',
+                  background: '#ffffff',
+                  fontSize: '0.78rem',
+                  color: '#dc2626',
+                  cursor: 'pointer',
+                  fontWeight: 600
+                }}
+              >
+                Reset Filter
+              </button>
+            )}
+          </div>
+        )}
+
+        {/* Regular Pegawai Banner */}
+        {!isAdmin && (
+          <div style={{
+            background: '#f0fdf4',
+            border: '1px solid #bbf7d0',
+            color: '#15803d',
+            padding: '10px 14px',
+            borderRadius: '8px',
+            fontSize: '0.8rem',
+            marginBottom: '1.25rem',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px'
+          }}>
+            <UserCheck size={16} />
+            <span>
+              Privasi aktif: Hanya Anda (<strong>{user?.nama}</strong>) dan Administrator Kepegawaian yang memiliki izin melihat riwayat kehadiran ini.
+            </span>
+          </div>
+        )}
 
         <div style={{ overflowX: 'auto' }}>
           <table className="brmp-table">
@@ -327,14 +538,26 @@ export default function AdmsMonitor({ user }) {
               </tr>
             </thead>
             <tbody>
-              {logs.length === 0 ? (
+              {displayedLogs.length === 0 ? (
                 <tr>
-                  <td colSpan="6" style={{ textAlign: 'center', padding: '2.5rem', color: '#94a3b8' }}>
-                    Belum ada log scan yang masuk dari mesin.
+                  <td colSpan="6" style={{ textAlign: 'center', padding: '3rem 1.5rem', color: '#64748b' }}>
+                    <Clock size={36} style={{ margin: '0 auto 10px auto', color: '#94a3b8', display: 'block' }} />
+                    <strong style={{ fontSize: '0.95rem', color: '#1e293b', display: 'block', marginBottom: '4px' }}>
+                      {isAdmin 
+                        ? 'Tidak ada data log yang cocok dengan filter pencarian.' 
+                        : 'Belum Ada Catatan Log Scan untuk Akun Anda'
+                      }
+                    </strong>
+                    <span style={{ fontSize: '0.8rem', color: '#64748b' }}>
+                      {isAdmin 
+                        ? 'Silakan coba ubah pilihan filter pegawai, status, atau kata kunci pencarian.'
+                        : `Catatan scan kehadiran Anda (NIP: ${user?.nip}) akan otomatis terekam setelah Anda tap sidik jari / scan wajah di mesin kantor, atau Anda dapat menggunakan simulator di atas untuk uji coba.`
+                      }
+                    </span>
                   </td>
                 </tr>
               ) : (
-                logs.map((item, idx) => (
+                displayedLogs.map((item, idx) => (
                   <tr key={item.id || idx}>
                     <td style={{ fontWeight: 700 }}>{idx + 1}</td>
                     <td>
@@ -359,7 +582,7 @@ export default function AdmsMonitor({ user }) {
                       </span>
                     </td>
                     <td>
-                      <span style={{ fontSize: '0.8rem', fontWeight: 600, color: item.keterangan.includes('Terlambat') ? '#b91c1c' : '#15803d' }}>
+                      <span style={{ fontSize: '0.8rem', fontWeight: 600, color: item.keterangan?.includes('Terlambat') ? '#b91c1c' : '#15803d' }}>
                         {item.keterangan}
                       </span>
                     </td>
@@ -378,3 +601,4 @@ export default function AdmsMonitor({ user }) {
     </div>
   );
 }
+

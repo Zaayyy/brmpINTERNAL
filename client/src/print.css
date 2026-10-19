@@ -1,0 +1,377 @@
+/* ==========================================================================
+   PRINT STYLESHEET - SURAT PERINTAH TUGAS (SPT) RESMI STANDAR PEMERINTAHAN RI
+   KEMENTERIAN PERTANIAN - BRMP DIY
+   ========================================================================== */
+
+@page {
+  size: A4 portrait;
+  margin: 15mm 20mm 15mm 20mm;
+}
+
+@media print {
+  /* Sembunyikan elemen aplikasi umum saat cetak */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+    font-size: 11pt !important;
+    line-height: 1.35 !important;
+    font-family: "Bookman Old Style", "Times New Roman", Georgia, serif !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .sidebar,
+  .app-header,
+  .top-banner,
+  .role-switcher-bar,
+  .main-content,
+  .modal-overlay:not(#previewModal),
+  .no-print,
+  button,
+  .btn,
+  .modal-close-btn,
+  .modal-header,
+  .modal-footer {
+    display: none !important;
+  }
+
+  /* Tampilan cetak dari modal preview */
+  #previewModal {
+    display: block !important;
+    position: static !important;
+    background: transparent !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    inset: auto !important;
+    width: 100% !important;
+    height: auto !important;
+    z-index: auto !important;
+  }
+
+  #previewModal .modal-dialog {
+    max-width: 100% !important;
+    width: 100% !important;
+    box-shadow: none !important;
+    border: none !important;
+    background: transparent !important;
+    overflow: visible !important;
+    max-height: none !important;
+  }
+
+  #previewModal .modal-body {
+    padding: 0 !important;
+    background: transparent !important;
+    overflow: visible !important;
+  }
+
+  #printContainer {
+    display: block !important;
+    position: static !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+}
+
+/* Sembunyikan wadah cetak secara mutlak pada layar peramban normal */
+#printContainer {
+  display: none !important;
+}
+
+/* Tampilan Dokumen SPT (Juga digunakan saat modal preview di layar) */
+.spt-official-document {
+  max-width: 210mm;
+  margin: 0 auto;
+  background: #ffffff;
+  color: #111111;
+  font-family: "Bookman Old Style", "Times New Roman", Georgia, serif;
+  font-size: 11pt;
+  line-height: 1.38;
+  padding: 10px;
+}
+
+/* KOP SURAT */
+.spt-kop {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  text-align: center;
+  margin-bottom: 2px;
+}
+
+.kop-logo {
+  flex-shrink: 0;
+}
+
+.kop-logo-img,
+.kop-logo img {
+  width: 82px;
+  height: 82px;
+  max-width: 82px;
+  max-height: 82px;
+  object-fit: contain;
+  display: block;
+  border: none !important;
+  outline: none !important;
+}
+
+.kop-text {
+  flex: 1;
+  text-align: center;
+}
+
+.kop-kementerian {
+  font-size: 13.5pt;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+}
+
+.kop-badan {
+  font-size: 11.5pt;
+  font-weight: bold;
+  letter-spacing: 0.2px;
+}
+
+.kop-balai {
+  font-size: 12pt;
+  font-weight: bold;
+}
+
+.kop-subbalai {
+  font-size: 11pt;
+  font-weight: bold;
+}
+
+.kop-alamat {
+  font-family: Arial, sans-serif;
+  font-size: 8pt;
+  line-height: 1.25;
+  margin-top: 4px;
+  color: #333333;
+}
+
+.kop-divider {
+  margin: 4px 0 14px 0;
+}
+
+.line-thick {
+  height: 0;
+  border-top: 2.5px solid #000000 !important;
+  margin-bottom: 2px;
+}
+
+.line-thin {
+  height: 0;
+  border-top: 1px solid #000000 !important;
+}
+
+/* JUDUL SPT */
+.spt-title-block {
+  text-align: center;
+  margin-bottom: 14px;
+}
+
+.spt-title {
+  font-size: 13pt;
+  font-weight: bold;
+  text-decoration: underline;
+  margin: 0;
+  letter-spacing: 1px;
+}
+
+.spt-number {
+  font-size: 11pt;
+  margin-top: 3px;
+}
+
+/* KONSIDERANS & DIKTUM */
+.spt-section {
+  margin-bottom: 8px;
+}
+
+.konsiderans-row,
+.diktum-row {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 4px;
+}
+
+.konsiderans-header,
+.diktum-title {
+  width: 95px;
+  flex-shrink: 0;
+  font-weight: normal;
+}
+
+.konsiderans-sep,
+.diktum-sep {
+  width: 15px;
+  flex-shrink: 0;
+  text-align: center;
+}
+
+.konsiderans-content,
+.diktum-content {
+  flex: 1;
+  text-align: justify;
+}
+
+.konsiderans-item {
+  display: flex;
+  margin-bottom: 4px;
+}
+
+.konsiderans-item .item-label {
+  width: 20px;
+  flex-shrink: 0;
+}
+
+.konsiderans-item .item-text {
+  flex: 1;
+}
+
+.spt-order-header {
+  text-align: center;
+  font-weight: bold;
+  margin: 12px 0 10px 0;
+  letter-spacing: 1.5px;
+}
+
+/* TABEL PERSONIL */
+.table-personil {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 4px 0 6px 0;
+  font-size: 10.5pt;
+}
+
+.table-personil th,
+.table-personil td {
+  border: 1px solid #000000;
+  padding: 5px 8px;
+  vertical-align: top;
+}
+
+.table-personil th {
+  background-color: #f3f3f3;
+  font-weight: bold;
+  text-align: center;
+}
+
+.text-nip {
+  font-size: 9.5pt;
+  color: #333;
+}
+
+.badge-peran {
+  display: inline-block;
+  font-size: 8.5pt;
+  font-style: italic;
+  color: #444;
+}
+
+/* LIST UNTUK */
+.untuk-list {
+  margin: 0;
+  padding-left: 20px;
+  text-align: justify;
+}
+
+.untuk-list li {
+  margin-bottom: 5px;
+}
+
+/* TANDA TANGAN */
+.spt-signature-area {
+  margin-top: 20px;
+  margin-left: 52%;
+  width: 48%;
+  text-align: left;
+  page-break-inside: avoid;
+}
+
+.signature-date {
+  font-size: 10.5pt;
+  margin-bottom: 4px;
+}
+
+.signature-title {
+  font-size: 10.5pt;
+  font-weight: normal;
+  line-height: 1.3;
+  margin-bottom: 8px;
+}
+
+.signature-box {
+  min-height: 75px;
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+.official-stamp-qr {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.qr-code-box {
+  text-align: center;
+}
+
+.qr-label {
+  font-family: Arial, sans-serif;
+  font-size: 6.5pt;
+  font-weight: bold;
+  color: #1b5e20;
+  margin-top: 1px;
+}
+
+.stamp-circle {
+  width: 68px;
+  height: 68px;
+  border: 1.5px dashed #1b5e20;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-family: Arial, sans-serif;
+  font-size: 6.5pt;
+  color: #1b5e20;
+  padding: 4px;
+  transform: rotate(-12deg);
+}
+
+.signature-officer {
+  margin-top: 8px;
+}
+
+.officer-name {
+  font-weight: bold;
+  text-decoration: underline;
+  font-size: 11pt;
+}
+
+.officer-nip {
+  font-size: 10pt;
+}
+
+/* TEMBUSAN */
+.spt-tembusan {
+  margin-top: 25px;
+  font-size: 9.5pt;
+  width: 50%;
+  page-break-inside: avoid;
+}
+
+.spt-tembusan ol {
+  margin: 3px 0 0 0;
+  padding-left: 18px;
+}

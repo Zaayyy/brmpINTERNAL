@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { apiService } from '../services/api';
-import { 
-  Cpu, 
-  Activity, 
-  Wifi, 
-  Clock, 
-  UserCheck, 
-  CheckCircle2, 
-  AlertCircle, 
+import {
+  Cpu,
+  Activity,
+  Wifi,
+  Clock,
+  UserCheck,
+  CheckCircle2,
+  AlertCircle,
   RefreshCw,
   Terminal,
   Play,
@@ -29,10 +29,10 @@ export default function AdmsMonitor({ user }) {
   const [errorMsg, setErrorMsg] = useState('');
 
   // Check if current logged-in user is an Administrator
-  const isAdmin = 
-    user?.systemRole === 'admin' || 
-    user?.role === 'admin' || 
-    user?.approvalRole === 'admin' || 
+  const isAdmin =
+    user?.systemRole === 'admin' ||
+    user?.role === 'admin' ||
+    user?.approvalRole === 'admin' ||
     user?.nip === '198001012005011001';
 
   // Filters (for Admin mode)
@@ -79,7 +79,7 @@ export default function AdmsMonitor({ user }) {
     if (isAdmin) {
       apiService.getUsers().then(res => {
         if (res && res.length > 0) setAllUsers(res);
-      }).catch(() => {});
+      }).catch(() => { });
     }
   }, [isAdmin]);
 
@@ -231,7 +231,7 @@ export default function AdmsMonitor({ user }) {
 
       {/* Grid: Status Mesin & Simulator */}
       <div className="adms-grid">
-        
+
         {/* Left: Info Konfigurasi Mesin di Kantor */}
         <div className="brmp-card" style={{ padding: '1.5rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '1.25rem', paddingBottom: '0.75rem', borderBottom: '1px solid #f1f5f9' }}>
@@ -388,7 +388,7 @@ export default function AdmsMonitor({ user }) {
               </span>
             </h3>
             <span style={{ fontSize: '0.75rem', color: '#64748b', marginTop: '2px', display: 'block' }}>
-              {isAdmin 
+              {isAdmin
                 ? 'Mode Administrator: Memantau dan mengaudit seluruh catatan kehadiran pegawai dari mesin fingerprint kantor'
                 : `Hanya menampilkan catatan scan absensi untuk akun Anda: ${user?.nama || 'Pegawai'} (NIP: ${user?.nip})`
               }
@@ -543,13 +543,13 @@ export default function AdmsMonitor({ user }) {
                   <td colSpan="6" style={{ textAlign: 'center', padding: '3rem 1.5rem', color: '#64748b' }}>
                     <Clock size={36} style={{ margin: '0 auto 10px auto', color: '#94a3b8', display: 'block' }} />
                     <strong style={{ fontSize: '0.95rem', color: '#1e293b', display: 'block', marginBottom: '4px' }}>
-                      {isAdmin 
-                        ? 'Tidak ada data log yang cocok dengan filter pencarian.' 
+                      {isAdmin
+                        ? 'Tidak ada data log yang cocok dengan filter pencarian.'
                         : 'Belum Ada Catatan Log Scan untuk Akun Anda'
                       }
                     </strong>
                     <span style={{ fontSize: '0.8rem', color: '#64748b' }}>
-                      {isAdmin 
+                      {isAdmin
                         ? 'Silakan coba ubah pilihan filter pegawai, status, atau kata kunci pencarian.'
                         : `Catatan scan kehadiran Anda (NIP: ${user?.nip}) akan otomatis terekam setelah Anda tap sidik jari / scan wajah di mesin kantor, atau Anda dapat menggunakan simulator di atas untuk uji coba.`
                       }

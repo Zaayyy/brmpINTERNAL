@@ -259,7 +259,7 @@ export let cutiHistory = [
 export const addCuti = (cutiItem) => {
   const newNum = cutiHistory.length + 1;
   const newId = `CUTI-2025-${String(newNum).padStart(3, '0')}`;
-  
+
   const newItem = {
     id: newId,
     no: newNum,
@@ -305,7 +305,7 @@ export const verifyCuti = (id, tahap, { action, verifikatorUser, catatan = '' })
       item.verifikasi.tahap1.verifikatorNama = verifikatorUser?.nama || 'Verifikator 1';
       item.verifikasi.tahap1.verifikatorNip = verifikatorUser?.nip || '-';
       item.verifikasi.tahap1.catatan = catatan || 'Disetujui oleh Atasan Langsung';
-      
+
       // Maju ke tahap 2
       item.status = 'menunggu_verif_2';
       item.statusLabel = 'Menunggu Verifikasi 2 (Kepala TU / Balai)';
@@ -315,7 +315,7 @@ export const verifyCuti = (id, tahap, { action, verifikatorUser, catatan = '' })
       item.verifikasi.tahap1.verifikatorNama = verifikatorUser?.nama || 'Verifikator 1';
       item.verifikasi.tahap1.verifikatorNip = verifikatorUser?.nip || '-';
       item.verifikasi.tahap1.catatan = catatan || 'Pengajuan ditolak pada verifikasi tahap 1';
-      
+
       item.status = 'ditolak_verif_1';
       item.statusLabel = 'Ditolak oleh Verifikator 1';
     }
@@ -333,7 +333,7 @@ export const verifyCuti = (id, tahap, { action, verifikatorUser, catatan = '' })
       item.verifikasi.tahap2.verifikatorNama = verifikatorUser?.nama || 'Verifikator 2';
       item.verifikasi.tahap2.verifikatorNip = verifikatorUser?.nip || '-';
       item.verifikasi.tahap2.catatan = catatan || 'Disetujui secara final oleh Kepala Bagian TU';
-      
+
       // Selesai disetujui final
       item.status = 'disetujui';
       item.statusLabel = 'Disetujui Lengkap (Final)';
@@ -351,7 +351,7 @@ export const verifyCuti = (id, tahap, { action, verifikatorUser, catatan = '' })
       item.verifikasi.tahap2.verifikatorNama = verifikatorUser?.nama || 'Verifikator 2';
       item.verifikasi.tahap2.verifikatorNip = verifikatorUser?.nip || '-';
       item.verifikasi.tahap2.catatan = catatan || 'Pengajuan ditolak pada verifikasi tahap 2';
-      
+
       item.status = 'ditolak_verif_2';
       item.statusLabel = 'Ditolak oleh Verifikator 2 (Kepala TU)';
     }

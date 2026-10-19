@@ -223,7 +223,7 @@ INSERT INTO tb_pegawai (pegawai_id, nip, password_year, nama, jabatan, golongan,
 
 -- INSERT DATA AWAL MESIN FINGERPRINT
 INSERT INTO tb_adms_machines (sn, nama_mesin, ip, last_sync, status, total_logs)
-VALUES ('BNDK19280012', 'Mesin Absensi Lobi Utama BRMP DIY', '192.168.1.200', NOW(), 'Online', 2);
+VALUES ('UCR6235200084', 'Mesin Absensi Lobi Utama BRMP DIY', '192.168.2.73', NOW(), 'Online', 2);
 
 -- INSERT SAMPLE DATA CUTI DENGAN WORKFLOW 2 VERIFIKASI
 INSERT INTO tb_cuti (cuti_code, no_urut, pegawai_id, nip, nama, jabatan, divisi, tanggal_pengajuan, tanggal_mulai, tanggal_akhir, jumlah_hari, jatah_tahun, jenis_cuti, alasan, status, status_label, verif_1_status, verif_1_nama, verif_1_nip, verif_1_tanggal, verif_1_catatan, verif_2_status)

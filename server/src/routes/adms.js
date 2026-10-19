@@ -6,9 +6,9 @@ const router = Router();
 // Store connected machines and real-time logs
 export let admsMachines = [
   {
-    sn: "BNDK19280012",
+    sn: "UCR6235200084",
     namaMesin: "Mesin Absensi Lobi Utama BRMP DIY",
-    ip: "192.168.1.200",
+    ip: "192.168.2.73",
     lastSync: new Date().toISOString(),
     status: "Online",
     totalLogs: 24
@@ -18,7 +18,7 @@ export let admsMachines = [
 export let admsLogs = [
   {
     id: 1,
-    sn: "BNDK19280012",
+    sn: "UCR6235200084",
     pin: "199808062014032001",
     nama: "AGNITA VERDIANI PUTRI, A.Md.",
     jabatan: "Pengelola Standardisasi Teknis",
@@ -30,7 +30,7 @@ export let admsLogs = [
   },
   {
     id: 2,
-    sn: "BNDK19280012",
+    sn: "UCR6235200084",
     pin: "198604092011012024",
     nama: "Dwi Dinia Rahayu, S.Kom, M.T.I",
     jabatan: "Ketua Tim Kerja SDM",
@@ -46,7 +46,7 @@ export let admsLogs = [
 export const processAttendanceRecord = (pin, datetimeStr, statusRaw, sn = 'UNKNOWN') => {
   const cleanPin = String(pin || '').trim();
   const cleanDate = String(datetimeStr || '').trim();
-  
+
   // Parse date and time
   const parts = cleanDate.split(' ');
   const date = parts[0] || new Date().toISOString().split('T')[0];
@@ -57,8 +57,8 @@ export const processAttendanceRecord = (pin, datetimeStr, statusRaw, sn = 'UNKNO
   const statusAbsen = isCheckIn ? 'Masuk' : 'Pulang';
 
   // Match employee by NIP, pinMesin, or ID
-  const matchedUser = users.find(u => 
-    String(u.nip).trim() === cleanPin || 
+  const matchedUser = users.find(u =>
+    String(u.nip).trim() === cleanPin ||
     String(u.pinMesin || '').trim() === cleanPin ||
     String(u.id).trim() === cleanPin ||
     String(u.id).replace('PEG-', '').trim() === cleanPin.padStart(3, '0') ||
@@ -179,7 +179,7 @@ const handleCdataPost = (req, res) => {
 
   // Body can be text/plain string with tabs or raw
   let rawBody = typeof req.body === 'string' ? req.body : (req.body ? req.body.toString() : '');
-  
+
   console.log(`[ADMS] Incoming Data Push from SN: ${sn} (table: ${table})`);
   console.log(`[ADMS] Raw Payload:\n${rawBody.substring(0, 300)}...`);
 
@@ -269,7 +269,7 @@ router.get('/api/machines', (req, res) => {
 // POST /api/adms/simulate - Allow admin to simulate an ADMS scan for testing
 router.post('/api/simulate', (req, res) => {
   const { pin, statusAbsen, datetime } = req.body;
-  
+
   if (!pin) {
     return res.status(400).json({ success: false, message: 'NIP / PIN wajib diisi' });
   }

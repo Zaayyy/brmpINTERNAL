@@ -7,8 +7,9 @@ Aplikasi Portal Internal BRMP DIY berbasis **React (Vite)** di sisi frontend dan
 ## 🚀 Fitur yang Tersedia
 
 ### 1. Modul Absensi & Cuti
-- **Halaman Login Internal:** Autentikasi NIP pegawai dan kata sandi tahun lahir (demo default: `199808062014032001` / `1998`).
+- **Halaman Login Internal:** Autentikasi NIP pegawai dan kata sandi tahun lahir (demo default: `198808062014032001` / `1988`).
 - **Dashboard Pegawai:** Info profil (**AGNITA VERDIANI PUTRI, A.Md.**), status absen masuk/pulang, sisa cuti, aksi cepat (Cuti, SPT, Histori, Profile), serta kalender agenda dinas interaktif.
+- **Integrasi Mesin Absensi ADMS Fisik:** Menggunakan Push Protocol (PHP murni) terhubung langsung ke mesin absensi Solution/ZKTeco (SN: `UCR6235200084`) via subdomain `adms.brmpdiy.my.id`. Dokumentasi lengkap: [ADMS_SETUP.md](file:///d:/laragon/www/internalBRMP/ADMS_SETUP.md).
 - **Info Absensi Bulanan & Chart:** Filter bulan/tahun, rekapitulasi kehadiran (Masuk, Terlambat, Sakit, Izin, Alpha), kartu status harian, serta visualisasi Donut Chart dan Bar Chart.
 - **Pengajuan & History Cuti:** Form pengajuan cuti pegawai dengan validasi sisa cuti dan riwayat status cuti.
 

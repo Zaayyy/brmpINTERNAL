@@ -704,13 +704,33 @@ if ($route === 'adms/api/logs' || $route === 'adms/logs') {
 }
 
 if ($route === 'adms/api/machines' || $route === 'adms/machines') {
+    if ($useMysql && $pdo) {
+        try {
+            $stmt = $pdo->query("SELECT * FROM tb_adms_machines ORDER BY id ASC");
+            $dbMachines = $stmt ? $stmt->fetchAll() : [];
+            if (!empty($dbMachines)) {
+                $mapped = array_map(function($m) {
+                    return [
+                        'sn' => $m['sn'],
+                        'namaMesin' => $m['nama_mesin'],
+                        'ip' => $m['ip'],
+                        'lastSync' => $m['last_sync'],
+                        'status' => $m['status'],
+                        'totalLogs' => (int)($m['total_logs'] ?? 0)
+                    ];
+                }, $dbMachines);
+                jsonResponse(['success' => true, 'data' => $mapped]);
+            }
+        } catch (Exception $e) {}
+    }
+
     jsonResponse([
         'success' => true,
         'data' => [
             [
-                'sn' => 'BNDK19280012',
+                'sn' => 'UCR6235200084',
                 'namaMesin' => 'Mesin Absensi Lobi Utama BRMP DIY',
-                'ip' => '192.168.1.200',
+                'ip' => '192.168.2.73',
                 'lastSync' => date('Y-m-d H:i:s'),
                 'status' => 'Online',
                 'totalLogs' => 24

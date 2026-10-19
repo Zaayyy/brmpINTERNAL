@@ -198,151 +198,156 @@ export default function Sidebar({ currentView, setCurrentView, user, isOpen, onC
             {openSpt ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
           </button>
 
-          {openSpt && (
-            <div className="submenu-spt-list">
-              {/* 1. SEKSI UTAMA (Semua Role) */}
-              <div className="submenu-category">Utama</div>
-              <button 
-                className={`submenu-spt-btn ${currentView === 'spt-dashboard' || currentView === 'spt' ? 'active' : ''}`}
-                onClick={() => navigateTo('spt-dashboard')}
-              >
-                <div className="submenu-spt-left">
-                  <LayoutGrid size={15} />
-                  <span>Dashboard SPT</span>
-                </div>
-                <span className="submenu-badge" style={{ 
-                  background: role === 'kobag_tu' ? '#7c3aed' : role === 'ketimker' ? '#16a34a' : role === 'kopoks' ? '#d97706' : role === 'admin_sekretariat' ? '#dc2626' : '#2563eb' 
-                }}>
-                  {role === 'kobag_tu' ? 'Kobag' : role === 'ketimker' ? 'Ketimker' : role === 'kopoks' ? 'Kopoks' : role === 'admin_sekretariat' ? 'Admin' : 'Pegawai'}
-                </span>
-              </button>
+          {openSpt && (() => {
+            const isSuperAdmin = role === 'admin' || user?.systemRole === 'admin' || user?.username === 'admin';
+            const isAdminSekretariat = role === 'admin_sekretariat';
 
-              {/* 2. LAYANAN PENGAJUAN & TRACKING (Bagi Pemohon, Ketimker, dan Admin) */}
-              {(role === 'user' || role === 'ketimker' || role === 'admin_sekretariat') && (
-                <>
-                  <div className="submenu-category">{role === 'user' ? 'Layanan SPT Saya' : 'Layanan SPT'}</div>
-                  <button 
-                    className={`submenu-spt-btn ${currentView === 'spt-pengajuan' ? 'active' : ''}`}
-                    onClick={() => navigateTo('spt-pengajuan')}
-                  >
-                    <div className="submenu-spt-left">
-                      <PenSquare size={15} />
-                      <span>{role === 'ketimker' ? 'Buat SPT Tim' : role === 'admin_sekretariat' ? 'Input Pengajuan SPT' : 'Ajukan SPT Baru'}</span>
-                    </div>
-                  </button>
-                  <button 
-                    className={`submenu-spt-btn ${currentView === 'spt-tracking' ? 'active' : ''}`}
-                    onClick={() => navigateTo('spt-tracking')}
-                  >
-                    <div className="submenu-spt-left">
-                      <Clock size={15} />
-                      <span>{role === 'user' ? 'Tracking & Unduh SPT' : 'Daftar Seluruh SPT'}</span>
-                    </div>
-                  </button>
-                </>
-              )}
-
-              {/* Khusus Kobag TU & Kopoks: Arsip / Rekapitulasi SPT */}
-              {(role === 'kobag_tu' || role === 'kopoks') && (
-                <>
-                  <div className="submenu-category">Daftar & Arsip SPT</div>
-                  <button 
-                    className={`submenu-spt-btn ${currentView === 'spt-tracking' ? 'active' : ''}`}
-                    onClick={() => navigateTo('spt-tracking')}
-                  >
-                    <div className="submenu-spt-left">
-                      <Clock size={15} />
-                      <span>{role === 'kobag_tu' ? 'Arsip Seluruh SPT' : 'Rekapitulasi SPT'}</span>
-                    </div>
-                  </button>
-                </>
-              )}
-
-              {/* 3. VERIFIKASI & APPROVAL (Hanya untuk Ketimker, Kobag TU, atau Admin) */}
-              {(role === 'ketimker' || role === 'kobag_tu' || role === 'admin_sekretariat') && (
-                <>
-                  <div className="submenu-category">
-                    {role === 'ketimker' ? 'Verifikasi Tim Kerja' : role === 'kobag_tu' ? 'Persetujuan Eksekutif' : 'Approval & Pengawasan'}
+            return (
+              <div className="submenu-spt-list">
+                {/* 1. SEKSI UTAMA (Semua Role) */}
+                <div className="submenu-category">Utama</div>
+                <button 
+                  className={`submenu-spt-btn ${currentView === 'spt-dashboard' || currentView === 'spt' ? 'active' : ''}`}
+                  onClick={() => navigateTo('spt-dashboard')}
+                >
+                  <div className="submenu-spt-left">
+                    <LayoutGrid size={15} />
+                    <span>Dashboard SPT</span>
                   </div>
-                  
-                  {(role === 'ketimker' || role === 'admin_sekretariat') && (
+                  <span className="submenu-badge" style={{ 
+                    background: isSuperAdmin ? '#dc2626' : isAdminSekretariat ? '#0284c7' : role === 'kobag_tu' ? '#7c3aed' : role === 'ketimker' ? '#16a34a' : role === 'kopoks' ? '#d97706' : '#2563eb' 
+                  }}>
+                    {isSuperAdmin ? 'Super Admin' : isAdminSekretariat ? 'Sekretariat' : role === 'kobag_tu' ? 'Kobag TU' : role === 'ketimker' ? 'Ketimker' : role === 'kopoks' ? 'Kopoks' : 'Pegawai'}
+                  </span>
+                </button>
+
+                {/* 2. TATA PERSURATAN (Wewenang Khusus Admin Sekretariat & Super Admin) */}
+                {(isAdminSekretariat || isSuperAdmin) && (
+                  <>
+                    <div className="submenu-category">Tata Persuratan</div>
                     <button 
-                      className={`submenu-spt-btn ${currentView === 'spt-approval-ketimker' ? 'active' : ''}`}
-                      onClick={() => navigateTo('spt-approval-ketimker')}
+                      className={`submenu-spt-btn ${currentView === 'spt-admin-sekretariat' ? 'active' : ''}`}
+                      onClick={() => navigateTo('spt-admin-sekretariat')}
                     >
                       <div className="submenu-spt-left">
-                        <CheckCircle2 size={15} />
-                        <span>Approval Unit Kerja (Ketimker)</span>
+                        <Settings size={15} />
+                        <span>Admin Sekretariat (5 Subtab)</span>
                       </div>
-                      <span className="submenu-badge" style={{ background: '#16a34a' }}>
-                        Tahap 1
-                      </span>
+                      <span className="submenu-badge" style={{ background: '#0284c7' }}>Pusat TU</span>
                     </button>
-                  )}
+                  </>
+                )}
 
-                  {(role === 'kobag_tu' || role === 'admin_sekretariat') && (
+                {/* 3. LAYANAN PERSURATAN & PENGAJUAN (Pemohon, Ketimker, Admin Sekretariat, Super Admin) */}
+                {(role === 'user' || role === 'ketimker' || isAdminSekretariat || isSuperAdmin) && (
+                  <>
+                    <div className="submenu-category">{isAdminSekretariat ? 'Layanan Persuratan' : role === 'user' ? 'Layanan SPT Saya' : 'Layanan SPT'}</div>
                     <button 
-                      className={`submenu-spt-btn ${currentView === 'spt-approval-kobag' ? 'active' : ''}`}
-                      onClick={() => navigateTo('spt-approval-kobag')}
+                      className={`submenu-spt-btn ${currentView === 'spt-pengajuan' ? 'active' : ''}`}
+                      onClick={() => navigateTo('spt-pengajuan')}
                     >
                       <div className="submenu-spt-left">
-                        <ShieldCheck size={15} />
-                        <span>Approval Utama (Kobag TU)</span>
+                        <PenSquare size={15} />
+                        <span>{role === 'ketimker' ? 'Buat SPT Tim' : isAdminSekretariat || isSuperAdmin ? 'Input Pengajuan SPT' : 'Ajukan SPT Baru'}</span>
                       </div>
-                      <span className="submenu-badge" style={{ background: '#7c3aed' }}>
-                        Tahap 2
-                      </span>
                     </button>
-                  )}
-                </>
-              )}
+                    <button 
+                      className={`submenu-spt-btn ${currentView === 'spt-tracking' ? 'active' : ''}`}
+                      onClick={() => navigateTo('spt-tracking')}
+                    >
+                      <div className="submenu-spt-left">
+                        <Clock size={15} />
+                        <span>{isAdminSekretariat ? 'Daftar & Penomoran SPT' : role === 'user' ? 'Tracking & Unduh SPT' : 'Daftar Seluruh SPT'}</span>
+                      </div>
+                    </button>
+                  </>
+                )}
 
-              {/* 4. PENGAWASAN & MONITORING (Untuk Kopoks, Kobag TU, atau Admin) */}
-              {(role === 'kopoks' || role === 'kobag_tu' || role === 'admin_sekretariat') && (
-                <>
-                  <div className="submenu-category">{role === 'kopoks' ? 'Pemantauan Substansi' : 'Monitoring & Evaluasi'}</div>
-                  <button 
-                    className={`submenu-spt-btn ${currentView === 'spt-monitoring-kopoks' ? 'active' : ''}`}
-                    onClick={() => navigateTo('spt-monitoring-kopoks')}
-                  >
-                    <div className="submenu-spt-left">
-                      <BookOpen size={15} />
-                      <span>Monitoring Penugasan (Kopoks)</span>
+                {/* Khusus Kobag TU & Kopoks: Arsip / Rekapitulasi SPT */}
+                {(role === 'kobag_tu' || role === 'kopoks') && (
+                  <>
+                    <div className="submenu-category">Daftar & Arsip SPT</div>
+                    <button 
+                      className={`submenu-spt-btn ${currentView === 'spt-tracking' ? 'active' : ''}`}
+                      onClick={() => navigateTo('spt-tracking')}
+                    >
+                      <div className="submenu-spt-left">
+                        <Clock size={15} />
+                        <span>{role === 'kobag_tu' ? 'Arsip Seluruh SPT' : 'Rekapitulasi SPT'}</span>
+                      </div>
+                    </button>
+                  </>
+                )}
+
+                {/* 4. VERIFIKASI & APPROVAL SPT (Hanya untuk Ketimker, Kobag TU, atau Super Admin — BUKAN Admin Sekretariat) */}
+                {(role === 'ketimker' || role === 'kobag_tu' || isSuperAdmin) && (
+                  <>
+                    <div className="submenu-category">
+                      {role === 'ketimker' ? 'Verifikasi Tim Kerja' : role === 'kobag_tu' ? 'Persetujuan Eksekutif' : 'Supervisi Approval'}
                     </div>
-                  </button>
-                </>
-              )}
+                    
+                    {(role === 'ketimker' || isSuperAdmin) && (
+                      <button 
+                        className={`submenu-spt-btn ${currentView === 'spt-approval-ketimker' ? 'active' : ''}`}
+                        onClick={() => navigateTo('spt-approval-ketimker')}
+                      >
+                        <div className="submenu-spt-left">
+                          <CheckCircle2 size={15} />
+                          <span>Approval Unit Kerja (Ketimker)</span>
+                        </div>
+                        <span className="submenu-badge" style={{ background: '#16a34a' }}>
+                          Tahap 1
+                        </span>
+                      </button>
+                    )}
 
-              {/* 5. ADMINISTRASI TATA PERSURATAN (Hanya untuk Admin Sekretariat / Admin Sistem) */}
-              {role === 'admin_sekretariat' && (
-                <>
-                  <div className="submenu-category">Tata Persuratan</div>
-                  <button 
-                    className={`submenu-spt-btn ${currentView === 'spt-admin-sekretariat' ? 'active' : ''}`}
-                    onClick={() => navigateTo('spt-admin-sekretariat')}
-                  >
-                    <div className="submenu-spt-left">
-                      <Settings size={15} />
-                      <span>Admin Sekretariat (5 Subtab)</span>
-                    </div>
-                    <span className="submenu-badge" style={{ background: '#0284c7' }}>Pusat TU</span>
-                  </button>
-                </>
-              )}
+                    {(role === 'kobag_tu' || isSuperAdmin) && (
+                      <button 
+                        className={`submenu-spt-btn ${currentView === 'spt-approval-kobag' ? 'active' : ''}`}
+                        onClick={() => navigateTo('spt-approval-kobag')}
+                      >
+                        <div className="submenu-spt-left">
+                          <ShieldCheck size={15} />
+                          <span>Approval Utama (Kobag TU)</span>
+                        </div>
+                        <span className="submenu-badge" style={{ background: '#7c3aed' }}>
+                          Tahap 2
+                        </span>
+                      </button>
+                    )}
+                  </>
+                )}
 
-              {/* 6. REGULASI & PEDOMAN (Semua Role) */}
-              <div className="submenu-category">Regulasi & Pedoman</div>
-              <button 
-                className={`submenu-spt-btn ${currentView === 'spt-sop' ? 'active' : ''}`}
-                onClick={() => navigateTo('spt-sop')}
-              >
-                <div className="submenu-spt-left">
-                  <FileText size={15} />
-                  <span>SOP & Tata Naskah Dinas</span>
-                </div>
-              </button>
-            </div>
-          )}
+                {/* 5. PENGAWASAN & MONITORING (Khusus Kopoks, Kobag TU, atau Super Admin — BUKAN Admin Sekretariat) */}
+                {(role === 'kopoks' || role === 'kobag_tu' || isSuperAdmin) && (
+                  <>
+                    <div className="submenu-category">{role === 'kopoks' ? 'Pemantauan Substansi' : 'Monitoring & Evaluasi'}</div>
+                    <button 
+                      className={`submenu-spt-btn ${currentView === 'spt-monitoring-kopoks' ? 'active' : ''}`}
+                      onClick={() => navigateTo('spt-monitoring-kopoks')}
+                    >
+                      <div className="submenu-spt-left">
+                        <BookOpen size={15} />
+                        <span>Monitoring Penugasan (Kopoks)</span>
+                      </div>
+                    </button>
+                  </>
+                )}
+
+                {/* 6. REGULASI & PEDOMAN (Semua Role) */}
+                <div className="submenu-category">Regulasi & Pedoman</div>
+                <button 
+                  className={`submenu-spt-btn ${currentView === 'spt-sop' ? 'active' : ''}`}
+                  onClick={() => navigateTo('spt-sop')}
+                >
+                  <div className="submenu-spt-left">
+                    <FileText size={15} />
+                    <span>SOP & Tata Naskah Dinas</span>
+                  </div>
+                </button>
+              </div>
+            );
+          })()}
         </div>
 
         {/* Pengaturan Akun & Profil */}

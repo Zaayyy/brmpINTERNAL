@@ -4,28 +4,31 @@ export function resolveSptRole(user) {
   if (!user) return 'user';
   
   const r = String(user.sptRole || user.roleDefault || user.role || '').toLowerCase();
-  if (['kobag_tu', 'ketimker', 'admin_sekretariat', 'kopoks', 'user'].includes(r)) {
+  if (['admin', 'admin_sekretariat', 'kobag_tu', 'ketimker', 'kopoks', 'user'].includes(r)) {
     return r;
   }
-  if (r === 'admin') return 'admin_sekretariat';
 
   const nip = String(user.nip || '').trim();
   const id = String(user.id || '').toUpperCase();
 
-  // 1. Admin & Sekretariat
+  // 1. Administrator Sistem (Superadmin Kepegawaian)
+  if (id === 'PEG-ADM' || user.systemRole === 'admin' || user.username === 'admin') {
+    return 'admin';
+  }
+
+  // 2. Admin Sekretariat (Tata Persuratan & Penomoran Resmi)
   if (
     nip === '199111042023212041' || 
     nip === '199103102025211055' || 
     id === 'PEG-017' || 
-    id === 'PEG-021' || 
-    id === 'PEG-ADM' || 
-    user.systemRole === 'admin' || 
-    user.username === 'admin'
+    id === 'PEG-021' ||
+    user.username === 'admin.sekretariat' ||
+    user.username === 'novita.widiyanti'
   ) {
     return 'admin_sekretariat';
   }
 
-  // 2. Kobag TU
+  // 3. Kobag TU
   if (nip === '198101312009121004' || id === 'PEG-002') {
     return 'kobag_tu';
   }
@@ -71,7 +74,8 @@ export default function SptProgram({ user, targetView }) {
   const role = resolveSptRole(user);
 
   const roleLabelMap = {
-    admin_sekretariat: "Admin Sekretariat",
+    admin: "Administrator Sistem",
+    admin_sekretariat: "Admin Sekretariat (Tata Persuratan)",
     kobag_tu: "Kobag TU (Approval Utama)",
     ketimker: "Ketimker (Ketua Tim Kerja)",
     kopoks: "Kopoks (Koordinator Poksi)",

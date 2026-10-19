@@ -9,7 +9,7 @@
     "divisi": "Sub Bagian Tata Usaha & Kepegawaian",
     "systemRole": "admin",
     "approvalRole": "admin",
-    "roleLabel": "Admin Sekretariat & Tata Persuratan",
+    "roleLabel": "Administrator Sistem Kepegawaian",
     "pinMesin": "999",
     "sisaCuti": 12,
     "cutiTerpakai": 0,
@@ -17,7 +17,7 @@
     "jamMasuk": "07:15:00",
     "jamPulang": "16:00:00",
     "jamKerja": "07:30:00 - 16:00:00",
-    "sptRole": "admin_sekretariat"
+    "sptRole": "admin"
   },
   {
     "id": "PEG-001",
@@ -348,7 +348,7 @@
     "golongan": "VII",
     "divisi": "Tim Kerja Tata Usaha dan Rumah Tangga",
     "systemRole": "pegawai",
-    "approvalRole": "admin",
+    "approvalRole": "pemohon",
     "roleLabel": "Admin Sekretariat & Tata Persuratan",
     "pinMesin": "17",
     "sisaCuti": 12,
@@ -428,7 +428,7 @@
     "golongan": "IX",
     "divisi": "Tim Kerja Tata Usaha dan Rumah Tangga",
     "systemRole": "pegawai",
-    "approvalRole": "admin",
+    "approvalRole": "pemohon",
     "roleLabel": "Admin Sekretariat & Tata Persuratan",
     "pinMesin": "21",
     "sisaCuti": 12,

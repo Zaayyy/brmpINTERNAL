@@ -28,12 +28,32 @@ export const apiService = {
             divisi: "Sub Bagian Tata Usaha & Kepegawaian",
             systemRole: "admin",
             approvalRole: "admin",
-            sptRole: "admin_sekretariat",
-            roleLabel: "Administrator Kepegawaian",
+            sptRole: "admin",
+            roleLabel: "Administrator Sistem Kepegawaian",
             sisaCuti: 12,
             cutiTerpakai: 0,
             expiredCuti: "31-12-2026",
             token: "local-token-admin"
+          }
+        };
+      }
+      if (u === '199111042023212041' || u === 'admin.sekretariat') {
+        return {
+          success: true,
+          data: {
+            id: "PEG-017",
+            nip: "199111042023212041",
+            nama: "Novita Widiyanti, A.Md",
+            jabatan: "Arsiparis Terampil / Sekretariat",
+            divisi: "Tim Kerja Tata Usaha dan Rumah Tangga",
+            systemRole: "pegawai",
+            approvalRole: "pemohon",
+            sptRole: "admin_sekretariat",
+            roleLabel: "Admin Sekretariat & Tata Persuratan",
+            sisaCuti: 12,
+            cutiTerpakai: 0,
+            expiredCuti: "31-12-2026",
+            token: "local-token-sekretariat"
           }
         };
       }

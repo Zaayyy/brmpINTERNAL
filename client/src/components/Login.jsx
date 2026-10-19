@@ -19,17 +19,27 @@ export default function Login({ onLoginSuccess }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // 5 Demo Accounts for testing each specific official role
+  // 6 Demo Accounts for testing each specific official role
   const demoAccounts = [
     {
-      roleTag: "ADMIN & SEKRETARIAT",
-      title: "Novita Widiyanti / Admin",
-      desc: "Hak akses penuh, penomoran persuratan & tata usaha",
+      roleTag: "SUPER ADMIN",
+      title: "Administrator Kepegawaian",
+      desc: "Superadmin sistem, pantau cuti, ADMS & supervisi semua modul",
       nip: "admin",
       pass: "admin",
       badgeColor: "#dc2626",
       badgeBg: "#fee2e2",
       borderColor: "#fca5a5"
+    },
+    {
+      roleTag: "ADMIN SEKRETARIAT",
+      title: "Novita Widiyanti, A.Md",
+      desc: "Tata persuratan, penomoran resmi SPT, konsiderans menimbang & dasar",
+      nip: "199111042023212041",
+      pass: "1991",
+      badgeColor: "#0284c7",
+      badgeBg: "#e0f2fe",
+      borderColor: "#7dd3fc"
     },
     {
       roleTag: "KOBAG TU",
@@ -62,7 +72,7 @@ export default function Login({ onLoginSuccess }) {
       borderColor: "#fde68a"
     },
     {
-      roleTag: "PEMOHON / USER",
+      roleTag: "PEMOHON / PEGAWAI",
       title: "Devi Eka Nuvitasari, S.H.",
       desc: "Pengajuan mandiri SPT, tracking & pengajuan cuti",
       nip: "198906012015032004",

@@ -675,8 +675,29 @@ const App = {
       `;
     }
 
-    // Role: Admin Sekretariat / Administrator Sistem
-    if (this.currentRole === "admin_sekretariat" || this.currentRole === "admin") {
+    // Role: Admin Sekretariat (Khusus Administrasi Tata Persuratan & Penomoran Resmi)
+    if (this.currentRole === "admin_sekretariat") {
+      html += `
+        <div class="menu-category">Administrasi Tata Persuratan</div>
+        <a class="nav-link ${this.currentView === 'admin-sekretariat' ? 'active' : ''}" onclick="App.navigateTo('admin-sekretariat')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+          <span>Admin Sekretariat</span>
+          <span class="nav-badge alert-count">${pendingSekretariatCount}</span>
+        </a>
+        <div class="menu-category">Layanan Persuratan</div>
+        <a class="nav-link ${this.currentView === 'pengajuan' ? 'active' : ''}" onclick="App.navigateTo('pengajuan')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+          <span>Input Pengajuan SPT</span>
+        </a>
+        <a class="nav-link ${this.currentView === 'tracking' ? 'active' : ''}" onclick="App.navigateTo('tracking')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+          <span>Daftar Seluruh SPT</span>
+        </a>
+      `;
+    }
+
+    // Role: Administrator Sistem (Superadmin)
+    if (this.currentRole === "admin") {
       html += `
         <div class="menu-category">Administrasi Tata Persuratan</div>
         <a class="nav-link ${this.currentView === 'admin-sekretariat' ? 'active' : ''}" onclick="App.navigateTo('admin-sekretariat')">
@@ -692,7 +713,7 @@ const App = {
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
           <span>Daftar Seluruh SPT</span>
         </a>
-        <div class="menu-category">Pengawasan & Approval</div>
+        <div class="menu-category">Supervisi Seluruh Approval</div>
         <a class="nav-link ${this.currentView === 'approval-ketimker' ? 'active' : ''}" onclick="App.navigateTo('approval-ketimker')">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
           <span>Approval Ketimker</span>

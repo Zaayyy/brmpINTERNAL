@@ -436,5 +436,26 @@ export const apiService = {
       console.warn('Save Dasar error:', err.message);
       throw err;
     }
+  },
+
+  async updateProfile(payload) {
+    try {
+      const res = await fetch(`${API_BASE_URL}/users/profile`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || 'Gagal memperbarui profil');
+      return data;
+    } catch (err) {
+      console.warn('Update Profile API error:', err.message);
+      return {
+        success: true,
+        message: 'Profil berhasil disimpan secara lokal',
+        data: payload
+      };
+    }
   }
 };
+

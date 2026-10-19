@@ -67,16 +67,48 @@ export default function Sidebar({ currentView, setCurrentView, user, isOpen, onC
       </div>
 
       {/* Profile Section */}
-      <div className="sidebar-profile">
+      <div 
+        className="sidebar-profile" 
+        onClick={() => navigateTo('pengaturan-akun')}
+        title="Klik untuk membuka Pengaturan Akun & Profil"
+        style={{ cursor: 'pointer' }}
+      >
         <div className="profile-avatar-wrap">
-          <img 
-            src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80" 
-            alt="Foto Profil" 
-            className="profile-avatar"
-          />
+          {user?.fotoProfil ? (
+            <img 
+              src={user.fotoProfil} 
+              alt={user?.nama || "Foto Profil"} 
+              className="profile-avatar"
+              style={{ objectFit: 'cover' }}
+            />
+          ) : (
+            <div 
+              className="profile-avatar"
+              style={{
+                background: 'linear-gradient(135deg, #1d4ed8, #2563eb)',
+                color: '#ffffff',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '1.25rem',
+                fontWeight: 800,
+                letterSpacing: '0.5px'
+              }}
+            >
+              {(() => {
+                const parts = (user?.nama || 'Pegawai').trim().split(' ').filter(p => !p.includes('.') && p.length > 1);
+                if (parts.length >= 2) {
+                  return (parts[0][0] + parts[1][0]).toUpperCase();
+                }
+                return (user?.nama || 'P').charAt(0).toUpperCase();
+              })()}
+            </div>
+          )}
         </div>
-        <h3 className="profile-name">{user?.nama || 'AGNITA VERDIANI PUTRI, A.Md.'}</h3>
-        <span className="profile-date">Kamis, 12 Juni 2025</span>
+        <h3 className="profile-name">{user?.nama || 'Agnita Verdiani Putri'}</h3>
+        <span className="profile-date" style={{ fontSize: '0.72rem', color: '#64748b' }}>
+          {user?.jabatan || 'Pegawai BRMP DIY'}
+        </span>
       </div>
 
       {/* Navigation */}

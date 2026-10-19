@@ -39,7 +39,11 @@ function findPegawai($identifier, $pdo, $useMysql) {
                 'expiredCuti' => $row['expired_cuti'],
                 'jamMasuk' => $row['jam_masuk'] ?? '07:15:00',
                 'jamPulang' => $row['jam_pulang'] ?? '16:00:00',
-                'jamKerja' => $row['jam_kerja'] ?? '07:30:00 - 16:00:00'
+                'jamKerja' => $row['jam_kerja'] ?? '07:30:00 - 16:00:00',
+                'fotoProfil' => $row['foto_profil'] ?? ($row['fotoProfil'] ?? ''),
+                'noHp' => $row['no_hp'] ?? ($row['noHp'] ?? ''),
+                'email' => $row['email'] ?? '',
+                'alamat' => $row['alamat'] ?? ''
             ];
         }
     }
@@ -92,6 +96,10 @@ if ($route === 'auth/login' || $route === 'login') {
                     'sisaCuti' => $pegawai['sisaCuti'],
                     'cutiTerpakai' => $pegawai['cutiTerpakai'],
                     'expiredCuti' => $pegawai['expiredCuti'],
+                    'fotoProfil' => $pegawai['fotoProfil'] ?? '',
+                    'noHp' => $pegawai['noHp'] ?? '',
+                    'email' => $pegawai['email'] ?? '',
+                    'alamat' => $pegawai['alamat'] ?? '',
                     'token' => 'token-brmp-' . $pegawai['id'] . '-' . time()
                 ]
             ]);
@@ -166,6 +174,7 @@ if ($route === 'users' || str_starts_with($route, 'users/')) {
         $alamat = trim($body['alamat'] ?? '');
         $oldPassword = trim($body['oldPassword'] ?? '');
         $newPassword = trim($body['newPassword'] ?? '');
+        $fotoProfil = isset($body['fotoProfil']) ? $body['fotoProfil'] : null;
 
         if (empty($targetNip)) {
             jsonResponse(['success' => false, 'message' => 'NIP pegawai wajib disertakan'], 400);
@@ -201,9 +210,11 @@ if ($route === 'users' || str_starts_with($route, 'users/')) {
                 $pdo->exec("ALTER TABLE tb_pegawai ADD COLUMN IF NOT EXISTS no_hp VARCHAR(50) DEFAULT ''");
                 $pdo->exec("ALTER TABLE tb_pegawai ADD COLUMN IF NOT EXISTS email VARCHAR(100) DEFAULT ''");
                 $pdo->exec("ALTER TABLE tb_pegawai ADD COLUMN IF NOT EXISTS alamat TEXT DEFAULT NULL");
+                $pdo->exec("ALTER TABLE tb_pegawai ADD COLUMN IF NOT EXISTS foto_profil LONGTEXT DEFAULT NULL");
                 if (!empty($noHp)) { $fields[] = "no_hp = ?"; $params[] = $noHp; }
                 if (!empty($email)) { $fields[] = "email = ?"; $params[] = $email; }
                 if (!empty($alamat)) { $fields[] = "alamat = ?"; $params[] = $alamat; }
+                if ($fotoProfil !== null) { $fields[] = "foto_profil = ?"; $params[] = $fotoProfil; }
             } catch (Exception $e) {}
 
             if (!empty($fields)) {
@@ -226,6 +237,7 @@ if ($route === 'users' || str_starts_with($route, 'users/')) {
                 if (!empty($noHp)) $u['noHp'] = $noHp;
                 if (!empty($email)) $u['email'] = $email;
                 if (!empty($alamat)) $u['alamat'] = $alamat;
+                if ($fotoProfil !== null) $u['fotoProfil'] = $fotoProfil;
                 $updatedUser = $u;
                 break;
             }

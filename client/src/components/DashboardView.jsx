@@ -78,7 +78,7 @@ export default function DashboardView({ user, onNavigate }) {
       </div>
 
       {/* Welcome Hero Banner */}
-      <div className="welcome-hero">
+      <div className="welcome-hero" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
         <div style={{ position: 'relative', zIndex: 2 }}>
           <div style={{ fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.05em', opacity: 0.9, marginBottom: '4px' }}>
             Selamat Datang
@@ -91,6 +91,23 @@ export default function DashboardView({ user, onNavigate }) {
             <span>Jam Kerja : 07:30:00 - 16:00:00</span>
           </div>
         </div>
+
+        {user?.fotoProfil && (
+          <div style={{ position: 'relative', zIndex: 2, display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <img 
+              src={user.fotoProfil} 
+              alt={user?.nama} 
+              style={{
+                width: '64px',
+                height: '64px',
+                borderRadius: '50%',
+                objectFit: 'cover',
+                border: '3px solid rgba(255, 255, 255, 0.45)',
+                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)'
+              }}
+            />
+          </div>
+        )}
       </div>
 
       {/* Stats Row (Jam Absen Masuk, Jam Absen Pulang, Sisa Cuti) */}

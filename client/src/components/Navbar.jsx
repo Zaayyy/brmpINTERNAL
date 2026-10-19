@@ -198,14 +198,27 @@ export default function Navbar({ user, onLogout, onSwitchUser, onNavigate, isMob
             className="navbar-user-info" 
             onClick={() => onNavigate && onNavigate('pengaturan-akun')}
             title="Klik untuk membuka Pengaturan Akun & Profil"
-            style={{ textAlign: 'right', display: 'flex', flexDirection: 'column', cursor: 'pointer', padding: '2px 6px', borderRadius: '6px' }}
+            style={{ textAlign: 'right', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', padding: '2px 6px', borderRadius: '6px' }}
           >
-            <span style={{ fontSize: '0.82rem', fontWeight: 700, maxWidth: '140px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-              {user?.nama || 'Agnita V. Putri'}
-            </span>
-            <span className="navbar-user-nip" style={{ fontSize: '0.68rem', opacity: 0.85 }}>
-              NIP: {user?.nip || '199808062014032001'}
-            </span>
+            {user?.fotoProfil ? (
+              <img 
+                src={user.fotoProfil} 
+                alt="Avatar" 
+                style={{ width: '32px', height: '32px', borderRadius: '50%', objectFit: 'cover', border: '2px solid rgba(255,255,255,0.5)' }}
+              />
+            ) : (
+              <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'rgba(255,255,255,0.25)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8rem', fontWeight: 800, border: '1px solid rgba(255,255,255,0.4)' }}>
+                {(user?.nama || 'P').charAt(0)}
+              </div>
+            )}
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              <span style={{ fontSize: '0.82rem', fontWeight: 700, maxWidth: '140px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                {user?.nama || 'Agnita V. Putri'}
+              </span>
+              <span className="navbar-user-nip" style={{ fontSize: '0.68rem', opacity: 0.85 }}>
+                NIP: {user?.nip || '199808062014032001'}
+              </span>
+            </div>
           </div>
 
           <button

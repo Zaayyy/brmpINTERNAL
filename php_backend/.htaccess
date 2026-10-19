@@ -1,0 +1,17 @@
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+
+  # 1. Route API requests to PHP API router
+  RewriteRule ^api/(.*)$ api.php?route=$1 [QSA,L]
+  RewriteRule ^api$ api.php?route= [QSA,L]
+
+  # 2. Route ADMS machine protocol requests to PHP ADMS receiver
+  RewriteRule ^iclock/(.*)$ cdata.php?action=$1 [QSA,L]
+  RewriteRule ^cdata$ cdata.php [QSA,L]
+
+  # 3. Route all other frontend navigation to React SPA
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule . /index.html [L]
+</IfModule>

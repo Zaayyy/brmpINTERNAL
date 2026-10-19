@@ -1,0 +1,74 @@
+<?php
+// =======================================================
+// BRMP DIY - PHP Backend Configuration & Database Bridge
+// =======================================================
+
+// Enable CORS and JSON headers
+header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
+header("Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With");
+
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit;
+}
+
+// Database Credentials (from cPanel konek.php)
+define('DB_HOST', 'localhost');
+define('DB_NAME', 'brmy4429_absensi');
+define('DB_USER', 'brmy4429_userabsen');
+define('DB_PASS', 'XGs!VX=I1Bmv');
+define('DB_PORT', '3306');
+
+$pdo = null;
+$useMysql = false;
+
+try {
+    $dsn = "mysql:host=" . DB_HOST . ";dbname=" . DB_NAME . ";charset=utf8mb4";
+    $options = [
+        PDO::ATTR_ERRMODE => PDO::ERRMODE_SILENT,
+        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+        PDO::ATTR_EMULATE_PREPARES => false
+    ];
+    $pdo = new PDO($dsn, DB_USER, DB_PASS, $options);
+    
+    // Quick check if table exists
+    $check = $pdo->query("SHOW TABLES LIKE 'tb_pegawai'");
+    if ($check && $check->rowCount() > 0) {
+        $useMysql = true;
+    }
+} catch (Exception $e) {
+    $useMysql = false;
+}
+
+// Helper: send JSON response
+function jsonResponse($data, $statusCode = 200) {
+    http_response_code($statusCode);
+    header('Content-Type: application/json; charset=utf-8');
+    echo json_encode($data, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+    exit;
+}
+
+// Helper: get JSON request body
+function getJsonBody() {
+    $raw = file_get_contents('php://input');
+    if (empty($raw)) return [];
+    $data = json_decode($raw, true);
+    return is_array($data) ? $data : [];
+}
+
+// Helper: load fallback pegawai JSON
+function getFallbackPegawai() {
+    $path = __DIR__ . '/pegawaiData.json';
+    if (file_exists($path)) {
+        $data = json_decode(file_get_contents($path), true);
+        if (is_array($data)) return $data;
+    }
+    return [];
+}
+
+// Helper: save fallback pegawai JSON
+function saveFallbackPegawai($data) {
+    $path = __DIR__ . '/pegawaiData.json';
+    file_put_contents($path, json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+}

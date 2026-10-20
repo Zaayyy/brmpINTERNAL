@@ -82,6 +82,8 @@ export default function App() {
     };
     setUser(mergedUser);
     localStorage.setItem('brmp_user', JSON.stringify(mergedUser));
+    // Otomatis pindah halaman langsung ke Dashboard tujuan saat beralih role
+    setCurrentView('dashboard');
   };
 
   if (!user) {
@@ -148,20 +150,24 @@ export default function App() {
           )}
 
           {currentView.startsWith('admin') && (
-            <AdminDashboard 
-              user={user} 
-              onNavigate={setCurrentView} 
-              onUpdateUser={handleSwitchUser}
-              initialTab={
-                currentView === 'admin-pegawai' ? 'pegawai' :
-                currentView === 'admin-presensi' ? 'presensi' :
-                currentView === 'admin-cuti' ? 'cuti' :
-                currentView === 'admin-spt' ? 'spt' :
-                currentView === 'admin-disposisi' ? 'disposisi' :
-                currentView === 'admin-agenda' ? 'agenda' :
-                currentView === 'admin-pengaturan' ? 'pengaturan' : 'dashboard'
-              } 
-            />
+            (user?.systemRole === 'admin' || user?.role === 'admin' || user?.nip === '198001012005011001') ? (
+              <AdminDashboard 
+                user={user} 
+                onNavigate={setCurrentView} 
+                onUpdateUser={handleSwitchUser}
+                initialTab={
+                  currentView === 'admin-pegawai' ? 'pegawai' :
+                  currentView === 'admin-presensi' ? 'presensi' :
+                  currentView === 'admin-cuti' ? 'cuti' :
+                  currentView === 'admin-spt' ? 'spt' :
+                  currentView === 'admin-disposisi' ? 'disposisi' :
+                  currentView === 'admin-agenda' ? 'agenda' :
+                  currentView === 'admin-pengaturan' ? 'pengaturan' : 'dashboard'
+                } 
+              />
+            ) : (
+              <DashboardView user={user} onNavigate={setCurrentView} />
+            )
           )}
 
           {currentView === 'absensi-bulanan' && (

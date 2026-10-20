@@ -545,27 +545,6 @@ export default function Sidebar({ currentView, setCurrentView, user, isOpen, onC
               </span>
             </div>
           </button>
-
-          {/* Quick Switch to Employee View */}
-          <div style={{ marginTop: 'auto', padding: '1rem 0.75rem 0.5rem', borderTop: '1px solid #f1f5f9' }}>
-            <button
-              onClick={() => setCurrentView('absensi-bulanan')}
-              style={{
-                width: '100%',
-                padding: '8px 10px',
-                background: '#f8fafc',
-                border: '1px dashed #cbd5e1',
-                borderRadius: '8px',
-                fontSize: '0.75rem',
-                color: '#64748b',
-                fontWeight: 600,
-                cursor: 'pointer',
-                textAlign: 'center'
-              }}
-            >
-              👤 Beralih ke Portal Staf Pegawai
-            </button>
-          </div>
         </nav>
       </aside>
     );

@@ -346,7 +346,7 @@ export default function Login({ onLoginSuccess }) {
           fontWeight: 600
         }}
       >
-        Balai Besar Modernisasi Pertanian Daerah Istimewa Yogyakarta
+        Balai Besar Penerapan Modernisasi Pertanian Daerah Istimewa Yogyakarta
       </div>
     </div>
   );

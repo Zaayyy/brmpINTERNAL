@@ -119,7 +119,7 @@ export default function AdminDashboard({ user, onNavigate, onUpdateUser, initial
       setPresensiList(prs || []);
       setDisposisiList(disp || []);
       setSettingsData(setts || {
-        namaBalai: "Balai Besar Modernisasi Pertanian Daerah Istimewa Yogyakarta",
+        namaBalai: "Balai Besar Penerapan Modernisasi Pertanian Daerah Istimewa Yogyakarta",
         radiusGps: 200,
         jamMasuk: "07:30:00",
         jamPulang: "16:00:00"
@@ -388,7 +388,7 @@ export default function AdminDashboard({ user, onNavigate, onUpdateUser, initial
           Pusat Komando & Administrasi Kepegawaian
         </h2>
         <p className="admin-hero-desc">
-          Portal terintegrasi pengelolaan master data ASN/PPPK, verifikasi presensi berbasis geofence GPS, pemantauan pengajuan cuti, validasi Surat Perintah Tugas (SPT), dan audit sistem Balai Besar Modernisasi Pertanian Daerah Istimewa Yogyakarta.
+          Portal terintegrasi pengelolaan master data ASN/PPPK, verifikasi presensi berbasis geofence GPS, pemantauan pengajuan cuti, validasi Surat Perintah Tugas (SPT), dan audit sistem Balai Besar Penerapan Modernisasi Pertanian Daerah Istimewa Yogyakarta.
         </p>
 
         {/* Status Pills Row */}

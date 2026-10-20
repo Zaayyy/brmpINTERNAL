@@ -144,7 +144,7 @@ export const deleteUser = (userId) => {
 };
 
 export let instansiSettings = {
-  namaBalai: "Balai Besar Modernisasi Pertanian Daerah Istimewa Yogyakarta",
+  namaBalai: "Balai Besar Penerapan Modernisasi Pertanian Daerah Istimewa Yogyakarta",
   kementerian: "Kementerian Pertanian Republik Indonesia",
   lokasiKantor: "Kotagede, Yogyakarta",
   radiusGps: 200,

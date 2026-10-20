@@ -17,31 +17,44 @@ try {
 }
 
 if (!users || users.length === 0) {
-  users = [
-    {
-      id: "PEG-ADM",
-      nip: "198001012005011001",
-      passwordDefaultYear: "1980",
-      nama: "ADMINISTRATOR KEPEGAWAIAN",
-      jabatan: "Pranata Komputer Ahli Muda / Admin Kepegawaian",
-      divisi: "Sub Bagian Tata Usaha & Kepegawaian",
-      systemRole: "admin",
-      approvalRole: "admin",
-      roleLabel: "Administrator Kepegawaian",
-      pinMesin: "999",
-      sisaCuti: 12,
-      cutiTerpakai: 0,
-      expiredCuti: "31-12-2026",
-      jamMasuk: "07:15:00",
-      jamPulang: "16:00:00",
-      jamKerja: "07:30:00 - 16:00:00"
-    }
-  ];
+  users = [];
+}
+
+const adminIdx = users.findIndex(u => u.nip === "198001012005011001" || u.id === "PEG-ADM");
+if (adminIdx === -1) {
+  users.unshift({
+    id: "PEG-ADM",
+    nip: "198001012005011001",
+    passwordDefaultYear: "1980",
+    nama: "ADMINISTRATOR KEPEGAWAIAN",
+    jabatan: "Pranata Komputer Ahli Muda / Admin Kepegawaian",
+    divisi: "Sub Bagian Tata Usaha & Kepegawaian",
+    systemRole: "admin",
+    approvalRole: "admin",
+    roleLabel: "Administrator Kepegawaian",
+    pinMesin: "999",
+    sisaCuti: 12,
+    cutiTerpakai: 0,
+    expiredCuti: "31-12-2026",
+    jamMasuk: "07:15:00",
+    jamPulang: "16:00:00",
+    jamKerja: "07:30:00 - 16:00:00"
+  });
+} else {
+  users[adminIdx].systemRole = "admin";
+  users[adminIdx].approvalRole = "admin";
+  users[adminIdx].roleLabel = "Administrator Kepegawaian";
 }
 
 export const updateUserRole = (userId, { systemRole, approvalRole, pinMesin }) => {
   const index = users.findIndex(u => String(u.id) === String(userId) || u.nip === String(userId));
   if (index !== -1) {
+    const isMasterAdmin = users[index].id === 'PEG-ADM' || users[index].nip === '198001012005011001';
+    if (isMasterAdmin) {
+      systemRole = 'admin';
+      approvalRole = 'admin';
+    }
+
     if (systemRole) users[index].systemRole = systemRole;
     if (pinMesin !== undefined) users[index].pinMesin = String(pinMesin).trim();
     if (approvalRole) {
@@ -62,6 +75,105 @@ export const updateUserRole = (userId, { systemRole, approvalRole, pinMesin }) =
   }
   return null;
 };
+
+export const addUser = (userData) => {
+  const newId = `PEG-${String(users.length + 1).padStart(3, '0')}`;
+  const newUser = {
+    id: newId,
+    nip: String(userData.nip || '').trim(),
+    nama: String(userData.nama || '').trim(),
+    jabatan: String(userData.jabatan || 'Staf Pelaksana').trim(),
+    golongan: String(userData.golongan || 'III/a').trim(),
+    divisi: String(userData.divisi || 'Balai Penerapan Modernisasi Pertanian DIY').trim(),
+    systemRole: userData.systemRole || 'pegawai',
+    approvalRole: userData.approvalRole || 'pemohon',
+    roleLabel: userData.roleLabel || (userData.systemRole === 'admin' ? 'Administrator Kepegawaian' : 'Pegawai (Pemohon Cuti)'),
+    pinMesin: String(userData.pinMesin || (users.length + 1)).trim(),
+    sisaCuti: Number(userData.sisaCuti) || 12,
+    cutiTerpakai: 0,
+    expiredCuti: "31-12-2026",
+    passwordDefaultYear: userData.passwordDefaultYear || "1990",
+    jamKerja: "07:30:00 - 16:00:00"
+  };
+
+  users.unshift(newUser);
+
+  try {
+    fs.writeFileSync(pegawaiJsonPath, JSON.stringify(users, null, 2), 'utf8');
+  } catch (e) {
+    console.error('[Store] Failed saving new user:', e.message);
+  }
+
+  return newUser;
+};
+
+export const updateUser = (userId, updatedFields) => {
+  const cleanId = String(userId || '').trim();
+  let index = users.findIndex(u => String(u.id) === cleanId || u.nip === cleanId);
+
+  // Fallback alias resolution for Agnita (1988 vs 1998, PEG-001 vs PEG-013) or name matching
+  if (index === -1) {
+    if (cleanId === '198808062014032001' || cleanId === '199808062014032001' || cleanId === 'PEG-001' || cleanId === 'PEG-013') {
+      index = users.findIndex(u => u.nip === '198808062014032001' || u.nip === '199808062014032001' || u.nama?.toLowerCase().includes('agnita'));
+    }
+  }
+
+  if (index !== -1) {
+    users[index] = {
+      ...users[index],
+      ...updatedFields,
+      id: users[index].id, // preserve id
+    };
+
+    try {
+      fs.writeFileSync(pegawaiJsonPath, JSON.stringify(users, null, 2), 'utf8');
+    } catch (e) {
+      console.error('[Store] Failed saving updated user:', e.message);
+    }
+    return users[index];
+  }
+  return null;
+};
+
+export const deleteUser = (userId) => {
+  const index = users.findIndex(u => String(u.id) === String(userId) || u.nip === String(userId));
+  if (index !== -1) {
+    const deleted = users.splice(index, 1)[0];
+    try {
+      fs.writeFileSync(pegawaiJsonPath, JSON.stringify(users, null, 2), 'utf8');
+    } catch (e) {
+      console.error('[Store] Failed saving after delete:', e.message);
+    }
+    return deleted;
+  }
+  return null;
+};
+
+export let instansiSettings = {
+  namaBalai: "Balai Besar Modernisasi Pertanian Daerah Istimewa Yogyakarta",
+  kementerian: "Kementerian Pertanian Republik Indonesia",
+  lokasiKantor: "Kotagede, Yogyakarta",
+  radiusGps: 200,
+  latitude: -7.8285,
+  longitude: 110.3985,
+  jamMasuk: "07:30:00",
+  jamPulang: "16:00:00",
+  toleransiTerlambatMenit: 15,
+  kepalaBalai: "Dr. Soeharsono, S.Pt, M.Si",
+  nipKepala: "197109271998031002"
+};
+
+export const updateInstansiSettings = (newSettings) => {
+  instansiSettings = { ...instansiSettings, ...newSettings };
+  return instansiSettings;
+};
+
+export let disposisiList = [
+  { id: "DSP-001", noSurat: "042/KP.010/H.11/06/2025", perihal: "Penugasan Pendampingan Sertifikasi Benih Padi di Sleman", asalSurat: "Direktorat Perbenihan Kementan", tanggal: "2025-06-10", sifat: "Penting / Segera", instruksi: "Tindak lanjuti dengan pembuatan SPT 3 Personil teknis", status: "Diproses", penerima: "Ketua Tim Kerja SDM" },
+  { id: "DSP-002", noSurat: "115/OT.050/H.11/06/2025", perihal: "Evaluasi Pelaksanaan Standar Laboratorium Uji Tanah", asalSurat: "BSIP Nasional", tanggal: "2025-06-11", sifat: "Biasa", instruksi: "Siapkan laporan audit internal dan sampel tanah", status: "Selesai", penerima: "Tim Kerja Pengujian" },
+  { id: "DSP-003", noSurat: "089/HM.120/H.11/06/2025", perihal: "Undangan Rapat Koordinasi Modernisasi Alsintan DIY", asalSurat: "Dinas Pertanian dan Ketahanan Pangan DIY", tanggal: "2025-06-12", sifat: "Sangat Segera", instruksi: "Hadiri dan laporkan hasil rapat kepada Kepala Balai", status: "Menunggu", penerima: "Kobag TU" }
+];
+
 
 export const agendaList = [
   { id: 1, date: "2025-06-02", title: "Upacara Hari Lahir Pancasila", type: "event" },

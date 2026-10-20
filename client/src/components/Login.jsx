@@ -20,34 +20,77 @@ export default function Login({ onLoginSuccess }) {
   const [error, setError] = useState('');
   const [showDemoList, setShowDemoList] = useState(false);
 
+  // 7 Demo Accounts for testing each specific official role
   const demoAccounts = [
     {
+      roleTag: "SUPER ADMIN",
       role: "ADMINISTRATOR",
+      title: "Administrator Kepegawaian",
       nama: "Administrator Kepegawaian",
+      desc: "Superadmin sistem, pantau cuti, ADMS & supervisi semua modul",
       nip: "admin",
       pass: "admin",
       color: "#dc2626"
     },
     {
-      role: "PEGAWAI (PEMOHON)",
-      nama: "Agnita Verdiani Putri, A.Md.",
-      nip: "198808062014032001",
-      pass: "1988",
-      color: "#16a34a"
+      roleTag: "ADMIN SEKRETARIAT",
+      role: "ADMIN SEKRETARIAT",
+      title: "Novita Widiyanti, A.Md",
+      nama: "Novita Widiyanti, A.Md",
+      desc: "Tata persuratan, penomoran resmi SPT, konsiderans menimbang & dasar",
+      nip: "199111042023212041",
+      pass: "1991",
+      color: "#0284c7"
     },
     {
+      roleTag: "KOBAG TU",
+      role: "VERIFIKATOR 2 (KOBAG TU)",
+      title: "Agung Ariyanto, M.Ec., Dev.",
+      nama: "Agung Ariyanto, SEI., M.Ec., Dev.",
+      desc: "Approval Utama SPT (Tahap 2) & Verifikator 2 Cuti",
+      nip: "198101312009121004",
+      pass: "1981",
+      color: "#7c3aed"
+    },
+    {
+      roleTag: "KETIMKER",
       role: "VERIFIKATOR 1 (KETIMKER)",
+      title: "Dwi Dinia Rahayu, M.T.I",
       nama: "Dwi Dinia Rahayu, S.Kom, M.T.I",
+      desc: "Approval Unit Kerja SPT (Tahap 1) & Verifikator 1 Cuti",
       nip: "198604092011012024",
       pass: "1986",
       color: "#2563eb"
     },
     {
-      role: "VERIFIKATOR 2 (KOBAG TU)",
-      nama: "Agung Ariyanto, SEI., M.Ec., Dev.",
-      nip: "198101312009121004",
-      pass: "1981",
+      roleTag: "KOPOKS",
+      role: "KOPOKS",
+      title: "Dr. Fibrianty, SP, M.Si",
+      nama: "Dr. Fibrianty, SP, M.Si",
+      desc: "Monitoring penugasan & rekapitulasi balai",
+      nip: "197402062000032001",
+      pass: "1974",
       color: "#d97706"
+    },
+    {
+      roleTag: "PEMOHON / PEGAWAI",
+      role: "PEGAWAI (PEMOHON)",
+      title: "Devi Eka Nuvitasari, S.H.",
+      nama: "Devi Eka Nuvitasari, S.H.",
+      desc: "Pengajuan mandiri SPT, tracking & pengajuan cuti",
+      nip: "198906012015032004",
+      pass: "1989",
+      color: "#16a34a"
+    },
+    {
+      roleTag: "PEGAWAI (PEMOHON)",
+      role: "PEGAWAI (PEMOHON)",
+      title: "Agnita Verdiani Putri, A.Md.",
+      nama: "Agnita Verdiani Putri, A.Md.",
+      desc: "Pengolah Data & Informasi Keuangan/BMN",
+      nip: "198808062014032001",
+      pass: "1988",
+      color: "#16a34a"
     }
   ];
 

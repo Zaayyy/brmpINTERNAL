@@ -16,6 +16,16 @@ $options = $_GET['options'] ?? '';
 $table = $_GET['table'] ?? '';
 $clientIp = $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
 
+// Touch machine status in database
+if ($useMysql && $pdo && !empty($sn) && $sn !== 'SN_UNKNOWN') {
+    try {
+        $stmt = $pdo->prepare("INSERT INTO tb_adms_machines (sn, nama_mesin, ip, last_sync, status, total_logs) 
+            VALUES (?, 'Mesin Absensi Lobi Utama BRMP DIY', ?, NOW(), 'Online', 0) 
+            ON DUPLICATE KEY UPDATE ip = VALUES(ip), last_sync = NOW(), status = 'Online'");
+        $stmt->execute([$sn, $clientIp]);
+    } catch (Exception $e) {}
+}
+
 // 1. GET Request: Handshake & Ping
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     if ($options === 'all') {

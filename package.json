@@ -7,7 +7,10 @@
     "dev:client": "npm --prefix client run dev",
     "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
     "start": "npm --prefix server run start",
-    "install:all": "npm install && npm --prefix server install && npm --prefix client install"
+    "install:all": "npm install && npm --prefix server install && npm --prefix client install",
+    "build": "npm --prefix client run build",
+    "deploy": "python deploy_cpanel.py",
+    "deploy:quick": "python deploy_cpanel.py --skip-build"
   },
   "devDependencies": {
     "concurrently": "^9.1.2"

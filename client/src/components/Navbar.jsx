@@ -109,25 +109,25 @@ export default function Navbar({ user, onLogout, onSwitchUser, onNavigate, isMob
       nip: "198001012005011001",
       nama: "ADMINISTRATOR KEPEGAWAIAN",
       role: "admin",
-      sptRole: "admin_sekretariat",
+      sptRole: "admin",
       systemRole: "admin",
       approvalRole: "admin",
-      roleLabel: "Administrator (Akses Penuh Semua Modul)",
+      roleLabel: "Administrator Sistem (Superadmin)",
       jabatan: "Pranata Komputer Ahli Muda / Admin Kepegawaian",
       divisi: "Sub Bagian Tata Usaha & Kepegawaian",
       sisaCuti: 12
     },
     {
-      id: "PEG-017_adm",
+      id: "PEG-017",
       nip: "199111042023212041",
       nama: "Novita Widiyanti, A.Md",
       role: "admin_sekretariat",
       sptRole: "admin_sekretariat",
       systemRole: "pegawai",
-      approvalRole: "admin",
-      roleLabel: "Admin Sekretariat (Penomoran & Persuratan SPT)",
-      jabatan: "Pengadministrasi Perkantoran",
-      divisi: "Bagian Tata Usaha / Sekretariat",
+      approvalRole: "pemohon",
+      roleLabel: "Admin Sekretariat (Tata Persuratan & Penomoran)",
+      jabatan: "Arsiparis Terampil / Sekretariat Balai",
+      divisi: "Tim Kerja Tata Usaha dan Rumah Tangga",
       sisaCuti: 12
     },
     {
@@ -157,7 +157,7 @@ export default function Navbar({ user, onLogout, onSwitchUser, onNavigate, isMob
       sisaCuti: 12
     },
     {
-      id: "PEG-017",
+      id: "PEG-015",
       nip: "197106141992032001",
       nama: "Yuni Pratiwi, S.ST., Ars",
       role: "ketimker",
@@ -170,7 +170,7 @@ export default function Navbar({ user, onLogout, onSwitchUser, onNavigate, isMob
       sisaCuti: 11
     },
     {
-      id: "PEG-034",
+      id: "PEG-053",
       nip: "197402062000032001",
       nama: "Dr. Fibrianty, M.Si",
       role: "kopoks",

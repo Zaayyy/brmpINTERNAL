@@ -92,11 +92,32 @@ export const apiService = {
             divisi: "Sub Bagian Tata Usaha & Kepegawaian",
             systemRole: "admin",
             approvalRole: "admin",
-            roleLabel: "Administrator Kepegawaian",
+            sptRole: "admin",
+            roleLabel: "Administrator Sistem Kepegawaian",
             sisaCuti: 12,
             cutiTerpakai: 0,
             expiredCuti: "31-12-2026",
             token: "local-token-admin"
+          }
+        };
+      }
+      if (u === '199111042023212041' || u === 'admin.sekretariat') {
+        return {
+          success: true,
+          data: {
+            id: "PEG-017",
+            nip: "199111042023212041",
+            nama: "Novita Widiyanti, A.Md",
+            jabatan: "Arsiparis Terampil / Sekretariat",
+            divisi: "Tim Kerja Tata Usaha dan Rumah Tangga",
+            systemRole: "pegawai",
+            approvalRole: "pemohon",
+            sptRole: "admin_sekretariat",
+            roleLabel: "Admin Sekretariat & Tata Persuratan",
+            sisaCuti: 12,
+            cutiTerpakai: 0,
+            expiredCuti: "31-12-2026",
+            token: "local-token-sekretariat"
           }
         };
       }
@@ -111,7 +132,8 @@ export const apiService = {
             divisi: "Tim Kerja Pengelolaan Sumber Daya Manusia",
             systemRole: "pegawai",
             approvalRole: "verifikator_1",
-            roleLabel: "Verifikator 1 (Ketua Tim Kerja SDM)",
+            sptRole: "ketimker",
+            roleLabel: "Ketimker (Ketua Tim Kerja SDM)",
             sisaCuti: 12,
             cutiTerpakai: 0,
             expiredCuti: "31-12-2026",
@@ -130,7 +152,8 @@ export const apiService = {
             divisi: "Bagian Tata Usaha BRMP DIY",
             systemRole: "pegawai",
             approvalRole: "verifikator_2",
-            roleLabel: "Verifikator 2 (Kepala Bagian TU / Approval Final)",
+            sptRole: "kobag_tu",
+            roleLabel: "Kobag TU (Approval Utama)",
             sisaCuti: 14,
             cutiTerpakai: 0,
             expiredCuti: "31-12-2026",
@@ -150,7 +173,8 @@ export const apiService = {
           divisi: "Balai Penerapan Standar Instrumen Pertanian DIY",
           systemRole: "pegawai",
           approvalRole: "pemohon",
-          roleLabel: "Pegawai (Pemohon Cuti)",
+          sptRole: "user",
+          roleLabel: "Pegawai (Pemohon SPT & Cuti)",
           sisaCuti: 12,
           cutiTerpakai: 0,
           expiredCuti: "14-06-2026",

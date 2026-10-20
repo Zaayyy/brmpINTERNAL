@@ -32,6 +32,7 @@ function findPegawai($identifier, $pdo, $useMysql) {
                 'divisi' => $row['divisi'],
                 'systemRole' => $row['system_role'],
                 'approvalRole' => $row['approval_role'],
+                'sptRole' => $row['spt_role'] ?? ($row['sptRole'] ?? 'user'),
                 'roleLabel' => $row['role_label'],
                 'pinMesin' => $row['pin_mesin'],
                 'sisaCuti' => (int)$row['sisa_cuti'],
@@ -92,6 +93,7 @@ if ($route === 'auth/login' || $route === 'login') {
                     'divisi' => $pegawai['divisi'],
                     'systemRole' => $pegawai['systemRole'],
                     'approvalRole' => $pegawai['approvalRole'],
+                    'sptRole' => $pegawai['sptRole'] ?? 'user',
                     'roleLabel' => $pegawai['roleLabel'],
                     'sisaCuti' => $pegawai['sisaCuti'],
                     'cutiTerpakai' => $pegawai['cutiTerpakai'],
@@ -121,7 +123,8 @@ if ($route === 'auth/login' || $route === 'login') {
                 'divisi' => 'Balai Penerapan Standar Instrumen Pertanian DIY',
                 'systemRole' => 'pegawai',
                 'approvalRole' => 'pemohon',
-                'roleLabel' => 'Pegawai (Pemohon Cuti)',
+                'sptRole' => 'user',
+                'roleLabel' => 'Pegawai (Pemohon SPT & Cuti)',
                 'sisaCuti' => 12,
                 'cutiTerpakai' => 0,
                 'expiredCuti' => '31-12-2026',
@@ -152,6 +155,7 @@ if ($route === 'users' || str_starts_with($route, 'users/')) {
                     'divisi' => $r['divisi'],
                     'systemRole' => $r['system_role'],
                     'approvalRole' => $r['approval_role'],
+                    'sptRole' => $r['spt_role'] ?? 'user',
                     'roleLabel' => $r['role_label'],
                     'pinMesin' => $r['pin_mesin'] ?? '',
                     'sisaCuti' => (int)$r['sisa_cuti'],
@@ -700,13 +704,33 @@ if ($route === 'adms/api/logs' || $route === 'adms/logs') {
 }
 
 if ($route === 'adms/api/machines' || $route === 'adms/machines') {
+    if ($useMysql && $pdo) {
+        try {
+            $stmt = $pdo->query("SELECT * FROM tb_adms_machines ORDER BY id ASC");
+            $dbMachines = $stmt ? $stmt->fetchAll() : [];
+            if (!empty($dbMachines)) {
+                $mapped = array_map(function($m) {
+                    return [
+                        'sn' => $m['sn'],
+                        'namaMesin' => $m['nama_mesin'],
+                        'ip' => $m['ip'],
+                        'lastSync' => $m['last_sync'],
+                        'status' => $m['status'],
+                        'totalLogs' => (int)($m['total_logs'] ?? 0)
+                    ];
+                }, $dbMachines);
+                jsonResponse(['success' => true, 'data' => $mapped]);
+            }
+        } catch (Exception $e) {}
+    }
+
     jsonResponse([
         'success' => true,
         'data' => [
             [
-                'sn' => 'BNDK19280012',
+                'sn' => 'UCR6235200084',
                 'namaMesin' => 'Mesin Absensi Lobi Utama BRMP DIY',
-                'ip' => '192.168.1.200',
+                'ip' => '192.168.2.73',
                 'lastSync' => date('Y-m-d H:i:s'),
                 'status' => 'Online',
                 'totalLogs' => 24

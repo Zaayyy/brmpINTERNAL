@@ -235,11 +235,6 @@ export default function PengajuanCuti({ user: initialUser, onSwitchUser }) {
 
   // Admin Change Employee Role
   const handleChangeRole = async (targetUserId, newRole) => {
-    if (targetUserId === 'PEG-ADM' || targetUserId === '198001012005011001') {
-      setErrorMsg('Role Akun Administrator Kepegawaian dilindungi dan tidak dapat diubah.');
-      return;
-    }
-
     try {
       setActionLoading(true);
       const res = await apiService.updateUserRole(targetUserId, {
@@ -1416,43 +1411,26 @@ export default function PengajuanCuti({ user: initialUser, onSwitchUser }) {
                       </span>
                     </td>
                     <td>
-                      {peg.id === 'PEG-ADM' || peg.nip === '198001012005011001' ? (
-                        <div style={{
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          gap: '6px',
-                          padding: '6px 12px',
+                      <select
+                        value={peg.approvalRole}
+                        onChange={(e) => handleChangeRole(peg.id || peg.nip, e.target.value)}
+                        disabled={actionLoading}
+                        style={{
+                          padding: '6px 10px',
                           borderRadius: '6px',
-                          background: '#fee2e2',
-                          color: '#dc2626',
+                          border: '1px solid #cbd5e1',
+                          background: '#ffffff',
                           fontSize: '0.8rem',
-                          fontWeight: 700
-                        }}>
-                          <ShieldCheck size={15} />
-                          <span>Admin Utama (Terkunci)</span>
-                        </div>
-                      ) : (
-                        <select
-                          value={peg.approvalRole}
-                          onChange={(e) => handleChangeRole(peg.id || peg.nip, e.target.value)}
-                          disabled={actionLoading}
-                          style={{
-                            padding: '6px 10px',
-                            borderRadius: '6px',
-                            border: '1px solid #cbd5e1',
-                            background: '#ffffff',
-                            fontSize: '0.8rem',
-                            fontWeight: 600,
-                            cursor: 'pointer',
-                            width: '100%'
-                          }}
-                        >
-                          <option value="pemohon">Pegawai Biasa (Pemohon Cuti)</option>
-                          <option value="verifikator_1">Verifikator 1 (Atasan / Ketimker)</option>
-                          <option value="verifikator_2">Verifikator 2 (Kepala Bagian TU)</option>
-                          <option value="admin">Administrator Kepegawaian</option>
-                        </select>
-                      )}
+                          fontWeight: 600,
+                          cursor: 'pointer',
+                          width: '100%'
+                        }}
+                      >
+                        <option value="pemohon">Pegawai Biasa (Pemohon Cuti)</option>
+                        <option value="verifikator_1">Verifikator 1 (Atasan / Ketimker)</option>
+                        <option value="verifikator_2">Verifikator 2 (Kepala Bagian TU)</option>
+                        <option value="admin">Administrator Kepegawaian</option>
+                      </select>
                     </td>
                   </tr>
                 ))}

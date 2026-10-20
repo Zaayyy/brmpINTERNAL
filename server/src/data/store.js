@@ -49,12 +49,6 @@ if (adminIdx === -1) {
 export const updateUserRole = (userId, { systemRole, approvalRole, pinMesin }) => {
   const index = users.findIndex(u => String(u.id) === String(userId) || u.nip === String(userId));
   if (index !== -1) {
-    const isMasterAdmin = users[index].id === 'PEG-ADM' || users[index].nip === '198001012005011001';
-    if (isMasterAdmin) {
-      systemRole = 'admin';
-      approvalRole = 'admin';
-    }
-
     if (systemRole) users[index].systemRole = systemRole;
     if (pinMesin !== undefined) users[index].pinMesin = String(pinMesin).trim();
     if (approvalRole) {

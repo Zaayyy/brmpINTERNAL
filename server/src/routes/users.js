@@ -143,14 +143,6 @@ router.put('/:id/role', (req, res) => {
     });
   }
 
-  // Proteksi: Akun Administrator Kepegawaian tidak boleh diturunkan rolenya
-  if ((id === 'PEG-ADM' || id === '198001012005011001') && (systemRole === 'pegawai' || (approvalRole && approvalRole !== 'admin'))) {
-    return res.status(400).json({
-      success: false,
-      message: 'Role Administrator Kepegawaian (PEG-ADM) dilindungi dan tidak dapat diubah menjadi pegawai biasa.'
-    });
-  }
-
   const updatedUser = updateUserRole(id, { systemRole, approvalRole, pinMesin });
 
   if (!updatedUser) {

@@ -168,7 +168,7 @@ export default function Login({ onLoginSuccess }) {
 
         {/* Main Form with Underline Inputs matching image */}
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-          {/* Username / NIP Field */}
+          {/* NIP Field */}
           <div>
             <label 
               style={{
@@ -179,14 +179,14 @@ export default function Login({ onLoginSuccess }) {
                 marginBottom: '4px'
               }}
             >
-              NIP Pegawai / Username
+              Nomor Induk Pegawai (NIP)
             </label>
             <input
               type="text"
               required
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              placeholder="Masukkan 18 Digit NIP (atau 'admin')"
+              placeholder="Masukkan 18 Digit NIP"
               style={{
                 width: '100%',
                 border: 'none',
@@ -231,7 +231,7 @@ export default function Login({ onLoginSuccess }) {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="Password (Default: 4 Digit Tahun Lahir)"
+                placeholder="Masukkan Password"
                 style={{
                   width: '100%',
                   border: 'none',

@@ -184,6 +184,7 @@ export default function Login({ onLoginSuccess }) {
             <input
               type="text"
               required
+              className="login-underline-input"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               placeholder="Masukkan 18 Digit NIP"
@@ -193,7 +194,7 @@ export default function Login({ onLoginSuccess }) {
                 borderBottom: '1.5px solid #cbd5e1',
                 borderRadius: '0',
                 padding: '8px 2px',
-                fontSize: '0.95rem',
+                fontSize: '0.92rem',
                 color: '#1e293b',
                 fontWeight: 500,
                 outline: 'none',
@@ -229,6 +230,7 @@ export default function Login({ onLoginSuccess }) {
               <input
                 type={showPassword ? 'text' : 'password'}
                 required
+                className="login-underline-input"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Masukkan Password"
@@ -238,7 +240,7 @@ export default function Login({ onLoginSuccess }) {
                   borderBottom: '1.5px solid #cbd5e1',
                   borderRadius: '0',
                   padding: '8px 30px 8px 2px',
-                  fontSize: '0.95rem',
+                  fontSize: '0.92rem',
                   color: '#1e293b',
                   fontWeight: 500,
                   outline: 'none',

@@ -1647,3 +1647,28 @@ button, input, select, textarea {
     font-size: 0.72rem;
   }
 }
+
+/* Login Underline Input Placeholder Styling */
+.login-underline-input::placeholder {
+  font-size: 0.8125rem !important;
+  color: #94a3b8 !important;
+  font-weight: 400 !important;
+  letter-spacing: 0.01em;
+  opacity: 0.85;
+}
+
+.login-underline-input::-webkit-input-placeholder {
+  font-size: 0.8125rem !important;
+  color: #94a3b8 !important;
+  font-weight: 400 !important;
+  letter-spacing: 0.01em;
+  opacity: 0.85;
+}
+
+.login-underline-input::-moz-placeholder {
+  font-size: 0.8125rem !important;
+  color: #94a3b8 !important;
+  font-weight: 400 !important;
+  letter-spacing: 0.01em;
+  opacity: 0.85;
+}

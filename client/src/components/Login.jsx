@@ -5,94 +5,15 @@ import {
   EyeOff, 
   AlertCircle, 
   LogIn, 
-  CheckCircle2, 
-  ChevronDown, 
-  ChevronUp, 
-  ShieldCheck,
-  Sparkles
+  CheckCircle2 
 } from 'lucide-react';
 
 export default function Login({ onLoginSuccess }) {
-  const [username, setUsername] = useState('admin');
-  const [password, setPassword] = useState('admin');
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [showDemoList, setShowDemoList] = useState(false);
-
-  // 7 Demo Accounts for testing each specific official role
-  const demoAccounts = [
-    {
-      roleTag: "SUPER ADMIN",
-      role: "ADMINISTRATOR",
-      title: "Administrator Kepegawaian",
-      nama: "Administrator Kepegawaian",
-      desc: "Superadmin sistem, pantau cuti, ADMS & supervisi semua modul",
-      nip: "admin",
-      pass: "admin",
-      color: "#dc2626"
-    },
-    {
-      roleTag: "ADMIN SEKRETARIAT",
-      role: "ADMIN SEKRETARIAT",
-      title: "Novita Widiyanti, A.Md",
-      nama: "Novita Widiyanti, A.Md",
-      desc: "Tata persuratan, penomoran resmi SPT, konsiderans menimbang & dasar",
-      nip: "199111042023212041",
-      pass: "1991",
-      color: "#0284c7"
-    },
-    {
-      roleTag: "KOBAG TU",
-      role: "VERIFIKATOR 2 (KOBAG TU)",
-      title: "Agung Ariyanto, M.Ec., Dev.",
-      nama: "Agung Ariyanto, SEI., M.Ec., Dev.",
-      desc: "Approval Utama SPT (Tahap 2) & Verifikator 2 Cuti",
-      nip: "198101312009121004",
-      pass: "1981",
-      color: "#7c3aed"
-    },
-    {
-      roleTag: "KETIMKER",
-      role: "VERIFIKATOR 1 (KETIMKER)",
-      title: "Dwi Dinia Rahayu, M.T.I",
-      nama: "Dwi Dinia Rahayu, S.Kom, M.T.I",
-      desc: "Approval Unit Kerja SPT (Tahap 1) & Verifikator 1 Cuti",
-      nip: "198604092011012024",
-      pass: "1986",
-      color: "#2563eb"
-    },
-    {
-      roleTag: "KOPOKS",
-      role: "KOPOKS",
-      title: "Dr. Fibrianty, SP, M.Si",
-      nama: "Dr. Fibrianty, SP, M.Si",
-      desc: "Monitoring penugasan & rekapitulasi balai",
-      nip: "197402062000032001",
-      pass: "1974",
-      color: "#d97706"
-    },
-    {
-      roleTag: "PEMOHON / PEGAWAI",
-      role: "PEGAWAI (PEMOHON)",
-      title: "Devi Eka Nuvitasari, S.H.",
-      nama: "Devi Eka Nuvitasari, S.H.",
-      desc: "Pengajuan mandiri SPT, tracking & pengajuan cuti",
-      nip: "198906012015032004",
-      pass: "1989",
-      color: "#16a34a"
-    },
-    {
-      roleTag: "PEGAWAI (PEMOHON)",
-      role: "PEGAWAI (PEMOHON)",
-      title: "Agnita Verdiani Putri, A.Md.",
-      nama: "Agnita Verdiani Putri, A.Md.",
-      desc: "Pengolah Data & Informasi Keuangan/BMN",
-      nip: "198808062014032001",
-      pass: "1988",
-      color: "#16a34a"
-    }
-  ];
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -115,12 +36,6 @@ export default function Login({ onLoginSuccess }) {
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleSelectDemo = (acc) => {
-    setUsername(acc.nip);
-    setPassword(acc.pass);
-    executeLogin(acc.nip, acc.pass);
   };
 
   return (
@@ -416,72 +331,6 @@ export default function Login({ onLoginSuccess }) {
             )}
           </button>
         </form>
-
-        {/* Collapsible Quick Demo Credentials for Fast Testing */}
-        <div style={{ marginTop: '1.75rem', borderTop: '1px solid #f1f5f9', paddingTop: '1rem' }}>
-          <button
-            type="button"
-            onClick={() => setShowDemoList(!showDemoList)}
-            style={{
-              background: 'transparent',
-              border: 'none',
-              width: '100%',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              fontSize: '0.75rem',
-              color: '#059669',
-              fontWeight: 700,
-              cursor: 'pointer',
-              padding: '4px 0'
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <Sparkles size={14} color="#059669" />
-              <span>Opsi Cepat Akun Demo (1-Click)</span>
-            </div>
-            {showDemoList ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
-          </button>
-
-          {showDemoList && (
-            <div style={{ marginTop: '0.75rem', display: 'flex', flexDirection: 'column', gap: '6px' }}>
-              {demoAccounts.map((acc, i) => (
-                <div
-                  key={i}
-                  onClick={() => handleSelectDemo(acc)}
-                  style={{
-                    padding: '8px 10px',
-                    borderRadius: '8px',
-                    background: '#f8fafc',
-                    border: '1px solid #e2e8f0',
-                    cursor: 'pointer',
-                    fontSize: '0.75rem',
-                    transition: 'all 0.15s',
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.background = '#ecfdf5';
-                    e.currentTarget.style.borderColor = '#a7f3d0';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.background = '#f8fafc';
-                    e.currentTarget.style.borderColor = '#e2e8f0';
-                  }}
-                >
-                  <div>
-                    <div style={{ fontWeight: 700, color: '#0f172a' }}>{acc.role}</div>
-                    <div style={{ color: '#64748b', fontSize: '0.7rem' }}>{acc.nama}</div>
-                  </div>
-                  <span style={{ fontSize: '0.7rem', color: '#059669', fontWeight: 700 }}>
-                    Masuk →
-                  </span>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
       </div>
 
       {/* Footer Branding Text */}

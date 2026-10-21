@@ -247,12 +247,14 @@ export default function PengajuanCuti({ user: initialUser, onSwitchUser }) {
         await loadCutiData();
         // If updating the active user itself, update state
         if (currentUser?.id === targetUserId || currentUser?.nip === targetUserId) {
-          setCurrentUser(prev => ({
-            ...prev,
+          const updatedSelf = {
+            ...currentUser,
             approvalRole: newRole,
             roleLabel: res.data.roleLabel,
             systemRole: newRole === 'admin' ? 'admin' : 'pegawai'
-          }));
+          };
+          setCurrentUser(updatedSelf);
+          if (onSwitchUser) onSwitchUser(updatedSelf);
         }
       }
     } catch (err) {

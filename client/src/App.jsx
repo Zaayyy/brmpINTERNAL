@@ -16,11 +16,29 @@ import {
   FileText, 
   Menu 
 } from 'lucide-react';
+import AdminDashboard from './admin/AdminDashboard';
+import { getStoredAvatar } from './services/api';
 
 export default function App() {
   const [user, setUser] = useState(() => {
     const saved = localStorage.getItem('brmp_user');
-    return saved ? JSON.parse(saved) : null;
+    if (!saved) return null;
+    try {
+      const parsed = JSON.parse(saved);
+      if (parsed?.nip === '198001012005011001' || parsed?.id === 'PEG-ADM') {
+        parsed.systemRole = 'admin';
+        parsed.approvalRole = 'admin';
+        parsed.role = 'admin';
+        parsed.roleLabel = 'Administrator (Akses Penuh Semua Modul)';
+      }
+      if (parsed?.nip && !parsed.fotoProfil) {
+        const cached = getStoredAvatar(parsed.nip);
+        if (cached) parsed.fotoProfil = cached;
+      }
+      return parsed;
+    } catch {
+      return null;
+    }
   });
 
   const [currentView, setCurrentView] = useState('dashboard');
@@ -38,8 +56,14 @@ export default function App() {
   }, []);
 
   const handleLoginSuccess = (userData) => {
-    setUser(userData);
-    localStorage.setItem('brmp_user', JSON.stringify(userData));
+    const targetNip = userData?.nip;
+    const cachedPhoto = getStoredAvatar(targetNip);
+    const mergedUser = {
+      ...userData,
+      fotoProfil: userData.fotoProfil || cachedPhoto || null
+    };
+    setUser(mergedUser);
+    localStorage.setItem('brmp_user', JSON.stringify(mergedUser));
     setCurrentView('dashboard');
   };
 
@@ -49,8 +73,17 @@ export default function App() {
   };
 
   const handleSwitchUser = (newUser) => {
-    setUser(newUser);
-    localStorage.setItem('brmp_user', JSON.stringify(newUser));
+    if (!newUser) return;
+    const targetNip = newUser?.nip;
+    const cachedPhoto = getStoredAvatar(targetNip);
+    const mergedUser = {
+      ...newUser,
+      fotoProfil: newUser.fotoProfil || cachedPhoto || null
+    };
+    setUser(mergedUser);
+    localStorage.setItem('brmp_user', JSON.stringify(mergedUser));
+    // Otomatis pindah halaman langsung ke Dashboard tujuan saat beralih role
+    setCurrentView('dashboard');
   };
 
   if (!user) {
@@ -109,7 +142,32 @@ export default function App() {
         {/* Dynamic Main View */}
         <main className={`main-content ${isSptView ? 'flush-view' : ''}`}>
           {currentView === 'dashboard' && (
-            <DashboardView user={user} onNavigate={setCurrentView} />
+            (user?.systemRole === 'admin' || user?.role === 'admin' || user?.nip === '198001012005011001') ? (
+              <AdminDashboard user={user} onNavigate={setCurrentView} onUpdateUser={handleSwitchUser} initialTab="dashboard" />
+            ) : (
+              <DashboardView user={user} onNavigate={setCurrentView} />
+            )
+          )}
+
+          {currentView.startsWith('admin') && (
+            (user?.systemRole === 'admin' || user?.role === 'admin' || user?.nip === '198001012005011001') ? (
+              <AdminDashboard 
+                user={user} 
+                onNavigate={setCurrentView} 
+                onUpdateUser={handleSwitchUser}
+                initialTab={
+                  currentView === 'admin-pegawai' ? 'pegawai' :
+                  currentView === 'admin-presensi' ? 'presensi' :
+                  currentView === 'admin-cuti' ? 'cuti' :
+                  currentView === 'admin-spt' ? 'spt' :
+                  currentView === 'admin-disposisi' ? 'disposisi' :
+                  currentView === 'admin-agenda' ? 'agenda' :
+                  currentView === 'admin-pengaturan' ? 'pengaturan' : 'dashboard'
+                } 
+              />
+            ) : (
+              <DashboardView user={user} onNavigate={setCurrentView} />
+            )
           )}
 
           {currentView === 'absensi-bulanan' && (
@@ -187,3 +245,4 @@ export default function App() {
     </div>
   );
 }
+

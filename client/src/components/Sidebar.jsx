@@ -88,7 +88,22 @@ export default function Sidebar({ currentView, setCurrentView, user, isOpen, onC
   // If Admin mode, render the exact Administrator Sidebar from user's screenshot
   if (isAdmin) {
     return (
-      <aside className="app-sidebar no-print" style={{ width: '260px' }}>
+      <aside className={`app-sidebar no-print ${isOpen ? 'sidebar-open' : ''}`}>
+        {/* Mobile Close Button Header */}
+        <div className="sidebar-mobile-header">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <ShieldCheck size={20} color="#059669" />
+            <span style={{ fontWeight: 800, fontSize: '0.9rem', color: '#064e3b' }}>SI-AP ADMIN</span>
+          </div>
+          <button 
+            className="sidebar-close-btn"
+            onClick={onClose}
+            aria-label="Tutup navigasi"
+            title="Tutup navigasi"
+          >
+            <X size={20} />
+          </button>
+        </div>
         {/* Profile Card Admin (Matching User Screenshot with Dynamic Date & Photo Support) */}
         <div 
           className="sidebar-profile" 

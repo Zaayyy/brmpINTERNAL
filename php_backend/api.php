@@ -185,23 +185,23 @@ if ($route === 'users' || str_starts_with($route, 'users/')) {
                 $rows = ($stmt && is_object($stmt)) ? $stmt->fetchAll() : [];
                 foreach ($rows as $r) {
                     $data[] = [
-                        'id' => $r['pegawai_id'],
-                        'nip' => $r['nip'],
-                        'nama' => $r['nama'],
-                        'jabatan' => $r['jabatan'],
-                    'golongan' => $r['golongan'] ?? '',
-                    'divisi' => $r['divisi'],
-                    'systemRole' => $r['system_role'],
-                    'approvalRole' => $r['approval_role'],
-                    'sptRole' => $r['spt_role'] ?? 'user',
-                    'roleLabel' => $r['role_label'],
-                    'pinMesin' => $r['pin_mesin'] ?? '',
-                    'sisaCuti' => (int)$r['sisa_cuti'],
-                    'cutiTerpakai' => (int)$r['cuti_terpakai'],
-                    'expiredCuti' => $r['expired_cuti']
+                        'id' => $r['pegawai_id'] ?? ($r['id'] ?? ''),
+                        'nip' => $r['nip'] ?? '',
+                        'nama' => $r['nama'] ?? '',
+                        'jabatan' => $r['jabatan'] ?? '',
+                        'golongan' => $r['golongan'] ?? '',
+                        'divisi' => $r['divisi'] ?? '',
+                        'systemRole' => $r['system_role'] ?? 'pegawai',
+                        'approvalRole' => $r['approval_role'] ?? 'pemohon',
+                        'sptRole' => $r['spt_role'] ?? 'user',
+                        'roleLabel' => $r['role_label'] ?? 'Pegawai',
+                        'pinMesin' => $r['pin_mesin'] ?? '',
+                        'sisaCuti' => (int)($r['sisa_cuti'] ?? 12),
+                        'cutiTerpakai' => (int)($r['cuti_terpakai'] ?? 0),
+                        'expiredCuti' => $r['expired_cuti'] ?? '31-12-2026'
                     ];
                 }
-            } catch (Throwable $e) {}
+            } catch (\Throwable $e) {}
         }
         if (empty($data)) {
             $data = getFallbackPegawai();
@@ -409,7 +409,7 @@ if ($route === 'cuti' || str_starts_with($route, 'cuti/')) {
                     }
                     return $result;
                 }
-            } catch (Throwable $e) {}
+            } catch (\Throwable $e) {}
         }
 
         // Fallback JSON
@@ -581,7 +581,7 @@ if ($route === 'cuti' || str_starts_with($route, 'cuti/')) {
                         $newItem['status'], $newItem['statusLabel']
                     ]);
                 }
-            } catch (Throwable $e) {}
+            } catch (\Throwable $e) {}
         }
 
         jsonResponse([
@@ -646,7 +646,7 @@ if ($route === 'cuti' || str_starts_with($route, 'cuti/')) {
                                     if ($stmt && is_object($stmt)) {
                                         $stmt->execute([$days, $days, $item['nip'], $item['pegawaiId']]);
                                     }
-                                } catch (Throwable $e) {}
+                                } catch (\Throwable $e) {}
                             }
                         }
                     } else {
@@ -680,7 +680,7 @@ if ($route === 'cuti' || str_starts_with($route, 'cuti/')) {
                             $cutiId
                         ]);
                     }
-                } catch (Throwable $e) {}
+                } catch (\Throwable $e) {}
             }
             jsonResponse([
                 'success' => true,

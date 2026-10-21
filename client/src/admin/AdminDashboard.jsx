@@ -370,33 +370,6 @@ export default function AdminDashboard({ user, onNavigate, onUpdateUser, initial
             <Plus size={16} />
             <span>+ Tambah Pegawai</span>
           </button>
-          {onLogout && (
-            <button 
-              className="btn-admin-logout" 
-              onClick={onLogout} 
-              title="Keluar dari Panel Administrator"
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '6px',
-                padding: '9px 16px',
-                background: '#dc2626',
-                color: '#ffffff',
-                border: 'none',
-                borderRadius: '8px',
-                fontWeight: 700,
-                fontSize: '0.85rem',
-                cursor: 'pointer',
-                boxShadow: '0 2px 6px rgba(220, 38, 38, 0.25)',
-                transition: 'all 0.2s'
-              }}
-              onMouseEnter={(e) => e.currentTarget.style.background = '#b91c1c'}
-              onMouseLeave={(e) => e.currentTarget.style.background = '#dc2626'}
-            >
-              <LogOut size={16} />
-              <span>Keluar Admin</span>
-            </button>
-          )}
         </div>
       </div>
 

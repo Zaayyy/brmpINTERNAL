@@ -32,10 +32,15 @@ try {
     ];
     $pdo = new PDO($dsn, DB_USER, DB_PASS, $options);
     
-    // Quick check if table exists
-    $check = $pdo->query("SHOW TABLES LIKE 'tb_pegawai'");
+    // Quick check if table exists (t_ptk or tb_pegawai)
+    $check = $pdo->query("SHOW TABLES LIKE 't_ptk'");
     if ($check && $check->rowCount() > 0) {
         $useMysql = true;
+    } else {
+        $check2 = $pdo->query("SHOW TABLES LIKE 'tb_pegawai'");
+        if ($check2 && $check2->rowCount() > 0) {
+            $useMysql = true;
+        }
     }
 } catch (Exception $e) {
     $useMysql = false;

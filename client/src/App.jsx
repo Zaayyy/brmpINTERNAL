@@ -17,6 +17,7 @@ import {
   Menu 
 } from 'lucide-react';
 import AdminDashboard from './admin/AdminDashboard';
+import AdminLogin from './admin/AdminLogin';
 import { getStoredAvatar } from './services/api';
 
 export default function App() {
@@ -44,6 +45,27 @@ export default function App() {
   const [currentView, setCurrentView] = useState('dashboard');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
+  // Detect whether current route is the Secret Admin Portal (/admin or #/admin)
+  const checkIsAdminRoute = () => {
+    const path = window.location.pathname.toLowerCase();
+    const hash = window.location.hash.toLowerCase();
+    return path.startsWith('/admin') || hash.startsWith('#/admin') || path.includes('/admin');
+  };
+
+  const [isAdminRoute, setIsAdminRoute] = useState(checkIsAdminRoute);
+
+  useEffect(() => {
+    const handleUrlChange = () => {
+      setIsAdminRoute(checkIsAdminRoute());
+    };
+    window.addEventListener('popstate', handleUrlChange);
+    window.addEventListener('hashchange', handleUrlChange);
+    return () => {
+      window.removeEventListener('popstate', handleUrlChange);
+      window.removeEventListener('hashchange', handleUrlChange);
+    };
+  }, []);
+
   // Close mobile drawer whenever viewport resizes to desktop or view changes
   useEffect(() => {
     const handleResize = () => {
@@ -54,6 +76,15 @@ export default function App() {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  const isUserAdmin = Boolean(
+    user && (
+      user.systemRole === 'admin' ||
+      user.role === 'admin' ||
+      user.nip === '198001012005011001' ||
+      user.id === 'PEG-ADM'
+    )
+  );
 
   const handleLoginSuccess = (userData) => {
     const targetNip = userData?.nip;
@@ -72,6 +103,11 @@ export default function App() {
     localStorage.removeItem('brmp_user');
   };
 
+  const handleAdminLogout = () => {
+    setUser(null);
+    localStorage.removeItem('brmp_user');
+  };
+
   const handleSwitchUser = (newUser) => {
     if (!newUser) return;
     const targetNip = newUser?.nip;
@@ -82,10 +118,60 @@ export default function App() {
     };
     setUser(mergedUser);
     localStorage.setItem('brmp_user', JSON.stringify(mergedUser));
-    // Otomatis pindah halaman langsung ke Dashboard tujuan saat beralih role
     setCurrentView('dashboard');
   };
 
+  // ==========================================
+  // 1. GERBANG PORTAL ADMIN RAHASIA (/admin)
+  // ==========================================
+  if (isAdminRoute) {
+    // Belum login atau bukan Administrator -> Tampilkan Form Login Split-Card Khusus Admin
+    if (!user || !isUserAdmin) {
+      return (
+        <AdminLogin 
+          onLoginSuccess={(adminUser) => {
+            const targetNip = adminUser?.nip;
+            const cachedPhoto = getStoredAvatar(targetNip);
+            const merged = {
+              ...adminUser,
+              fotoProfil: adminUser.fotoProfil || cachedPhoto || null
+            };
+            setUser(merged);
+            localStorage.setItem('brmp_user', JSON.stringify(merged));
+            setCurrentView('admin-dashboard');
+          }} 
+        />
+      );
+    }
+
+    // Administrator Berhasil Login -> Tampilkan Ruang Kendali Admin Utuh
+    return (
+      <div className="admin-portal-wrapper" style={{ minHeight: '100vh', background: '#0b1329' }}>
+        <AdminDashboard 
+          user={user} 
+          onNavigate={(view) => {
+            if (view === 'public-portal' || view === 'pegawai') {
+              if (window.history.pushState) {
+                window.history.pushState({}, '', '/');
+                window.dispatchEvent(new Event('popstate'));
+              } else {
+                window.location.href = '/';
+              }
+            } else {
+              setCurrentView(view);
+            }
+          }} 
+          onUpdateUser={handleSwitchUser} 
+          onLogout={handleAdminLogout}
+          initialTab="dashboard" 
+        />
+      </div>
+    );
+  }
+
+  // ==========================================
+  // 2. GERBANG PORTAL PEGAWAI BIASA (/)
+  // ==========================================
   if (!user) {
     return <Login onLoginSuccess={handleLoginSuccess} />;
   }
@@ -142,19 +228,16 @@ export default function App() {
         {/* Dynamic Main View */}
         <main className={`main-content ${isSptView ? 'flush-view' : ''}`}>
           {currentView === 'dashboard' && (
-            (user?.systemRole === 'admin' || user?.role === 'admin' || user?.nip === '198001012005011001') ? (
-              <AdminDashboard user={user} onNavigate={setCurrentView} onUpdateUser={handleSwitchUser} initialTab="dashboard" />
-            ) : (
-              <DashboardView user={user} onNavigate={setCurrentView} />
-            )
+            <DashboardView user={user} onNavigate={setCurrentView} />
           )}
 
           {currentView.startsWith('admin') && (
-            (user?.systemRole === 'admin' || user?.role === 'admin' || user?.nip === '198001012005011001') ? (
+            isUserAdmin ? (
               <AdminDashboard 
                 user={user} 
                 onNavigate={setCurrentView} 
                 onUpdateUser={handleSwitchUser}
+                onLogout={handleLogout}
                 initialTab={
                   currentView === 'admin-pegawai' ? 'pegawai' :
                   currentView === 'admin-presensi' ? 'presensi' :

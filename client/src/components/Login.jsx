@@ -104,7 +104,7 @@ export default function Login({ onLoginSuccess }) {
             />
           </div>
 
-          {/* Typography BRMP DIY */}
+          {/* Typography SI-AP BRMP DIY */}
           <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1 }}>
             <span 
               style={{ 
@@ -115,34 +115,34 @@ export default function Login({ onLoginSuccess }) {
                 fontFamily: 'var(--font-sans)'
               }}
             >
-              BRMP
+              SI-AP
             </span>
             <span 
               style={{ 
                 fontSize: '0.82rem', 
                 fontWeight: 800, 
-                color: '#2563eb', 
-                letterSpacing: '0.12em',
+                color: '#059669', 
+                letterSpacing: '0.08em',
                 marginTop: '1px'
               }}
             >
-              DIY
+              BRMP DIY
             </span>
           </div>
         </div>
 
-        {/* Subtitle "Internal Login" */}
+        {/* Subtitle "Portal Presensi & Kepegawaian" */}
         <h2 
           style={{
-            fontSize: '1.15rem',
+            fontSize: '1.05rem',
             fontWeight: 600,
             color: '#475569',
             textAlign: 'center',
-            marginBottom: '2rem',
+            marginBottom: '1.75rem',
             letterSpacing: '0.01em'
           }}
         >
-          Internal Login
+          Portal Presensi & Kepegawaian
         </h2>
 
         {/* Error Alert Box */}

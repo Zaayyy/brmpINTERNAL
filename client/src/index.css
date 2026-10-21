@@ -1672,3 +1672,12 @@ button, input, select, textarea {
   letter-spacing: 0.01em;
   opacity: 0.85;
 }
+
+/* Dedicated Admin Split Card Responsiveness */
+@media (max-width: 768px) {
+  .admin-split-card {
+    flex-direction: column !important;
+    max-width: 100% !important;
+    margin: 1rem 0;
+  }
+}

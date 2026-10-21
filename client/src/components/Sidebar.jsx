@@ -618,23 +618,6 @@ export default function Sidebar({ currentView, setCurrentView, user, isOpen, onC
 
       {/* Navigation */}
       <nav className="sidebar-nav">
-        {/* Shortcut to Admin Panel */}
-        <button 
-          className="nav-item-btn"
-          onClick={() => setCurrentView('admin-dashboard')}
-          style={{
-            background: '#ecfdf5',
-            color: '#047857',
-            border: '1px solid #a7f3d0',
-            fontWeight: 700
-          }}
-        >
-          <div className="nav-item-left">
-            <Zap size={16} color="#059669" />
-            <span>⚡ Masuk Panel Admin</span>
-          </div>
-        </button>
-
         {/* Dashboard */}
         <button 
           className={`nav-item-btn ${currentView === 'dashboard' ? 'active' : ''}`}

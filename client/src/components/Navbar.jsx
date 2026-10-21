@@ -349,7 +349,7 @@ export default function Navbar({ user, onLogout, onSwitchUser, onNavigate, isMob
         </div>
 
         <span style={{ fontSize: '1.05rem', fontWeight: 800, letterSpacing: '0.02em', color: '#ffffff', display: 'flex', alignItems: 'center' }}>
-          KITA BRMP DIY
+          SI-AP BRMP DIY
         </span>
 
         <span style={{ 
@@ -423,7 +423,7 @@ export default function Navbar({ user, onLogout, onSwitchUser, onNavigate, isMob
                 PILIH PERAN KEDINASAN (MULTI-ROLE)
               </div>
               <div style={{ maxHeight: '320px', overflowY: 'auto' }}>
-                {demoAccounts.map((acc, idx) => {
+                {(isAdmin ? demoAccounts : demoAccounts.filter(acc => acc.role !== 'admin' && acc.id !== 'PEG-ADM')).map((acc, idx) => {
                   const isActive = user?.nip === acc.nip;
                   const accPhoto = getStoredAvatar(acc.nip);
                   return (

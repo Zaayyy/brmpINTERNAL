@@ -124,48 +124,21 @@ export default function App() {
   // ==========================================
   // 1. GERBANG PORTAL ADMIN RAHASIA (/admin)
   // ==========================================
-  if (isAdminRoute) {
-    // Belum login atau bukan Administrator -> Tampilkan Form Login Split-Card Khusus Admin
-    if (!user || !isUserAdmin) {
-      return (
-        <AdminLogin 
-          onLoginSuccess={(adminUser) => {
-            const targetNip = adminUser?.nip;
-            const cachedPhoto = getStoredAvatar(targetNip);
-            const merged = {
-              ...adminUser,
-              fotoProfil: adminUser.fotoProfil || cachedPhoto || null
-            };
-            setUser(merged);
-            localStorage.setItem('brmp_user', JSON.stringify(merged));
-            setCurrentView('admin-dashboard');
-          }} 
-        />
-      );
-    }
-
-    // Administrator Berhasil Login -> Tampilkan Ruang Kendali Admin Utuh
+  if (isAdminRoute && (!user || !isUserAdmin)) {
     return (
-      <div className="admin-portal-wrapper" style={{ minHeight: '100vh', background: '#0b1329' }}>
-        <AdminDashboard 
-          user={user} 
-          onNavigate={(view) => {
-            if (view === 'public-portal' || view === 'pegawai') {
-              if (window.history.pushState) {
-                window.history.pushState({}, '', '/');
-                window.dispatchEvent(new Event('popstate'));
-              } else {
-                window.location.href = '/';
-              }
-            } else {
-              setCurrentView(view);
-            }
-          }} 
-          onUpdateUser={handleSwitchUser} 
-          onLogout={handleAdminLogout}
-          initialTab="dashboard" 
-        />
-      </div>
+      <AdminLogin 
+        onLoginSuccess={(adminUser) => {
+          const targetNip = adminUser?.nip;
+          const cachedPhoto = getStoredAvatar(targetNip);
+          const merged = {
+            ...adminUser,
+            fotoProfil: adminUser.fotoProfil || cachedPhoto || null
+          };
+          setUser(merged);
+          localStorage.setItem('brmp_user', JSON.stringify(merged));
+          setCurrentView('admin-dashboard');
+        }} 
+      />
     );
   }
 
@@ -227,8 +200,18 @@ export default function App() {
 
         {/* Dynamic Main View */}
         <main className={`main-content ${isSptView ? 'flush-view' : ''}`}>
-          {currentView === 'dashboard' && (
-            <DashboardView user={user} onNavigate={setCurrentView} />
+          {(currentView === 'dashboard' || currentView === 'admin-dashboard') && (
+            (isUserAdmin && (isAdminRoute || currentView === 'admin-dashboard')) ? (
+              <AdminDashboard 
+                user={user} 
+                onNavigate={setCurrentView} 
+                onUpdateUser={handleSwitchUser} 
+                onLogout={handleLogout} 
+                initialTab="dashboard" 
+              />
+            ) : (
+              <DashboardView user={user} onNavigate={setCurrentView} />
+            )
           )}
 
           {currentView.startsWith('admin') && (

@@ -545,6 +545,186 @@ export default function Sidebar({ currentView, setCurrentView, user, isOpen, onC
               </span>
             </div>
           </button>
+
+          {/* Section 4: LAYANAN OPERASIONAL & PERSURATAN */}
+          <div style={{ padding: '14px 14px 4px', fontSize: '0.68rem', fontWeight: 800, color: '#0f766e', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+            LAYANAN KANTOR
+          </div>
+
+          <button 
+            className="nav-item-btn"
+            onClick={() => setCurrentView('absensi-bulanan')}
+            style={
+              currentView === 'absensi-bulanan' ? {
+                background: '#ecfdf5',
+                color: '#065f46',
+                borderLeft: '4px solid #059669',
+                borderRadius: '0 8px 8px 0',
+                fontWeight: 800
+              } : { borderRadius: '0 8px 8px 0', margin: '2px 0' }
+            }
+          >
+            <div className="nav-item-left" style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%' }}>
+              <div style={{
+                width: '30px',
+                height: '30px',
+                borderRadius: '8px',
+                background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#ffffff',
+                boxShadow: '0 3px 8px rgba(16, 185, 129, 0.35)',
+                flexShrink: 0
+              }}>
+                <CalendarCheck2 size={16} strokeWidth={2.4} />
+              </div>
+              <span style={{ fontSize: '0.86rem' }}>Rekap Absensi Bulanan</span>
+              <span style={{ fontSize: '10px', fontWeight: 700, background: '#dcfce7', color: '#047857', padding: '1px 6px', borderRadius: '6px', marginLeft: 'auto' }}>
+                Hadir
+              </span>
+            </div>
+          </button>
+
+          <button 
+            className="nav-item-btn"
+            onClick={() => setCurrentView('adms-monitor')}
+            style={
+              currentView === 'adms-monitor' ? {
+                background: '#ecfdf5',
+                color: '#065f46',
+                borderLeft: '4px solid #059669',
+                borderRadius: '0 8px 8px 0',
+                fontWeight: 800
+              } : { borderRadius: '0 8px 8px 0', margin: '2px 0' }
+            }
+          >
+            <div className="nav-item-left" style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%' }}>
+              <div style={{
+                width: '30px',
+                height: '30px',
+                borderRadius: '8px',
+                background: 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#ffffff',
+                boxShadow: '0 3px 8px rgba(99, 102, 241, 0.35)',
+                flexShrink: 0
+              }}>
+                <Fingerprint size={16} strokeWidth={2.4} />
+              </div>
+              <span style={{ fontSize: '0.86rem' }}>Monitor Mesin ADMS</span>
+              <span style={{ fontSize: '10px', fontWeight: 700, background: '#e0e7ff', color: '#4338ca', padding: '1px 6px', borderRadius: '6px', marginLeft: 'auto' }}>
+                Live
+              </span>
+            </div>
+          </button>
+
+          <button 
+            className="nav-item-btn"
+            onClick={() => setCurrentView('pengajuan-cuti')}
+            style={
+              currentView === 'pengajuan-cuti' ? {
+                background: '#ecfdf5',
+                color: '#065f46',
+                borderLeft: '4px solid #059669',
+                borderRadius: '0 8px 8px 0',
+                fontWeight: 800
+              } : { borderRadius: '0 8px 8px 0', margin: '2px 0' }
+            }
+          >
+            <div className="nav-item-left" style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%' }}>
+              <div style={{
+                width: '30px',
+                height: '30px',
+                borderRadius: '8px',
+                background: 'linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#ffffff',
+                boxShadow: '0 3px 8px rgba(14, 165, 233, 0.35)',
+                flexShrink: 0
+              }}>
+                <CalendarOff size={16} strokeWidth={2.4} />
+              </div>
+              <span style={{ fontSize: '0.86rem' }}>Pengajuan Cuti</span>
+              <span style={{ fontSize: '10px', fontWeight: 700, background: '#e0f2fe', color: '#0369a1', padding: '1px 6px', borderRadius: '6px', marginLeft: 'auto' }}>
+                Cuti
+              </span>
+            </div>
+          </button>
+
+          <button 
+            className="nav-item-btn"
+            onClick={() => setCurrentView('spt-dashboard')}
+            style={
+              currentView.includes('spt') ? {
+                background: '#ecfdf5',
+                color: '#065f46',
+                borderLeft: '4px solid #059669',
+                borderRadius: '0 8px 8px 0',
+                fontWeight: 800
+              } : { borderRadius: '0 8px 8px 0', margin: '2px 0' }
+            }
+          >
+            <div className="nav-item-left" style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%' }}>
+              <div style={{
+                width: '30px',
+                height: '30px',
+                borderRadius: '8px',
+                background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#ffffff',
+                boxShadow: '0 3px 8px rgba(245, 158, 11, 0.35)',
+                flexShrink: 0
+              }}>
+                <FileText size={16} strokeWidth={2.4} />
+              </div>
+              <span style={{ fontSize: '0.86rem' }}>Aplikasi SPT Digital</span>
+              <span style={{ fontSize: '10px', fontWeight: 700, background: '#fef3c7', color: '#b45309', padding: '1px 6px', borderRadius: '6px', marginLeft: 'auto' }}>
+                SPT
+              </span>
+            </div>
+          </button>
+
+          <button 
+            className="nav-item-btn"
+            onClick={() => setCurrentView('pengaturan-akun')}
+            style={
+              currentView === 'pengaturan-akun' ? {
+                background: '#ecfdf5',
+                color: '#065f46',
+                borderLeft: '4px solid #059669',
+                borderRadius: '0 8px 8px 0',
+                fontWeight: 800
+              } : { borderRadius: '0 8px 8px 0', margin: '2px 0' }
+            }
+          >
+            <div className="nav-item-left" style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%' }}>
+              <div style={{
+                width: '30px',
+                height: '30px',
+                borderRadius: '8px',
+                background: 'linear-gradient(135deg, #64748b 0%, #475569 100%)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#ffffff',
+                boxShadow: '0 3px 8px rgba(100, 116, 139, 0.35)',
+                flexShrink: 0
+              }}>
+                <Settings size={16} strokeWidth={2.4} />
+              </div>
+              <span style={{ fontSize: '0.86rem' }}>Profil & Akun Admin</span>
+              <span style={{ fontSize: '10px', fontWeight: 700, background: '#f1f5f9', color: '#475569', padding: '1px 6px', borderRadius: '6px', marginLeft: 'auto' }}>
+                Profil
+              </span>
+            </div>
+          </button>
         </nav>
       </aside>
     );

@@ -80,6 +80,20 @@ def upload_file(ftp, local_path, remote_path):
     return True
 
 
+def upload_dir_recursive(ftp, local_dir, remote_dir):
+    if not os.path.exists(local_dir):
+        log(f"Direktori lokal tidak ditemukan, dilewati: {local_dir}", "[WARN]")
+        return
+    for root, dirs, files in os.walk(local_dir):
+        rel_path = os.path.relpath(root, local_dir).replace('\\', '/')
+        cur_remote = remote_dir if rel_path == '.' else f"{remote_dir}/{rel_path}"
+        ensure_remote_dir(ftp, cur_remote)
+        for f in files:
+            loc_f = os.path.join(root, f)
+            rem_f = f"{cur_remote}/{f}"
+            upload_file(ftp, loc_f, rem_f)
+
+
 def upload_bytes(ftp, content_bytes, remote_path):
     remote_dir = os.path.dirname(remote_path).replace('\\', '/')
     ensure_remote_dir(ftp, remote_dir)
@@ -133,14 +147,10 @@ def main():
         for loc, rem in backend_files:
             upload_file(ftp, loc, rem)
 
-        # Upload Frontend Assets (client/dist)
+        # Upload Frontend Assets (client/dist secara rekursif termasuk spt-portal)
         dist_dir = os.path.join(BASE_DIR, "client", "dist")
         if os.path.exists(dist_dir):
-            upload_file(ftp, os.path.join(dist_dir, "index.html"), f"{REMOTE_KITA}/index.html")
-            assets_dir = os.path.join(dist_dir, "assets")
-            if os.path.exists(assets_dir):
-                for f in os.listdir(assets_dir):
-                    upload_file(ftp, os.path.join(assets_dir, f), f"{REMOTE_KITA}/assets/{f}")
+            upload_dir_recursive(ftp, dist_dir, REMOTE_KITA)
 
         # 2. DEPLOY ADMS.BRMPDIY.MY.ID (Receiver Mesin Absensi)
         print("\n" + "-" * 50)

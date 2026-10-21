@@ -1,8 +1,22 @@
-import React, { useState } from 'react';
-import { Search, Bell, LogOut, ShieldCheck, UserCheck, ChevronDown, Menu, X, Settings } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { 
+  Search, 
+  Bell, 
+  LogOut, 
+  ShieldCheck, 
+  UserCheck, 
+  ChevronDown, 
+  Menu, 
+  X, 
+  Settings,
+  CheckCircle2,
+  Sparkles,
+  Command
+} from 'lucide-react';
 
 export default function Navbar({ user, onLogout, onSwitchUser, onNavigate, isMobileMenuOpen, onToggleMobileMenu }) {
   const [showRoleMenu, setShowRoleMenu] = useState(false);
+  const dropdownRef = useRef(null);
 
   const demoAccounts = [
     {
@@ -14,6 +28,8 @@ export default function Navbar({ user, onLogout, onSwitchUser, onNavigate, isMob
       systemRole: "admin",
       approvalRole: "admin",
       roleLabel: "Administrator Sistem (Superadmin)",
+      roleCategory: "Super Admin",
+      categoryColor: "#ef4444",
       jabatan: "Pranata Komputer Ahli Muda / Admin Kepegawaian",
       divisi: "Sub Bagian Tata Usaha & Kepegawaian",
       sisaCuti: 12
@@ -27,6 +43,8 @@ export default function Navbar({ user, onLogout, onSwitchUser, onNavigate, isMob
       systemRole: "pegawai",
       approvalRole: "pemohon",
       roleLabel: "Admin Sekretariat (Tata Persuratan & Penomoran)",
+      roleCategory: "Sekretariat",
+      categoryColor: "#8b5cf6",
       jabatan: "Arsiparis Terampil / Sekretariat Balai",
       divisi: "Tim Kerja Tata Usaha dan Rumah Tangga",
       sisaCuti: 12
@@ -40,6 +58,8 @@ export default function Navbar({ user, onLogout, onSwitchUser, onNavigate, isMob
       systemRole: "pegawai",
       approvalRole: "verifikator_2",
       roleLabel: "Kobag TU (Approval Utama & Verifikator 2)",
+      roleCategory: "Approval Utama",
+      categoryColor: "#1d4ed8",
       jabatan: "Ketua Bagian Tata Usaha",
       divisi: "Bagian Tata Usaha",
       sisaCuti: 14
@@ -53,6 +73,8 @@ export default function Navbar({ user, onLogout, onSwitchUser, onNavigate, isMob
       systemRole: "pegawai",
       approvalRole: "verifikator_1",
       roleLabel: "Ketimker SDM (Approval Unit 1)",
+      roleCategory: "Ketua Tim Kerja",
+      categoryColor: "#15803d",
       jabatan: "Analis SDM Aparatur Ahli Pertama",
       divisi: "Tim Kerja Pengelolaan Sumber Daya Manusia",
       sisaCuti: 12
@@ -66,6 +88,8 @@ export default function Navbar({ user, onLogout, onSwitchUser, onNavigate, isMob
       systemRole: "pegawai",
       approvalRole: "verifikator_1",
       roleLabel: "Ketimker TU & Rumah Tangga (Approval Unit)",
+      roleCategory: "Ketua Tim Kerja",
+      categoryColor: "#15803d",
       jabatan: "Arsiparis Penyelia",
       divisi: "Tim Kerja Tata Usaha dan Rumah Tangga",
       sisaCuti: 11
@@ -79,6 +103,8 @@ export default function Navbar({ user, onLogout, onSwitchUser, onNavigate, isMob
       systemRole: "pegawai",
       approvalRole: "verifikator_1",
       roleLabel: "Kopoks (Koordinator Poksi & Monitoring Penugasan)",
+      roleCategory: "Koordinator",
+      categoryColor: "#0284c7",
       jabatan: "Peneliti Ahli Madya / Kopoks Modernisasi",
       divisi: "Kelompok Jabatan Fungsional",
       sisaCuti: 12
@@ -92,6 +118,8 @@ export default function Navbar({ user, onLogout, onSwitchUser, onNavigate, isMob
       systemRole: "pegawai",
       approvalRole: "pemohon",
       roleLabel: "Pegawai / Pemohon (Devi Eka)",
+      roleCategory: "Pegawai",
+      categoryColor: "#f59e0b",
       jabatan: "Penelaah Teknis Kebijakan",
       divisi: "Tim Kerja Pengelolaan Sumber Daya Manusia",
       sisaCuti: 10
@@ -105,11 +133,28 @@ export default function Navbar({ user, onLogout, onSwitchUser, onNavigate, isMob
       systemRole: "pegawai",
       approvalRole: "pemohon",
       roleLabel: "Pegawai / Pemohon (Agnita)",
+      roleCategory: "Pegawai",
+      categoryColor: "#f59e0b",
       jabatan: "Pengelola Standardisasi Teknis",
       divisi: "Balai Penerapan Standar Instrumen Pertanian DIY",
       sisaCuti: 12
     }
   ];
+
+  // Close dropdown on click outside
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setShowRoleMenu(false);
+      }
+    }
+    if (showRoleMenu) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showRoleMenu]);
 
   const handleSelectAccount = (acc) => {
     if (onSwitchUser) {
@@ -147,11 +192,21 @@ export default function Navbar({ user, onLogout, onSwitchUser, onNavigate, isMob
           placeholder="Cari fitur, agenda, dokumen SPT..." 
           aria-label="Cari"
         />
+        <span style={{
+          fontSize: '0.65rem',
+          background: 'rgba(255, 255, 255, 0.2)',
+          padding: '2px 6px',
+          borderRadius: '4px',
+          fontWeight: 700,
+          color: 'rgba(255, 255, 255, 0.9)'
+        }}>
+          Ctrl K
+        </span>
       </div>
 
       <div className="navbar-right">
         {/* Switch Role Quick Dropdown */}
-        <div style={{ position: 'relative' }}>
+        <div style={{ position: 'relative' }} ref={dropdownRef}>
           <button
             onClick={() => setShowRoleMenu(!showRoleMenu)}
             className="navbar-role-btn"
@@ -159,7 +214,7 @@ export default function Navbar({ user, onLogout, onSwitchUser, onNavigate, isMob
           >
             <UserCheck size={14} />
             <span className="role-btn-text">Ganti Peran</span>
-            <ChevronDown size={13} />
+            <ChevronDown size={13} style={{ transform: showRoleMenu ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
           </button>
 
           {showRoleMenu && (
@@ -168,21 +223,30 @@ export default function Navbar({ user, onLogout, onSwitchUser, onNavigate, isMob
               style={{
                 position: 'absolute',
                 right: 0,
-                top: '38px',
-                width: 'min(320px, calc(100vw - 24px))',
-                background: '#ffffff',
-                color: '#1e293b',
-                borderRadius: '8px',
-                boxShadow: '0 10px 25px rgba(0,0,0,0.2)',
-                border: '1px solid #cbd5e1',
+                top: '42px',
+                width: 'min(360px, calc(100vw - 24px))',
                 zIndex: 1000,
                 overflow: 'hidden'
               }}
             >
-              <div style={{ padding: '10px 14px', background: '#f1f5f9', borderBottom: '1px solid #e2e8f0', fontSize: '11.5px', fontWeight: 700, color: '#334155' }}>
-                PILIH PERAN KEDINASAN (MULTI-ROLE)
+              <div style={{
+                padding: '12px 16px',
+                background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)',
+                borderBottom: '1px solid #e2e8f0',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.78rem', fontWeight: 800, color: '#1e293b' }}>
+                  <Sparkles size={14} className="text-blue-600" />
+                  <span>SIMULASI MULTI-ROLE KEDINASAN</span>
+                </div>
+                <span style={{ fontSize: '0.68rem', background: '#dbeafe', color: '#1d4ed8', padding: '2px 8px', borderRadius: '9999px', fontWeight: 700 }}>
+                  8 Akun
+                </span>
               </div>
-              <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
+
+              <div style={{ maxHeight: '340px', overflowY: 'auto' }}>
                 {demoAccounts.map((acc, idx) => {
                   const isActive = user?.nip === acc.nip;
                   return (
@@ -190,25 +254,69 @@ export default function Navbar({ user, onLogout, onSwitchUser, onNavigate, isMob
                       key={idx}
                       onClick={() => handleSelectAccount(acc)}
                       style={{
-                        padding: '10px 14px',
+                        padding: '12px 16px',
                         borderBottom: '1px solid #f1f5f9',
                         cursor: 'pointer',
-                        background: isActive ? '#f0fdf4' : 'transparent',
-                        transition: 'background 0.15s'
+                        background: isActive ? '#f0fdf4' : '#ffffff',
+                        transition: 'all 0.15s ease',
+                        display: 'flex',
+                        alignItems: 'flex-start',
+                        gap: '10px'
+                      }}
+                      onMouseEnter={(e) => {
+                        if (!isActive) e.currentTarget.style.background = '#f8fafc';
+                      }}
+                      onMouseLeave={(e) => {
+                        if (!isActive) e.currentTarget.style.background = '#ffffff';
                       }}
                     >
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <span style={{ fontSize: '12px', fontWeight: 700, color: isActive ? '#15803d' : '#0f172a' }}>
-                          {acc.nama}
-                        </span>
-                        {isActive && <span style={{ fontSize: '10px', color: '#15803d', fontWeight: 700 }}>Aktif</span>}
+                      <div style={{
+                        width: '32px',
+                        height: '32px',
+                        borderRadius: '50%',
+                        background: isActive ? '#15803d' : '#f1f5f9',
+                        color: isActive ? '#ffffff' : '#475569',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: '0.78rem',
+                        fontWeight: 800,
+                        flexShrink: 0,
+                        boxShadow: isActive ? '0 2px 6px rgba(21, 128, 61, 0.3)' : 'none'
+                      }}>
+                        {acc.nama.charAt(0)}
                       </div>
-                      <div style={{ fontSize: '11px', color: '#2563eb', fontWeight: 600, marginTop: '2px' }}>
-                        {acc.roleLabel}
+
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '6px' }}>
+                          <span style={{ fontSize: '0.82rem', fontWeight: 800, color: isActive ? '#15803d' : '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                            {acc.nama}
+                          </span>
+                          <span style={{
+                            fontSize: '0.65rem',
+                            fontWeight: 800,
+                            padding: '1px 6px',
+                            borderRadius: '4px',
+                            background: `${acc.categoryColor}18`,
+                            color: acc.categoryColor,
+                            flexShrink: 0
+                          }}>
+                            {acc.roleCategory}
+                          </span>
+                        </div>
+                        <div style={{ fontSize: '0.75rem', color: '#2563eb', fontWeight: 600, marginTop: '2px' }}>
+                          {acc.roleLabel}
+                        </div>
+                        <div style={{ fontSize: '0.7rem', color: '#64748b', marginTop: '1px' }}>
+                          NIP: {acc.nip}
+                        </div>
                       </div>
-                      <div style={{ fontSize: '10px', color: '#64748b' }}>
-                        NIP: {acc.nip}
-                      </div>
+
+                      {isActive && (
+                        <div style={{ color: '#15803d', flexShrink: 0, marginTop: '2px' }}>
+                          <CheckCircle2 size={16} />
+                        </div>
+                      )}
                     </div>
                   );
                 })}
@@ -220,7 +328,6 @@ export default function Navbar({ user, onLogout, onSwitchUser, onNavigate, isMob
         <button 
           title="Notifikasi" 
           className="navbar-bell-btn"
-          style={{ background: 'transparent', border: 'none', color: 'white', cursor: 'pointer', display: 'flex', alignItems: 'center', padding: '6px' }}
         >
           <Bell size={18} />
         </button>
@@ -230,24 +337,39 @@ export default function Navbar({ user, onLogout, onSwitchUser, onNavigate, isMob
             className="navbar-user-info" 
             onClick={() => onNavigate && onNavigate('pengaturan-akun')}
             title="Klik untuk membuka Pengaturan Akun & Profil"
-            style={{ textAlign: 'right', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', padding: '2px 6px', borderRadius: '6px' }}
+            style={{ textAlign: 'right', display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}
           >
-            {user?.fotoProfil ? (
-              <img 
-                src={user.fotoProfil} 
-                alt="Avatar" 
-                style={{ width: '32px', height: '32px', borderRadius: '50%', objectFit: 'cover', border: '2px solid rgba(255,255,255,0.5)' }}
-              />
-            ) : (
-              <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'rgba(255,255,255,0.25)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8rem', fontWeight: 800, border: '1px solid rgba(255,255,255,0.4)' }}>
-                {(user?.nama || 'P').charAt(0)}
-              </div>
-            )}
+            <div style={{ position: 'relative' }}>
+              {user?.fotoProfil ? (
+                <img 
+                  src={user.fotoProfil} 
+                  alt="Avatar" 
+                  style={{ width: '34px', height: '34px', borderRadius: '50%', objectFit: 'cover', border: '2px solid rgba(255,255,255,0.7)', display: 'block' }}
+                />
+              ) : (
+                <div style={{ width: '34px', height: '34px', borderRadius: '50%', background: 'rgba(255,255,255,0.25)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.85rem', fontWeight: 800, border: '1.5px solid rgba(255,255,255,0.5)' }}>
+                  {(user?.nama || 'P').charAt(0)}
+                </div>
+              )}
+              {/* Online indicator ring */}
+              <span style={{
+                position: 'absolute',
+                bottom: '0',
+                right: '0',
+                width: '10px',
+                height: '10px',
+                borderRadius: '50%',
+                background: '#10b981',
+                border: '2px solid #1d4ed8',
+                boxShadow: '0 0 6px #10b981'
+              }} />
+            </div>
+
             <div style={{ display: 'flex', flexDirection: 'column' }}>
-              <span style={{ fontSize: '0.82rem', fontWeight: 700, maxWidth: '140px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              <span style={{ fontSize: '0.84rem', fontWeight: 800, maxWidth: '145px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', letterSpacing: '-0.01em' }}>
                 {user?.nama || 'Agnita V. Putri'}
               </span>
-              <span className="navbar-user-nip" style={{ fontSize: '0.68rem', opacity: 0.85 }}>
+              <span className="navbar-user-nip" style={{ fontSize: '0.7rem', opacity: 0.9 }}>
                 NIP: {user?.nip || '199808062014032001'}
               </span>
             </div>
@@ -258,19 +380,19 @@ export default function Navbar({ user, onLogout, onSwitchUser, onNavigate, isMob
             title="Pengaturan Akun & Profil"
             className="navbar-settings-btn"
             style={{
-              background: 'rgba(255, 255, 255, 0.15)',
+              background: 'rgba(255, 255, 255, 0.16)',
               border: '1px solid rgba(255, 255, 255, 0.25)',
               color: '#ffffff',
-              padding: '6px',
-              borderRadius: '8px',
+              padding: '7px',
+              borderRadius: '10px',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              transition: 'all 0.2s'
+              transition: 'all 0.2s ease'
             }}
           >
-            <Settings size={15} />
+            <Settings size={16} />
           </button>
 
           <button
@@ -278,21 +400,21 @@ export default function Navbar({ user, onLogout, onSwitchUser, onNavigate, isMob
             title="Keluar"
             className="navbar-logout-btn"
             style={{
-              background: 'rgba(239, 68, 68, 0.2)',
-              border: '1px solid rgba(239, 68, 68, 0.4)',
+              background: 'rgba(239, 68, 68, 0.25)',
+              border: '1px solid rgba(239, 68, 68, 0.45)',
               color: '#fee2e2',
-              padding: '6px 10px',
-              borderRadius: '8px',
+              padding: '7px 12px',
+              borderRadius: '10px',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
               gap: '6px',
-              fontSize: '0.78rem',
-              fontWeight: 600,
-              transition: 'all 0.2s'
+              fontSize: '0.8rem',
+              fontWeight: 700,
+              transition: 'all 0.2s ease'
             }}
           >
-            <LogOut size={14} />
+            <LogOut size={15} />
             <span className="logout-btn-text">Keluar</span>
           </button>
         </div>

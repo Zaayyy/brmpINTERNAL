@@ -100,11 +100,39 @@ export default function Sidebar({ currentView, setCurrentView, user, isOpen, onC
               })()}
             </div>
           )}
+          {/* Online green presence indicator */}
+          <span style={{
+            position: 'absolute',
+            bottom: '2px',
+            right: '2px',
+            width: '14px',
+            height: '14px',
+            borderRadius: '50%',
+            background: '#10b981',
+            border: '2.5px solid #ffffff',
+            boxShadow: '0 0 8px rgba(16, 185, 129, 0.6)'
+          }} />
         </div>
         <h3 className="profile-name">{user?.nama || 'Agnita Verdiani Putri'}</h3>
-        <span className="profile-date" style={{ fontSize: '0.72rem', color: '#64748b' }}>
+        <span className="profile-date" style={{ fontSize: '0.72rem' }}>
           {user?.jabatan || 'Pegawai BRMP DIY'}
         </span>
+        <div style={{ marginTop: '6px' }}>
+          <span style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '4px',
+            fontSize: '0.65rem',
+            color: '#15803d',
+            background: '#dcfce7',
+            padding: '2px 8px',
+            borderRadius: '9999px',
+            fontWeight: 700
+          }}>
+            <span style={{ width: '5px', height: '5px', borderRadius: '50%', background: '#16a34a' }}></span>
+            <span>Siap Dinas</span>
+          </span>
+        </div>
       </div>
 
       {/* Navigation */}

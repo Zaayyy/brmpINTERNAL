@@ -73,7 +73,7 @@ export default function App() {
   const isSptView = currentView.includes('spt');
 
   return (
-    <div className="app-shell" style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', background: '#f8fafc' }}>
+    <div className="app-shell" style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', background: 'var(--bg-app)' }}>
       {/* Top Header Navbar with Quick Role Switcher */}
       <Navbar 
         user={user} 

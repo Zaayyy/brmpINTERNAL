@@ -253,7 +253,7 @@ export default function PengaturanAkun({ user, onUpdateUser }) {
       {/* Page Header */}
       <div style={{ marginBottom: '1.5rem' }}>
         <h2 style={{ fontSize: '1.45rem', fontWeight: 800, color: '#0f172a', margin: '0 0 4px 0', display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <div style={{ background: '#2563eb', padding: '6px', borderRadius: '10px', color: '#ffffff', display: 'inline-flex' }}>
+          <div style={{ background: 'linear-gradient(135deg, var(--primary-600) 0%, var(--primary-700) 100%)', padding: '6px', borderRadius: '10px', color: '#ffffff', display: 'inline-flex', boxShadow: '0 2px 8px rgba(22, 163, 74, 0.3)' }}>
             <KeyRound size={22} />
           </div>
           <span>Pengaturan Akun & Profil Pegawai</span>
@@ -311,8 +311,8 @@ export default function PengaturanAkun({ user, onUpdateUser }) {
             padding: '10px 18px',
             border: 'none',
             background: 'transparent',
-            borderBottom: activeSubTab === 'profil' ? '3px solid #2563eb' : '3px solid transparent',
-            color: activeSubTab === 'profil' ? '#2563eb' : '#64748b',
+            borderBottom: activeSubTab === 'profil' ? '3px solid var(--primary-600)' : '3px solid transparent',
+            color: activeSubTab === 'profil' ? 'var(--primary-700)' : '#64748b',
             fontWeight: activeSubTab === 'profil' ? 700 : 500,
             fontSize: '0.9rem',
             cursor: 'pointer',
@@ -332,8 +332,8 @@ export default function PengaturanAkun({ user, onUpdateUser }) {
             padding: '10px 18px',
             border: 'none',
             background: 'transparent',
-            borderBottom: activeSubTab === 'keamanan' ? '3px solid #2563eb' : '3px solid transparent',
-            color: activeSubTab === 'keamanan' ? '#2563eb' : '#64748b',
+            borderBottom: activeSubTab === 'keamanan' ? '3px solid var(--primary-600)' : '3px solid transparent',
+            color: activeSubTab === 'keamanan' ? 'var(--primary-700)' : '#64748b',
             fontWeight: activeSubTab === 'keamanan' ? 700 : 500,
             fontSize: '0.9rem',
             cursor: 'pointer',
@@ -351,7 +351,7 @@ export default function PengaturanAkun({ user, onUpdateUser }) {
       {activeSubTab === 'profil' && (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.25rem' }}>
           {/* Card Foto Profil Pegawai */}
-          <div className="brmp-card" style={{ gridColumn: '1 / -1', padding: '1.5rem', display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: '1.5rem', background: 'linear-gradient(to right, #ffffff, #f8fafc)', border: '1px solid #e2e8f0', borderRadius: '12px' }}>
+          <div className="brmp-card" style={{ gridColumn: '1 / -1', padding: '1.5rem', display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: '1.5rem', background: 'linear-gradient(to right, #ffffff, #f0fdf4)', border: '1px solid var(--border-light)', borderRadius: '12px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
               <div style={{ position: 'relative' }}>
                 <div style={{
@@ -359,10 +359,10 @@ export default function PengaturanAkun({ user, onUpdateUser }) {
                   height: '92px',
                   borderRadius: '50%',
                   overflow: 'hidden',
-                  boxShadow: '0 4px 14px rgba(37,99,235,0.22)',
+                  boxShadow: '0 4px 14px rgba(22,163,74,0.25)',
                   border: '3px solid #ffffff',
-                  outline: '2.5px solid #3b82f6',
-                  background: 'linear-gradient(135deg, #1d4ed8, #2563eb)',
+                  outline: '2.5px solid var(--primary-500)',
+                  background: 'linear-gradient(135deg, var(--primary-800), var(--primary-600))',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -399,7 +399,7 @@ export default function PengaturanAkun({ user, onUpdateUser }) {
                     width: '32px',
                     height: '32px',
                     borderRadius: '50%',
-                    background: '#2563eb',
+                    background: 'var(--primary-600)',
                     color: '#ffffff',
                     border: '2px solid #ffffff',
                     display: 'flex',
@@ -431,7 +431,7 @@ export default function PengaturanAkun({ user, onUpdateUser }) {
                     style={{
                       padding: '8px 16px',
                       borderRadius: '8px',
-                      background: '#2563eb',
+                      background: 'var(--primary-600)',
                       color: '#ffffff',
                       border: 'none',
                       fontSize: '0.82rem',
@@ -440,7 +440,7 @@ export default function PengaturanAkun({ user, onUpdateUser }) {
                       display: 'inline-flex',
                       alignItems: 'center',
                       gap: '7px',
-                      boxShadow: '0 2px 6px rgba(37,99,235,0.25)'
+                      boxShadow: '0 2px 6px rgba(22,163,74,0.3)'
                     }}
                   >
                     <Upload size={15} />
@@ -474,8 +474,8 @@ export default function PengaturanAkun({ user, onUpdateUser }) {
               </div>
             </div>
 
-            <div style={{ fontSize: '0.78rem', color: '#64748b', maxWidth: '340px', background: '#eff6ff', padding: '12px 14px', borderRadius: '10px', border: '1px solid #dbeafe' }}>
-              <div style={{ fontWeight: 700, color: '#1e40af', marginBottom: '3px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <div style={{ fontSize: '0.78rem', color: '#166534', maxWidth: '340px', background: 'var(--primary-50)', padding: '12px 14px', borderRadius: '10px', border: '1px solid var(--primary-200)' }}>
+              <div style={{ fontWeight: 700, color: 'var(--primary-900)', marginBottom: '3px', display: 'flex', alignItems: 'center', gap: '6px' }}>
                 <Sparkles size={14} className="text-amber-500" />
                 <span>Optimasi Otomatis:</span>
               </div>
@@ -499,14 +499,14 @@ export default function PengaturanAkun({ user, onUpdateUser }) {
                 height: '56px',
                 borderRadius: '50%',
                 overflow: 'hidden',
-                background: 'linear-gradient(135deg, #2563eb, #1d4ed8)',
+                background: 'linear-gradient(135deg, var(--primary-700), var(--primary-500))',
                 color: '#ffffff',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 fontSize: '1.35rem',
                 fontWeight: 800,
-                boxShadow: '0 4px 10px rgba(37,99,235,0.25)',
+                boxShadow: '0 4px 10px rgba(22,163,74,0.3)',
                 flexShrink: 0
               }}>
                 {fotoProfil ? (
@@ -543,7 +543,7 @@ export default function PengaturanAkun({ user, onUpdateUser }) {
 
               <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #f8fafc', paddingBottom: '8px' }}>
                 <span style={{ color: '#64748b' }}>Pangkat / Golongan:</span>
-                <span style={{ fontWeight: 700, color: '#2563eb' }}>{user?.golongan || 'III/b'}</span>
+                <span style={{ fontWeight: 700, color: 'var(--primary-700)' }}>{user?.golongan || 'III/b'}</span>
               </div>
 
               <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #f8fafc', paddingBottom: '8px' }}>
@@ -576,10 +576,10 @@ export default function PengaturanAkun({ user, onUpdateUser }) {
 
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#f8fafc', padding: '10px 12px', borderRadius: '8px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <Cpu size={16} className="text-blue-600" />
+                  <Cpu size={16} style={{ color: 'var(--primary-600)' }} />
                   <span style={{ fontSize: '0.8rem', fontWeight: 600, color: '#334155' }}>PIN Mesin Fingerprint:</span>
                 </div>
-                <strong style={{ fontSize: '0.9rem', color: '#2563eb', background: '#eff6ff', padding: '2px 10px', borderRadius: '6px' }}>
+                <strong style={{ fontSize: '0.9rem', color: 'var(--primary-800)', background: 'var(--primary-50)', border: '1px solid var(--primary-200)', padding: '2px 10px', borderRadius: '6px' }}>
                   {user?.pinMesin || '-'}
                 </strong>
               </div>
@@ -589,7 +589,7 @@ export default function PengaturanAkun({ user, onUpdateUser }) {
           {/* Card Form Kontak & Alamat */}
           <div className="brmp-card" style={{ padding: '1.5rem' }}>
             <h3 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#1e293b', margin: '0 0 4px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Phone size={18} className="text-blue-600" />
+              <Phone size={18} style={{ color: 'var(--primary-600)' }} />
               <span>Informasi Kontak & Domisili</span>
             </h3>
             <p style={{ margin: '0 0 1.25rem 0', fontSize: '0.8rem', color: '#64748b' }}>
@@ -672,7 +672,7 @@ export default function PengaturanAkun({ user, onUpdateUser }) {
                   padding: '10px 18px',
                   borderRadius: '8px',
                   border: 'none',
-                  background: '#2563eb',
+                  background: 'linear-gradient(135deg, var(--primary-600) 0%, var(--primary-700) 100%)',
                   color: '#ffffff',
                   fontWeight: 700,
                   fontSize: '0.875rem',
@@ -681,7 +681,7 @@ export default function PengaturanAkun({ user, onUpdateUser }) {
                   alignItems: 'center',
                   justifyContent: 'center',
                   gap: '8px',
-                  boxShadow: '0 2px 6px rgba(37,99,235,0.25)',
+                  boxShadow: '0 2px 8px rgba(22, 163, 74, 0.3)',
                   transition: 'background 0.2s'
                 }}
               >
@@ -701,8 +701,9 @@ export default function PengaturanAkun({ user, onUpdateUser }) {
               width: '52px',
               height: '52px',
               borderRadius: '50%',
-              background: '#eff6ff',
-              color: '#2563eb',
+              background: 'var(--primary-50)',
+              color: 'var(--primary-600)',
+              border: '1px solid var(--primary-200)',
               display: 'inline-flex',
               alignItems: 'center',
               justifyContent: 'center',

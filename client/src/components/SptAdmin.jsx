@@ -147,7 +147,7 @@ export default function SptAdmin({ user }) {
       <div className="breadcrumb-banner no-print">
         <div>
           <h1 className="breadcrumb-title">
-            <Settings size={24} className="text-blue-600" />
+            <Settings size={24} style={{ color: 'var(--primary-600)' }} />
             <span>Pusat Administrasi & Tata Naskah Sekretariat BRMP DIY</span>
           </h1>
           <div className="breadcrumb-path">
@@ -288,7 +288,7 @@ export default function SptAdmin({ user }) {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '16px' }}>
               {menimbangList.map((item, idx) => (
                 <div key={idx} style={{ display: 'flex', gap: '10px', alignItems: 'center', background: '#f8fafc', padding: '12px 14px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
-                  <span style={{ fontWeight: 700, color: '#2563eb', minWidth: '24px' }}>
+                  <span style={{ fontWeight: 700, color: 'var(--primary-700)', minWidth: '24px' }}>
                     {String.fromCharCode(97 + idx)}.
                   </span>
                   <input 
@@ -353,7 +353,7 @@ export default function SptAdmin({ user }) {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '16px' }}>
               {dasarList.map((item, idx) => (
                 <div key={idx} style={{ display: 'flex', gap: '10px', alignItems: 'center', background: '#f8fafc', padding: '12px 14px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
-                  <span style={{ fontWeight: 700, color: '#2563eb', minWidth: '24px' }}>
+                  <span style={{ fontWeight: 700, color: 'var(--primary-700)', minWidth: '24px' }}>
                     {idx + 1}.
                   </span>
                   <input 

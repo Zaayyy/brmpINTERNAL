@@ -225,7 +225,7 @@ export default function PengajuanSpt({ user, onNavigateToReport }) {
       <div className="breadcrumb-banner no-print">
         <div>
           <h1 className="breadcrumb-title">
-            <FileText size={24} className="text-blue-600" />
+            <FileText size={24} style={{ color: 'var(--primary-600)' }} />
             <span>Formulir Pengajuan Surat Perintah Tugas (SPT) Digital</span>
           </h1>
           <div className="breadcrumb-path">
@@ -248,26 +248,26 @@ export default function PengajuanSpt({ user, onNavigateToReport }) {
 
       {/* Stepper Progress Bar */}
       <div className="card mb-4">
-        <div style={{ display: 'flex', justifyContent: 'space-between', padding: '16px 24px', background: '#f8fafc', borderBottom: '1px solid #e2e8f0', borderRadius: '12px 12px 0 0', flexWrap: 'wrap', gap: '8px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', padding: '16px 24px', background: 'var(--primary-50)', borderBottom: '1px solid var(--primary-100)', borderRadius: '12px 12px 0 0', flexWrap: 'wrap', gap: '8px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span style={{ width: '28px', height: '28px', borderRadius: '50%', background: '#2563eb', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '12px' }}>1</span>
-            <span style={{ fontSize: '13px', fontWeight: 600, color: '#1e293b' }}>1. Klasifikasi Tugas</span>
+            <span style={{ width: '28px', height: '28px', borderRadius: '50%', background: 'var(--primary-600)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '12px', boxShadow: '0 2px 6px rgba(22, 101, 52, 0.25)' }}>1</span>
+            <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--primary-950)' }}>1. Klasifikasi Tugas</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span style={{ width: '28px', height: '28px', borderRadius: '50%', background: '#2563eb', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '12px' }}>2</span>
-            <span style={{ fontSize: '13px', fontWeight: 600, color: '#1e293b' }}>2. Waktu & Durasi</span>
+            <span style={{ width: '28px', height: '28px', borderRadius: '50%', background: 'var(--primary-600)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '12px', boxShadow: '0 2px 6px rgba(22, 101, 52, 0.25)' }}>2</span>
+            <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--primary-950)' }}>2. Waktu & Durasi</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span style={{ width: '28px', height: '28px', borderRadius: '50%', background: '#2563eb', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '12px' }}>3</span>
-            <span style={{ fontSize: '13px', fontWeight: 600, color: '#1e293b' }}>3. Personil Pelaksana</span>
+            <span style={{ width: '28px', height: '28px', borderRadius: '50%', background: 'var(--primary-600)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '12px', boxShadow: '0 2px 6px rgba(22, 101, 52, 0.25)' }}>3</span>
+            <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--primary-950)' }}>3. Personil Pelaksana</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span style={{ width: '28px', height: '28px', borderRadius: '50%', background: '#2563eb', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '12px' }}>4</span>
-            <span style={{ fontSize: '13px', fontWeight: 600, color: '#1e293b' }}>4. Lokasi & Tujuan</span>
+            <span style={{ width: '28px', height: '28px', borderRadius: '50%', background: 'var(--primary-600)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '12px', boxShadow: '0 2px 6px rgba(22, 101, 52, 0.25)' }}>4</span>
+            <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--primary-950)' }}>4. Lokasi & Tujuan</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span style={{ width: '28px', height: '28px', borderRadius: '50%', background: '#2563eb', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '12px' }}>5</span>
-            <span style={{ fontSize: '13px', fontWeight: 600, color: '#1e293b' }}>5. Uraian Tugas</span>
+            <span style={{ width: '28px', height: '28px', borderRadius: '50%', background: 'var(--primary-600)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '12px', boxShadow: '0 2px 6px rgba(22, 101, 52, 0.25)' }}>5</span>
+            <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--primary-950)' }}>5. Uraian Tugas</span>
           </div>
         </div>
 
@@ -362,8 +362,8 @@ export default function PengajuanSpt({ user, onNavigateToReport }) {
               <label className="form-label" style={{ fontWeight: 600 }}>
                 Durasi Waktu Kalender
               </label>
-              <div style={{ padding: '10px 14px', background: '#f1f5f9', border: '1px solid #cbd5e1', borderRadius: '8px', fontSize: '13px', fontWeight: 600, color: '#334155', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Clock size={16} className="text-blue-600" />
+              <div style={{ padding: '10px 14px', background: 'var(--primary-50)', border: '1px solid var(--primary-200)', borderRadius: '8px', fontSize: '13px', fontWeight: 600, color: 'var(--primary-900)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Clock size={16} style={{ color: 'var(--primary-600)' }} />
                 <span>{durasi} Hari Kalender</span>
               </div>
             </div>
@@ -373,7 +373,7 @@ export default function PengajuanSpt({ user, onNavigateToReport }) {
           <div className="form-group mb-4">
             <label className="form-label" style={{ fontWeight: 600, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <span>Langkah 3: Memilih Personil Pelaksana BRMP DIY ({selectedPegawai.length} Orang Terpilih) <span style={{ color: '#ef4444' }}>*</span></span>
-              <span style={{ fontSize: '12px', color: '#2563eb', fontWeight: 500 }}>Database 115 Pegawai BRMP DIY</span>
+              <span style={{ fontSize: '12px', color: 'var(--primary-700)', fontWeight: 600 }}>Database 115 Pegawai BRMP DIY</span>
             </label>
 
             <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '16px' }}>
@@ -386,8 +386,8 @@ export default function PengajuanSpt({ user, onNavigateToReport }) {
                       display: 'flex',
                       alignItems: 'center',
                       gap: '8px',
-                      background: idx === 0 ? '#eff6ff' : '#f1f5f9',
-                      border: idx === 0 ? '1px solid #93c5fd' : '1px solid #cbd5e1',
+                      background: idx === 0 ? 'var(--primary-50)' : '#f1f5f9',
+                      border: idx === 0 ? '1px solid var(--primary-300)' : '1px solid #cbd5e1',
                       padding: '6px 10px',
                       borderRadius: '8px',
                       fontSize: '12px'

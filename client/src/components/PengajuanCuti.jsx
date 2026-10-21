@@ -445,7 +445,7 @@ export default function PengajuanCuti({ user: initialUser, onSwitchUser }) {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', flexWrap: 'wrap', gap: '1rem' }}>
           <div>
             <h1 className="breadcrumb-title">
-              <CalendarOff size={24} className="text-blue-600" />
+              <CalendarOff size={24} style={{ color: 'var(--primary-600)' }} />
               <span>Sistem Cuti Internal Pegawai BRMP DIY</span>
             </h1>
             <div className="breadcrumb-path">
@@ -453,7 +453,7 @@ export default function PengajuanCuti({ user: initialUser, onSwitchUser }) {
               <span>/</span>
               <span>Cuti Pegawai</span>
               <span>/</span>
-              <span style={{ color: '#2563eb', fontWeight: 600 }}>Alur 2 Kali Verifikasi</span>
+              <span style={{ color: 'var(--primary-700)', fontWeight: 700 }}>Alur 2 Kali Verifikasi</span>
             </div>
           </div>
 
@@ -472,11 +472,12 @@ export default function PengajuanCuti({ user: initialUser, onSwitchUser }) {
               width: '36px',
               height: '36px',
               borderRadius: '8px',
-              background: isAdmin ? '#fee2e2' : isVerifikator2 ? '#fef3c7' : isVerifikator1 ? '#e0e7ff' : '#dcfce7',
-              color: isAdmin ? '#dc2626' : isVerifikator2 ? '#d97706' : isVerifikator1 ? '#4338ca' : '#15803d',
+              background: isAdmin ? '#fee2e2' : isVerifikator2 ? '#fef3c7' : isVerifikator1 ? '#e0e7ff' : 'var(--primary-50)',
+              color: isAdmin ? '#dc2626' : isVerifikator2 ? '#d97706' : isVerifikator1 ? '#4338ca' : 'var(--primary-700)',
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'center'
+              justifyContent: 'center',
+              border: !isAdmin && !isVerifikator2 && !isVerifikator1 ? '1px solid var(--primary-200)' : 'none'
             }}>
               <ShieldCheck size={20} />
             </div>
@@ -494,7 +495,7 @@ export default function PengajuanCuti({ user: initialUser, onSwitchUser }) {
 
       {/* Metric Cards Banner */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
-        <div className="brmp-card" style={{ padding: '1.25rem', borderLeft: '4px solid #2563eb' }}>
+        <div className="brmp-card" style={{ padding: '1.25rem', borderLeft: '4px solid var(--primary-600)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div>
               <span style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 600 }}>Sisa Cuti Tahunan</span>
@@ -502,11 +503,11 @@ export default function PengajuanCuti({ user: initialUser, onSwitchUser }) {
                 {currentUser?.sisaCuti ?? 12} <span style={{ fontSize: '0.85rem', fontWeight: 500, color: '#64748b' }}>Hari</span>
               </h3>
             </div>
-            <div style={{ padding: '10px', background: '#eff6ff', borderRadius: '10px', color: '#2563eb' }}>
+            <div style={{ padding: '10px', background: 'var(--primary-50)', borderRadius: '10px', color: 'var(--primary-600)', border: '1px solid var(--primary-200)' }}>
               <Calendar size={22} />
             </div>
           </div>
-          <div style={{ fontSize: '0.7rem', color: '#10b981', marginTop: '6px', fontWeight: 600 }}>
+          <div style={{ fontSize: '0.7rem', color: 'var(--primary-700)', marginTop: '6px', fontWeight: 700 }}>
             • Terpakai: {currentUser?.cutiTerpakai || 0} hari
           </div>
         </div>
@@ -628,8 +629,8 @@ export default function PengajuanCuti({ user: initialUser, onSwitchUser }) {
             padding: '10px 16px',
             background: 'transparent',
             border: 'none',
-            borderBottom: activeTab === 'form' ? '3px solid #2563eb' : '3px solid transparent',
-            color: activeTab === 'form' ? '#2563eb' : '#64748b',
+            borderBottom: activeTab === 'form' ? '3px solid var(--primary-600)' : '3px solid transparent',
+            color: activeTab === 'form' ? 'var(--primary-700)' : '#64748b',
             fontWeight: activeTab === 'form' ? 700 : 500,
             fontSize: '0.88rem',
             cursor: 'pointer',
@@ -651,8 +652,8 @@ export default function PengajuanCuti({ user: initialUser, onSwitchUser }) {
             padding: '10px 16px',
             background: 'transparent',
             border: 'none',
-            borderBottom: activeTab === 'my-history' ? '3px solid #2563eb' : '3px solid transparent',
-            color: activeTab === 'my-history' ? '#2563eb' : '#64748b',
+            borderBottom: activeTab === 'my-history' ? '3px solid var(--primary-600)' : '3px solid transparent',
+            color: activeTab === 'my-history' ? 'var(--primary-700)' : '#64748b',
             fontWeight: activeTab === 'my-history' ? 700 : 500,
             fontSize: '0.88rem',
             cursor: 'pointer',
@@ -663,7 +664,7 @@ export default function PengajuanCuti({ user: initialUser, onSwitchUser }) {
         >
           <Clock size={17} />
           <span>Riwayat Cuti Saya</span>
-          <span style={{ background: activeTab === 'my-history' ? '#eff6ff' : '#f1f5f9', color: activeTab === 'my-history' ? '#2563eb' : '#64748b', padding: '2px 8px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: 700 }}>
+          <span style={{ background: activeTab === 'my-history' ? 'var(--primary-50)' : '#f1f5f9', color: activeTab === 'my-history' ? 'var(--primary-700)' : '#64748b', border: activeTab === 'my-history' ? '1px solid var(--primary-200)' : 'none', padding: '2px 8px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: 700 }}>
             {myHistory.length}
           </span>
         </button>
@@ -679,8 +680,8 @@ export default function PengajuanCuti({ user: initialUser, onSwitchUser }) {
               padding: '10px 16px',
               background: 'transparent',
               border: 'none',
-              borderBottom: activeTab === 'verification' ? '3px solid #2563eb' : '3px solid transparent',
-              color: activeTab === 'verification' ? '#2563eb' : '#64748b',
+              borderBottom: activeTab === 'verification' ? '3px solid var(--primary-600)' : '3px solid transparent',
+              color: activeTab === 'verification' ? 'var(--primary-700)' : '#64748b',
               fontWeight: activeTab === 'verification' ? 700 : 500,
               fontSize: '0.88rem',
               cursor: 'pointer',
@@ -712,8 +713,8 @@ export default function PengajuanCuti({ user: initialUser, onSwitchUser }) {
               padding: '10px 16px',
               background: 'transparent',
               border: 'none',
-              borderBottom: activeTab === 'user-roles' ? '3px solid #2563eb' : '3px solid transparent',
-              color: activeTab === 'user-roles' ? '#2563eb' : '#64748b',
+              borderBottom: activeTab === 'user-roles' ? '3px solid var(--primary-600)' : '3px solid transparent',
+              color: activeTab === 'user-roles' ? 'var(--primary-700)' : '#64748b',
               fontWeight: activeTab === 'user-roles' ? 700 : 500,
               fontSize: '0.88rem',
               cursor: 'pointer',
@@ -734,7 +735,7 @@ export default function PengajuanCuti({ user: initialUser, onSwitchUser }) {
           {/* Left: Input Form */}
           <div className="brmp-card" style={{ padding: '1.75rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '1.25rem', paddingBottom: '0.75rem', borderBottom: '1px solid #f1f5f9' }}>
-              <div style={{ padding: '8px', background: '#eff6ff', borderRadius: '8px', color: '#2563eb' }}>
+              <div style={{ padding: '8px', background: 'var(--primary-50)', borderRadius: '8px', color: 'var(--primary-600)', border: '1px solid var(--primary-200)' }}>
                 <CalendarOff size={20} />
               </div>
               <div>
@@ -841,7 +842,7 @@ export default function PengajuanCuti({ user: initialUser, onSwitchUser }) {
                 className="btn-primary"
                 disabled={actionLoading}
                 style={{
-                  background: 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)',
+                  background: 'linear-gradient(135deg, var(--primary-600) 0%, var(--primary-700) 100%)',
                   padding: '12px',
                   fontSize: '0.95rem',
                   fontWeight: 700,
@@ -853,7 +854,7 @@ export default function PengajuanCuti({ user: initialUser, onSwitchUser }) {
                   color: '#fff',
                   border: 'none',
                   cursor: 'pointer',
-                  boxShadow: '0 4px 12px rgba(37,99,235,0.25)'
+                  boxShadow: '0 4px 14px rgba(22,163,74,0.3)'
                 }}
               >
                 <Save size={18} />
@@ -866,14 +867,14 @@ export default function PengajuanCuti({ user: initialUser, onSwitchUser }) {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
             <div className="brmp-card" style={{ padding: '1.5rem' }}>
               <h3 style={{ fontSize: '1rem', fontWeight: 800, color: '#1e293b', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <ShieldCheck size={18} className="text-blue-600" />
+                <ShieldCheck size={18} style={{ color: 'var(--primary-600)' }} />
                 <span>Alur 2 Kali Verifikasi Pengajuan Cuti</span>
               </h3>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                 {/* Step 1 Box */}
                 <div style={{ display: 'flex', gap: '12px', background: '#f8fafc', padding: '12px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
-                  <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: '#2563eb', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, flexShrink: 0 }}>
+                  <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: 'var(--primary-600)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, flexShrink: 0 }}>
                     1
                   </div>
                   <div>
@@ -941,14 +942,15 @@ export default function PengajuanCuti({ user: initialUser, onSwitchUser }) {
                 display: 'flex',
                 alignItems: 'center',
                 gap: '6px',
-                background: '#2563eb',
+                background: 'linear-gradient(135deg, var(--primary-600) 0%, var(--primary-700) 100%)',
                 color: '#fff',
                 padding: '8px 14px',
                 borderRadius: '6px',
                 border: 'none',
                 fontWeight: 600,
                 fontSize: '0.8rem',
-                cursor: 'pointer'
+                cursor: 'pointer',
+                boxShadow: '0 2px 8px rgba(22, 163, 74, 0.3)'
               }}
             >
               <CalendarOff size={15} />
@@ -1063,7 +1065,7 @@ export default function PengajuanCuti({ user: initialUser, onSwitchUser }) {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', flexWrap: 'wrap', gap: '10px' }}>
             <div>
               <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#1e293b', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <ShieldCheck size={20} className="text-blue-600" />
+                <ShieldCheck size={20} style={{ color: 'var(--primary-600)' }} />
                 <span>Inbox Persetujuan Cuti Pegawai</span>
               </h3>
               <span style={{ fontSize: '0.75rem', color: '#64748b' }}>
@@ -1083,7 +1085,7 @@ export default function PengajuanCuti({ user: initialUser, onSwitchUser }) {
                   fontWeight: 600,
                   cursor: 'pointer',
                   background: statusFilter === 'all' ? '#fff' : 'transparent',
-                  color: statusFilter === 'all' ? '#2563eb' : '#64748b',
+                  color: statusFilter === 'all' ? 'var(--primary-700)' : '#64748b',
                   boxShadow: statusFilter === 'all' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none'
                 }}
               >
@@ -1155,7 +1157,7 @@ export default function PengajuanCuti({ user: initialUser, onSwitchUser }) {
                         <td>
                           <strong style={{ display: 'block', color: '#1e293b' }}>{item.nama}</strong>
                           <span style={{ fontSize: '0.75rem', color: '#64748b' }}>NIP: {item.nip}</span> <br />
-                          <span style={{ fontSize: '0.7rem', color: '#2563eb' }}>{item.divisi}</span>
+                          <span style={{ fontSize: '0.7rem', color: 'var(--primary-700)', fontWeight: 600 }}>{item.divisi}</span>
                         </td>
                         <td>
                           <strong>{item.tanggalMulai}</strong> <br />
@@ -1235,7 +1237,7 @@ export default function PengajuanCuti({ user: initialUser, onSwitchUser }) {
                                 <button
                                   onClick={() => openVerificationModal(item, 2, 'approve')}
                                   style={{
-                                    background: '#2563eb',
+                                    background: 'var(--primary-600)',
                                     color: '#fff',
                                     border: 'none',
                                     padding: '6px 10px',
@@ -1299,7 +1301,7 @@ export default function PengajuanCuti({ user: initialUser, onSwitchUser }) {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', flexWrap: 'wrap', gap: '10px' }}>
             <div>
               <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#1e293b', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Users size={20} className="text-blue-600" />
+                <Users size={20} style={{ color: 'var(--primary-600)' }} />
                 <span>Manajemen Hak Akses & Role Pegawai</span>
               </h3>
               <span style={{ fontSize: '0.75rem', color: '#64748b' }}>
@@ -1307,7 +1309,7 @@ export default function PengajuanCuti({ user: initialUser, onSwitchUser }) {
               </span>
             </div>
 
-            <span style={{ background: '#eff6ff', color: '#2563eb', padding: '6px 12px', borderRadius: '8px', fontSize: '0.8rem', fontWeight: 700 }}>
+            <span style={{ background: 'var(--primary-50)', color: 'var(--primary-800)', border: '1px solid var(--primary-200)', padding: '6px 12px', borderRadius: '8px', fontSize: '0.8rem', fontWeight: 700 }}>
               {allUsers.length} Pegawai Terdaftar
             </span>
           </div>
@@ -1490,7 +1492,7 @@ export default function PengajuanCuti({ user: initialUser, onSwitchUser }) {
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
                 <span style={{ color: '#64748b' }}>Jenis & Durasi:</span>
-                <span style={{ fontWeight: 700, color: '#2563eb' }}>{selectedCuti.jenisCuti} ({selectedCuti.jumlahHari} hari)</span>
+                <span style={{ fontWeight: 700, color: 'var(--primary-700)' }}>{selectedCuti.jenisCuti} ({selectedCuti.jumlahHari} hari)</span>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                 <span style={{ color: '#64748b' }}>Alasan:</span>

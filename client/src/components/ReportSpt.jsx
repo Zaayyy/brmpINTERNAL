@@ -167,7 +167,7 @@ export default function ReportSpt({ user, onNavigateToPengajuan }) {
       <div className="breadcrumb-banner no-print">
         <div>
           <h1 className="breadcrumb-title">
-            <Printer size={24} className="text-blue-600" />
+            <Printer size={24} style={{ color: 'var(--primary-600)' }} />
             <span>Tracking & Cetak Naskah Dinas Resmi SPT</span>
           </h1>
           <div className="breadcrumb-path">
@@ -287,7 +287,7 @@ export default function ReportSpt({ user, onNavigateToPengajuan }) {
                               </div>
                             ))}
                             {members.length > 2 && (
-                              <span style={{ fontSize: '11px', color: '#2563eb', fontWeight: 600 }}>
+                              <span style={{ fontSize: '11px', color: 'var(--primary-700)', fontWeight: 600 }}>
                                 +{members.length - 2} personil lainnya
                               </span>
                             )}
@@ -579,7 +579,7 @@ export default function ReportSpt({ user, onNavigateToPengajuan }) {
           <div className="modal-dialog" style={{ maxWidth: '640px', width: '90%', background: '#fff', borderRadius: '12px', overflow: 'hidden' }}>
             <div className="modal-header" style={{ padding: '16px 20px', background: '#f8fafc', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Clock size={18} className="text-blue-600" />
+                <Clock size={18} style={{ color: 'var(--primary-600)' }} />
                 <h3 style={{ margin: 0, fontSize: '15px', fontWeight: 600 }}>
                   Detail & Histori Tracking Alur SPT
                 </h3>
@@ -620,7 +620,7 @@ export default function ReportSpt({ user, onNavigateToPengajuan }) {
               <div style={{ borderLeft: '2px solid #e2e8f0', marginLeft: '12px', paddingLeft: '16px' }}>
                 {(detailSpt.timeline || []).map((tl, i) => (
                   <div key={i} style={{ position: 'relative', marginBottom: '16px' }}>
-                    <div style={{ position: 'absolute', left: '-23px', top: '2px', width: '12px', height: '12px', borderRadius: '50%', background: '#2563eb', border: '2px solid #fff' }}></div>
+                    <div style={{ position: 'absolute', left: '-23px', top: '2px', width: '12px', height: '12px', borderRadius: '50%', background: 'var(--primary-600)', border: '2px solid #fff', boxShadow: '0 0 0 2px var(--primary-200)' }}></div>
                     <div style={{ fontSize: '12px', fontWeight: 700, color: '#0f172a' }}>{tl.aksi}</div>
                     <div style={{ fontSize: '11px', color: '#64748b' }}>Oleh: {tl.aktor} • {tl.waktu}</div>
                   </div>

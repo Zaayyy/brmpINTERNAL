@@ -21,7 +21,7 @@ export default function SptStandaloneEmbed() {
       <div className="breadcrumb-banner no-print" style={{ marginBottom: '12px' }}>
         <div>
           <h1 className="breadcrumb-title">
-            <ShieldCheck size={24} className="text-blue-600" />
+            <ShieldCheck size={24} style={{ color: 'var(--primary-600)' }} />
             <span>Aplikasi E-SPT Mandiri (brmpSPT Original Web App)</span>
           </h1>
           <div className="breadcrumb-path">

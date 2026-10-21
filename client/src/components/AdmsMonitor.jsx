@@ -158,7 +158,7 @@ export default function AdmsMonitor({ user }) {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', flexWrap: 'wrap', gap: '1rem' }}>
           <div>
             <h1 className="breadcrumb-title">
-              <Cpu size={24} className="text-blue-600" />
+              <Cpu size={24} style={{ color: 'var(--primary-600)' }} />
               <span>Monitoring Integrasi Mesin Absensi (ADMS)</span>
             </h1>
             <div className="breadcrumb-path">
@@ -166,7 +166,7 @@ export default function AdmsMonitor({ user }) {
               <span>/</span>
               <span>Info Absensi</span>
               <span>/</span>
-              <span style={{ color: '#2563eb', fontWeight: 600 }}>Protokol ADMS Cloud</span>
+              <span style={{ color: 'var(--primary-700)', fontWeight: 700 }}>Protokol ADMS Cloud</span>
             </div>
           </div>
 
@@ -195,9 +195,9 @@ export default function AdmsMonitor({ user }) {
       {/* Alert Messages */}
       {successMsg && (
         <div style={{
-          background: '#dcfce7',
-          border: '1px solid #86efac',
-          color: '#166534',
+          background: 'var(--primary-50)',
+          border: '1px solid var(--primary-300)',
+          color: 'var(--primary-900)',
           padding: '12px 16px',
           borderRadius: '8px',
           fontSize: '0.875rem',
@@ -206,7 +206,7 @@ export default function AdmsMonitor({ user }) {
           alignItems: 'center',
           gap: '10px'
         }}>
-          <CheckCircle2 size={18} />
+          <CheckCircle2 size={18} style={{ color: 'var(--primary-600)' }} />
           <span>{successMsg}</span>
         </div>
       )}
@@ -235,7 +235,7 @@ export default function AdmsMonitor({ user }) {
         {/* Left: Info Konfigurasi Mesin di Kantor */}
         <div className="brmp-card" style={{ padding: '1.5rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '1.25rem', paddingBottom: '0.75rem', borderBottom: '1px solid #f1f5f9' }}>
-            <Server size={20} className="text-blue-600" />
+            <Server size={20} style={{ color: 'var(--primary-600)' }} />
             <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 800, color: '#1e293b' }}>
               Pengaturan di Mesin Absensi
             </h3>
@@ -248,7 +248,7 @@ export default function AdmsMonitor({ user }) {
           <div style={{ background: '#f8fafc', padding: '12px', borderRadius: '8px', border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '0.8rem', marginBottom: '1.25rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
               <span style={{ color: '#64748b' }}>Cloud Server:</span>
-              <strong style={{ color: '#15803d' }}>ENABLE / AKTIF</strong>
+              <strong style={{ color: 'var(--primary-700)' }}>ENABLE / AKTIF</strong>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
               <span style={{ color: '#64748b' }}>Server IP / Host:</span>
@@ -260,7 +260,7 @@ export default function AdmsMonitor({ user }) {
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
               <span style={{ color: '#64748b' }}>Target URL Jalur:</span>
-              <strong style={{ color: '#2563eb' }}>/iclock/cdata</strong>
+              <strong style={{ color: 'var(--primary-700)' }}>/iclock/cdata</strong>
             </div>
           </div>
 
@@ -382,7 +382,7 @@ export default function AdmsMonitor({ user }) {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.25rem', flexWrap: 'wrap', gap: '12px' }}>
           <div>
             <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 800, color: '#1e293b', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Clock size={20} className="text-blue-600" />
+              <Clock size={20} style={{ color: 'var(--primary-600)' }} />
               <span>
                 {isAdmin ? 'Log Riwayat Scan Mesin ADMS (Seluruh Pegawai)' : 'Log Riwayat Presensi Pribadi Anda'}
               </span>
@@ -402,8 +402,8 @@ export default function AdmsMonitor({ user }) {
                 <span>Mode Admin ({displayedLogs.length} Data)</span>
               </span>
             ) : (
-              <span style={{ background: '#eff6ff', color: '#2563eb', padding: '4px 10px', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
-                <UserCheck size={14} />
+              <span style={{ background: 'var(--primary-50)', color: 'var(--primary-800)', border: '1px solid var(--primary-200)', padding: '4px 10px', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+                <UserCheck size={14} style={{ color: 'var(--primary-600)' }} />
                 <span>{displayedLogs.length} Riwayat Scan Anda</span>
               </span>
             )}
@@ -424,7 +424,7 @@ export default function AdmsMonitor({ user }) {
             gap: '12px'
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.82rem', fontWeight: 700, color: '#334155' }}>
-              <Filter size={15} className="text-blue-600" />
+              <Filter size={15} style={{ color: 'var(--primary-600)' }} />
               <span>Filter Data:</span>
             </div>
 
@@ -563,7 +563,7 @@ export default function AdmsMonitor({ user }) {
                     <td>
                       <strong style={{ color: '#0f172a' }}>{item.nama}</strong>
                       <div style={{ fontSize: '0.75rem', color: '#64748b' }}>NIP: {item.pin}</div>
-                      <div style={{ fontSize: '0.7rem', color: '#2563eb' }}>{item.jabatan}</div>
+                      <div style={{ fontSize: '0.7rem', color: 'var(--primary-700)', fontWeight: 600 }}>{item.jabatan}</div>
                     </td>
                     <td>
                       <strong style={{ fontSize: '0.9rem', color: '#1e293b' }}>{item.jam}</strong>

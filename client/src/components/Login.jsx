@@ -57,9 +57,9 @@ export default function Login({ onLoginSuccess }) {
       desc: "Approval Unit Kerja SPT (Tahap 1) & Verifikator 1 Cuti",
       nip: "198604092011012024",
       pass: "1986",
-      badgeColor: "#2563eb",
-      badgeBg: "#dbeafe",
-      borderColor: "#93c5fd"
+      badgeColor: "#16a34a",
+      badgeBg: "#dcfce7",
+      borderColor: "#86efac"
     },
     {
       roleTag: "KOPOKS",
@@ -121,23 +121,30 @@ export default function Login({ onLoginSuccess }) {
         <div className="login-form-pane">
           {/* Logo BRMP DIY */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '1.5rem' }}>
-            <div style={{ width: '44px', height: '44px', background: 'linear-gradient(135deg, #2563eb, #1d4ed8)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', boxShadow: '0 4px 10px rgba(37,99,235,0.3)' }}>
+            <div style={{ 
+              width: '44px', height: '44px', 
+              background: 'linear-gradient(135deg, #166534, #16a34a)', 
+              borderRadius: '10px', display: 'flex', alignItems: 'center', 
+              justifyContent: 'center', color: '#fff', 
+              boxShadow: '0 4px 12px rgba(22,163,74,0.35)',
+              border: '1.5px solid rgba(217, 119, 6, 0.25)'
+            }}>
               <ShieldCheck size={26} />
             </div>
             <div>
-              <div style={{ fontSize: '1.2rem', fontWeight: 800, color: '#0f172a', letterSpacing: '-0.5px' }}>
-                BRMP <span style={{ color: '#2563eb' }}>DIY</span>
+              <div style={{ fontSize: '1.2rem', fontWeight: 800, color: '#0a1f0e', letterSpacing: '-0.5px' }}>
+                BRMP <span style={{ color: '#16a34a' }}>DIY</span>
               </div>
-              <div style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 600 }}>
+              <div style={{ fontSize: '0.75rem', color: '#4b7c5a', fontWeight: 600 }}>
                 Sistem Kepegawaian Internal
               </div>
             </div>
           </div>
 
-          <h2 style={{ fontSize: '1.35rem', fontWeight: 800, color: '#1e293b', marginBottom: '0.25rem' }}>
+          <h2 style={{ fontSize: '1.35rem', fontWeight: 800, color: '#0a1f0e', marginBottom: '0.25rem' }}>
             Login Pegawai
           </h2>
-          <p style={{ fontSize: '0.8rem', color: '#64748b', marginBottom: '1.5rem' }}>
+          <p style={{ fontSize: '0.8rem', color: '#4b7c5a', marginBottom: '1.5rem' }}>
             Masuk dengan NIP/Username untuk mengakses modul cuti
           </p>
 
@@ -200,7 +207,7 @@ export default function Login({ onLoginSuccess }) {
                 width: '100%',
                 marginTop: '0.5rem',
                 height: '44px',
-                background: 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)',
+                background: 'linear-gradient(135deg, #16a34a 0%, #15803d 100%)',
                 color: '#fff',
                 fontWeight: 700,
                 fontSize: '0.95rem',
@@ -211,7 +218,7 @@ export default function Login({ onLoginSuccess }) {
                 alignItems: 'center',
                 justifyContent: 'center',
                 gap: '8px',
-                boxShadow: '0 4px 12px rgba(37,99,235,0.25)'
+                boxShadow: '0 4px 14px rgba(22,163,74,0.32)'
               }}
             >
               {loading ? (
@@ -238,12 +245,12 @@ export default function Login({ onLoginSuccess }) {
         {/* Right Side: 4 Akun untuk Masing-Masing Role (1-Click Test) */}
         <div className="login-demo-pane">
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '0.5rem' }}>
-            <Sparkles size={18} className="text-amber-500" />
-            <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 800, color: '#0f172a' }}>
+            <Sparkles size={18} style={{ color: '#d97706' }} />
+            <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 800, color: '#0a1f0e' }}>
               Pilih Akun untuk Pengujian Role
             </h3>
           </div>
-          <p style={{ margin: '0 0 1.25rem 0', fontSize: '0.8rem', color: '#64748b' }}>
+          <p style={{ margin: '0 0 1.25rem 0', fontSize: '0.8rem', color: '#4b7c5a' }}>
             Klik salah satu akun di bawah ini untuk <strong>langsung masuk (1-Click Login)</strong> dan menguji wewenang masing-masing role:
           </p>
 
@@ -304,7 +311,7 @@ export default function Login({ onLoginSuccess }) {
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  color: '#2563eb',
+                  color: '#16a34a',
                   flexShrink: 0
                 }}>
                   <ArrowRight size={16} />

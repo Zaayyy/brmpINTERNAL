@@ -83,7 +83,7 @@ export default function SptApproval({ user, onNavigateToReport }) {
       <div className="breadcrumb-banner no-print">
         <div>
           <h1 className="breadcrumb-title">
-            <CheckCircle2 size={24} className="text-blue-600" />
+            <CheckCircle2 size={24} style={{ color: 'var(--primary-600)' }} />
             <span>Approval Berjenjang Surat Perintah Tugas (SPT)</span>
           </h1>
           <div className="breadcrumb-path">
@@ -106,7 +106,7 @@ export default function SptApproval({ user, onNavigateToReport }) {
           >
             <Building size={16} />
             <span>1. Approval Unit Kerja (Ketimker)</span>
-            <span style={{ background: activeTab === 'ketimker' ? '#1d4ed8' : '#e2e8f0', color: activeTab === 'ketimker' ? '#fff' : '#475569', padding: '2px 8px', borderRadius: '10px', fontSize: '11px', fontWeight: 700 }}>
+            <span style={{ background: activeTab === 'ketimker' ? 'var(--primary-700)' : '#e2e8f0', color: activeTab === 'ketimker' ? '#fff' : '#475569', padding: '2px 8px', borderRadius: '10px', fontSize: '11px', fontWeight: 700 }}>
               {ketimkerPending.length}
             </span>
           </button>
@@ -118,7 +118,7 @@ export default function SptApproval({ user, onNavigateToReport }) {
           >
             <CheckCircle2 size={16} />
             <span>2. Approval Utama (Kobag TU)</span>
-            <span style={{ background: activeTab === 'kobag' ? '#1d4ed8' : '#e2e8f0', color: activeTab === 'kobag' ? '#fff' : '#475569', padding: '2px 8px', borderRadius: '10px', fontSize: '11px', fontWeight: 700 }}>
+            <span style={{ background: activeTab === 'kobag' ? 'var(--primary-700)' : '#e2e8f0', color: activeTab === 'kobag' ? '#fff' : '#475569', padding: '2px 8px', borderRadius: '10px', fontSize: '11px', fontWeight: 700 }}>
               {kobagPending.length}
             </span>
           </button>

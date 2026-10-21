@@ -9,7 +9,7 @@ export default function SptSop() {
       <div className="breadcrumb-banner no-print">
         <div>
           <h1 className="breadcrumb-title">
-            <BookOpen size={24} className="text-blue-600" />
+            <BookOpen size={24} style={{ color: 'var(--primary-600)' }} />
             <span>Standar Operasional Prosedur (SOP) Penerbitan SPT</span>
           </h1>
           <div className="breadcrumb-path">
@@ -46,7 +46,7 @@ export default function SptSop() {
 
             {/* Prinsip Pokok & Anti-Bentrok */}
             <div style={{ background: '#f8fafc', padding: '20px', borderRadius: '10px', border: '1px solid #e2e8f0' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#2563eb', fontWeight: 700, fontSize: '14px', marginBottom: '12px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--primary-700)', fontWeight: 700, fontSize: '14px', marginBottom: '12px' }}>
                 <ShieldCheck size={18} />
                 <span>🛡️ Prinsip Utama Tata Kelola:</span>
               </div>
@@ -81,10 +81,10 @@ export default function SptSop() {
                 }}
               >
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                  <span style={{ width: '28px', height: '28px', borderRadius: '50%', background: '#2563eb', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '12px' }}>
+                  <span style={{ width: '28px', height: '28px', borderRadius: '50%', background: 'var(--primary-600)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '12px' }}>
                     {step.step}
                   </span>
-                  <span style={{ fontSize: '11px', background: '#eff6ff', color: '#1d4ed8', padding: '2px 8px', borderRadius: '6px', fontWeight: 600 }}>
+                  <span style={{ fontSize: '11px', background: 'var(--primary-50)', color: 'var(--primary-800)', border: '1px solid var(--primary-200)', padding: '2px 8px', borderRadius: '6px', fontWeight: 700 }}>
                     SLA: {step.sla}
                   </span>
                 </div>
@@ -93,7 +93,7 @@ export default function SptSop() {
                   {step.tahap}
                 </h4>
 
-                <div style={{ fontSize: '11.5px', color: '#2563eb', fontWeight: 600, marginBottom: '6px' }}>
+                <div style={{ fontSize: '11.5px', color: 'var(--primary-700)', fontWeight: 700, marginBottom: '6px' }}>
                   Pelaksana: {step.pelaksana}
                 </div>
 
@@ -132,19 +132,19 @@ export default function SptSop() {
                 {DATA_SOP_SPT.matriksRaci.map((raci, idx) => (
                   <tr key={idx}>
                     <td style={{ fontWeight: 600 }}>{raci.aktivitas}</td>
-                    <td style={{ textAlign: 'center', fontWeight: 'bold', color: raci.user.includes('R') || raci.user.includes('A') ? '#2563eb' : '#64748b' }}>
+                    <td style={{ textAlign: 'center', fontWeight: 'bold', color: raci.user.includes('R') || raci.user.includes('A') ? 'var(--primary-700)' : '#64748b' }}>
                       {raci.user}
                     </td>
-                    <td style={{ textAlign: 'center', fontWeight: 'bold', color: raci.ketimker.includes('R') || raci.ketimker.includes('A') ? '#2563eb' : '#64748b' }}>
+                    <td style={{ textAlign: 'center', fontWeight: 'bold', color: raci.ketimker.includes('R') || raci.ketimker.includes('A') ? 'var(--primary-700)' : '#64748b' }}>
                       {raci.ketimker}
                     </td>
-                    <td style={{ textAlign: 'center', fontWeight: 'bold', color: raci.kobagTu.includes('R') || raci.kobagTu.includes('A') ? '#2563eb' : '#64748b' }}>
+                    <td style={{ textAlign: 'center', fontWeight: 'bold', color: raci.kobagTu.includes('R') || raci.kobagTu.includes('A') ? 'var(--primary-700)' : '#64748b' }}>
                       {raci.kobagTu}
                     </td>
-                    <td style={{ textAlign: 'center', fontWeight: 'bold', color: raci.kopoks.includes('R') || raci.kopoks.includes('A') ? '#2563eb' : '#64748b' }}>
+                    <td style={{ textAlign: 'center', fontWeight: 'bold', color: raci.kopoks.includes('R') || raci.kopoks.includes('A') ? 'var(--primary-700)' : '#64748b' }}>
                       {raci.kopoks}
                     </td>
-                    <td style={{ textAlign: 'center', fontWeight: 'bold', color: raci.adminSekretariat.includes('R') || raci.adminSekretariat.includes('A') ? '#2563eb' : '#64748b' }}>
+                    <td style={{ textAlign: 'center', fontWeight: 'bold', color: raci.adminSekretariat.includes('R') || raci.adminSekretariat.includes('A') ? 'var(--primary-700)' : '#64748b' }}>
                       {raci.adminSekretariat}
                     </td>
                   </tr>

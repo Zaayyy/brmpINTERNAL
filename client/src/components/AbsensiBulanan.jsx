@@ -79,7 +79,7 @@ export default function AbsensiBulanan({ user }) {
       <div className="breadcrumb-banner">
         <div>
           <h1 className="breadcrumb-title">
-            <CalendarCheck2 size={24} className="text-blue-600" />
+            <CalendarCheck2 size={24} style={{ color: 'var(--primary-600)' }} />
             <span>Info Absensi Pegawai</span>
           </h1>
           <div className="breadcrumb-path">
@@ -87,7 +87,7 @@ export default function AbsensiBulanan({ user }) {
             <span>/</span>
             <span>Info Absensi</span>
             <span>/</span>
-            <span style={{ color: '#2563eb', fontWeight: 600 }}>Bulanan</span>
+            <span style={{ color: 'var(--primary-700)', fontWeight: 700 }}>Bulanan</span>
           </div>
         </div>
       </div>
@@ -95,7 +95,7 @@ export default function AbsensiBulanan({ user }) {
       {/* Filter Card (Point 5: pilih bulan -> tahun -> lihat data) */}
       <div className="brmp-card" style={{ padding: '1.25rem 1.5rem', marginBottom: '1.5rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '1rem', color: '#1e293b', fontWeight: 700, fontSize: '0.95rem' }}>
-          <Filter size={18} className="text-blue-600" />
+          <Filter size={18} style={{ color: 'var(--primary-600)' }} />
           <span>Filter Rekapitulasi Absensi</span>
         </div>
 
@@ -103,7 +103,7 @@ export default function AbsensiBulanan({ user }) {
           {isAdmin && (
             <div className="form-group absensi-filter-field" style={{ minWidth: '220px' }}>
               <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                <ShieldCheck size={14} className="text-blue-600" />
+                <ShieldCheck size={14} style={{ color: 'var(--primary-600)' }} />
                 <span>Pilih Pegawai (Admin)</span>
               </label>
               <select
@@ -165,8 +165,8 @@ export default function AbsensiBulanan({ user }) {
           <h3 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#1e293b', margin: 0 }}>
             Rekap Absensi Bulan {getMonthName(selectedBulan)} Tahun {selectedTahun}
           </h3>
-          <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#2563eb', background: '#eff6ff', padding: '4px 10px', borderRadius: '6px', display: 'flex', alignItems: 'center', gap: '5px' }}>
-            <UserCheck size={14} />
+          <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--primary-800)', background: 'var(--primary-50)', border: '1px solid var(--primary-200)', padding: '5px 12px', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <UserCheck size={14} style={{ color: 'var(--primary-600)' }} />
             <span>
               {isAdmin 
                 ? (allUsers.find(p => p.nip === selectedNip)?.nama || user?.nama || 'Pegawai')
@@ -178,22 +178,22 @@ export default function AbsensiBulanan({ user }) {
 
         <div className="rekap-card-grid">
           {/* Masuk */}
-          <div className="rekap-stat-card" style={{ '--border-color': '#2563eb' }}>
+          <div className="rekap-stat-card" style={{ '--border-color': 'var(--primary-600)' }}>
             <div style={{
               width: '44px',
               height: '44px',
               borderRadius: '50%',
-              background: '#eff6ff',
-              color: '#2563eb',
+              background: 'var(--primary-50)',
+              color: 'var(--primary-600)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               margin: '0 auto 8px',
-              boxShadow: '0 2px 8px rgba(37, 99, 235, 0.15)'
+              boxShadow: '0 2px 8px rgba(22, 163, 74, 0.2)'
             }}>
               <CheckCircle2 size={22} />
             </div>
-            <div className="rekap-stat-val" style={{ color: '#2563eb' }}>
+            <div className="rekap-stat-val" style={{ color: 'var(--primary-700)' }}>
               {absensiData?.rekap?.totalMasuk ?? 20}
             </div>
             <span className="rekap-stat-label">Hadir / Masuk</span>

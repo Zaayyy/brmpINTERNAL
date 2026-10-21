@@ -59,7 +59,7 @@ export default function Navbar({ user, onLogout, onSwitchUser, onNavigate, isMob
       approvalRole: "verifikator_2",
       roleLabel: "Kobag TU (Approval Utama & Verifikator 2)",
       roleCategory: "Approval Utama",
-      categoryColor: "#1d4ed8",
+      categoryColor: "#166534",
       jabatan: "Ketua Bagian Tata Usaha",
       divisi: "Bagian Tata Usaha",
       sisaCuti: 14
@@ -177,7 +177,7 @@ export default function Navbar({ user, onLogout, onSwitchUser, onNavigate, isMob
         </button>
 
         <div className="brand-logo-badge">
-          <ShieldCheck size={20} className="text-blue-600" />
+          <ShieldCheck size={20} style={{ color: '#15803d' }} />
           <span>BRMP <span className="brand-tag">DIY</span></span>
         </div>
         <span className="brand-title-text">
@@ -231,17 +231,17 @@ export default function Navbar({ user, onLogout, onSwitchUser, onNavigate, isMob
             >
               <div style={{
                 padding: '12px 16px',
-                background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)',
-                borderBottom: '1px solid #e2e8f0',
+                background: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)',
+                borderBottom: '1px solid #d1fae5',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between'
               }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.78rem', fontWeight: 800, color: '#1e293b' }}>
-                  <Sparkles size={14} className="text-blue-600" />
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.78rem', fontWeight: 800, color: '#0a1f0e' }}>
+                  <Sparkles size={14} style={{ color: '#16a34a' }} />
                   <span>SIMULASI MULTI-ROLE KEDINASAN</span>
                 </div>
-                <span style={{ fontSize: '0.68rem', background: '#dbeafe', color: '#1d4ed8', padding: '2px 8px', borderRadius: '9999px', fontWeight: 700 }}>
+                <span style={{ fontSize: '0.68rem', background: '#dcfce7', color: '#15803d', padding: '2px 8px', borderRadius: '9999px', fontWeight: 700, border: '1px solid #bbf7d0' }}>
                   8 Akun
                 </span>
               </div>
@@ -304,7 +304,7 @@ export default function Navbar({ user, onLogout, onSwitchUser, onNavigate, isMob
                             {acc.roleCategory}
                           </span>
                         </div>
-                        <div style={{ fontSize: '0.75rem', color: '#2563eb', fontWeight: 600, marginTop: '2px' }}>
+                        <div style={{ fontSize: '0.75rem', color: 'var(--primary-700)', fontWeight: 700, marginTop: '2px' }}>
                           {acc.roleLabel}
                         </div>
                         <div style={{ fontSize: '0.7rem', color: '#64748b', marginTop: '1px' }}>
@@ -360,7 +360,7 @@ export default function Navbar({ user, onLogout, onSwitchUser, onNavigate, isMob
                 height: '10px',
                 borderRadius: '50%',
                 background: '#10b981',
-                border: '2px solid #1d4ed8',
+                border: '2px solid var(--primary-900)',
                 boxShadow: '0 0 6px #10b981'
               }} />
             </div>

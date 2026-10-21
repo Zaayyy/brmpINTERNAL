@@ -49,8 +49,8 @@ export default function Sidebar({ currentView, setCurrentView, user, isOpen, onC
       {/* Mobile Close Button Header */}
       <div className="sidebar-mobile-header">
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <ShieldCheck size={20} className="text-blue-600" />
-          <span style={{ fontWeight: 800, fontSize: '0.9rem', color: '#1e3a8a' }}>KITA BRMP DIY</span>
+          <ShieldCheck size={20} style={{ color: '#4ade80' }} />
+          <span style={{ fontWeight: 800, fontSize: '0.9rem', color: '#ffffff' }}>KITA BRMP DIY</span>
         </div>
         <button 
           className="sidebar-close-btn"
@@ -81,7 +81,7 @@ export default function Sidebar({ currentView, setCurrentView, user, isOpen, onC
             <div 
               className="profile-avatar"
               style={{
-                background: 'linear-gradient(135deg, #1d4ed8, #2563eb)',
+                background: 'linear-gradient(135deg, #15803d, #16a34a)',
                 color: '#ffffff',
                 display: 'flex',
                 alignItems: 'center',
@@ -123,13 +123,14 @@ export default function Sidebar({ currentView, setCurrentView, user, isOpen, onC
             alignItems: 'center',
             gap: '4px',
             fontSize: '0.65rem',
-            color: '#15803d',
-            background: '#dcfce7',
+            color: '#4ade80',
+            background: 'rgba(74, 222, 128, 0.15)',
             padding: '2px 8px',
             borderRadius: '9999px',
-            fontWeight: 700
+            fontWeight: 700,
+            border: '1px solid rgba(74, 222, 128, 0.25)'
           }}>
-            <span style={{ width: '5px', height: '5px', borderRadius: '50%', background: '#16a34a' }}></span>
+            <span style={{ width: '5px', height: '5px', borderRadius: '50%', background: '#22c55e', boxShadow: '0 0 5px rgba(34, 197, 94, 0.6)' }}></span>
             <span>Siap Dinas</span>
           </span>
         </div>
@@ -243,7 +244,7 @@ export default function Sidebar({ currentView, setCurrentView, user, isOpen, onC
                     <span>Dashboard SPT</span>
                   </div>
                   <span className="submenu-badge" style={{ 
-                    background: isSuperAdmin ? '#dc2626' : isAdminSekretariat ? '#0284c7' : role === 'kobag_tu' ? '#7c3aed' : role === 'ketimker' ? '#16a34a' : role === 'kopoks' ? '#d97706' : '#2563eb' 
+                    background: isSuperAdmin ? '#dc2626' : isAdminSekretariat ? '#0284c7' : role === 'kobag_tu' ? '#7c3aed' : role === 'ketimker' ? '#16a34a' : role === 'kopoks' ? '#d97706' : '#16a34a' 
                   }}>
                     {isSuperAdmin ? 'Super Admin' : isAdminSekretariat ? 'Sekretariat' : role === 'kobag_tu' ? 'Kobag TU' : role === 'ketimker' ? 'Ketimker' : role === 'kopoks' ? 'Kopoks' : 'Pegawai'}
                   </span>

@@ -48,7 +48,7 @@ export default function DashboardView({ user, onNavigate }) {
     { day: 2, isCurrentMonth: true, events: [] },
     { day: 3, isCurrentMonth: true, events: [] },
     { day: 4, isCurrentMonth: true, events: [] },
-    { day: 5, isCurrentMonth: true, events: [{ title: 'Rakor Teknis Balai', color: '#2563eb' }] },
+    { day: 5, isCurrentMonth: true, events: [{ title: 'Rakor Teknis Balai', color: '#16a34a' }] },
     { day: 6, isCurrentMonth: true, events: [] },
     { day: 7, isCurrentMonth: true, events: [] },
     { day: 8, isCurrentMonth: true, events: [] },
@@ -81,13 +81,13 @@ export default function DashboardView({ user, onNavigate }) {
       <div className="breadcrumb-banner">
         <div>
           <h1 className="breadcrumb-title">
-            <Activity size={24} className="text-blue-600" />
+            <Activity size={24} style={{ color: '#16a34a' }} />
             <span>Dashboard Pegawai</span>
           </h1>
           <div className="breadcrumb-path">
             <span>KITA BRMP DIY</span>
             <span>/</span>
-            <span style={{ color: '#2563eb', fontWeight: 700 }}>Beranda Utama</span>
+            <span style={{ color: '#16a34a', fontWeight: 700 }}>Beranda Utama</span>
           </div>
         </div>
 
@@ -96,15 +96,15 @@ export default function DashboardView({ user, onNavigate }) {
           display: 'flex',
           alignItems: 'center',
           gap: '8px',
-          background: 'rgba(16, 185, 129, 0.1)',
-          border: '1px solid rgba(16, 185, 129, 0.3)',
+          background: 'rgba(22, 163, 74, 0.1)',
+          border: '1px solid rgba(22, 163, 74, 0.3)',
           padding: '6px 14px',
           borderRadius: '9999px',
-          color: '#065f46',
+          color: '#14532d',
           fontSize: '0.8rem',
           fontWeight: 700
         }}>
-          <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#10b981', boxShadow: '0 0 8px #10b981' }}></span>
+          <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#16a34a', boxShadow: '0 0 8px rgba(22, 163, 74, 0.6)', display: 'inline-block' }}></span>
           <span>Sistem Presensi & E-SPT Aktif</span>
         </div>
       </div>
@@ -194,16 +194,16 @@ export default function DashboardView({ user, onNavigate }) {
         <div className="stat-box">
           <div className="stat-info">
             <span className="stat-label">Absen Pulang</span>
-            <span className="stat-value" style={{ color: '#2563eb' }}>16:08:55</span>
+            <span className="stat-value" style={{ color: 'var(--primary-700)' }}>16:08:55</span>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '6px' }}>
-              <span className="stat-badge blue">
+              <span className="stat-badge green">
                 <CheckCircle2 size={13} />
                 <span>Selesai Kerja</span>
               </span>
               <span style={{ fontSize: '0.72rem', color: '#64748b' }}>(8 Jam 45 Menit)</span>
             </div>
           </div>
-          <div style={{ background: 'linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%)', padding: '14px', borderRadius: '16px', color: '#1e40af', boxShadow: '0 4px 12px rgba(37, 99, 235, 0.15)' }}>
+          <div style={{ background: 'linear-gradient(135deg, var(--primary-100) 0%, var(--primary-200) 100%)', padding: '14px', borderRadius: '16px', color: 'var(--primary-800)', boxShadow: '0 4px 12px rgba(22, 101, 52, 0.15)' }}>
             <TrendingUp size={28} />
           </div>
         </div>
@@ -284,7 +284,7 @@ export default function DashboardView({ user, onNavigate }) {
       <div className="agenda-section">
         <div className="agenda-header">
           <div className="agenda-title">
-            <CalendarDays size={24} className="text-blue-600" />
+            <CalendarDays size={24} style={{ color: 'var(--primary-600)' }} />
             <span>Agenda & Kalender Kedinasan</span>
           </div>
 

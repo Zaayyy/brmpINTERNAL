@@ -180,14 +180,15 @@ if ($route === 'users' || str_starts_with($route, 'users/')) {
     if ($method === 'GET') {
         $data = [];
         if ($useMysql && $pdo) {
-            $stmt = $pdo->query("SELECT * FROM tb_pegawai ORDER BY id ASC");
-            $rows = $stmt->fetchAll();
-            foreach ($rows as $r) {
-                $data[] = [
-                    'id' => $r['pegawai_id'],
-                    'nip' => $r['nip'],
-                    'nama' => $r['nama'],
-                    'jabatan' => $r['jabatan'],
+            try {
+                $stmt = $pdo->query("SELECT * FROM tb_pegawai ORDER BY id ASC");
+                $rows = ($stmt && is_object($stmt)) ? $stmt->fetchAll() : [];
+                foreach ($rows as $r) {
+                    $data[] = [
+                        'id' => $r['pegawai_id'],
+                        'nip' => $r['nip'],
+                        'nama' => $r['nama'],
+                        'jabatan' => $r['jabatan'],
                     'golongan' => $r['golongan'] ?? '',
                     'divisi' => $r['divisi'],
                     'systemRole' => $r['system_role'],
@@ -198,9 +199,11 @@ if ($route === 'users' || str_starts_with($route, 'users/')) {
                     'sisaCuti' => (int)$r['sisa_cuti'],
                     'cutiTerpakai' => (int)$r['cuti_terpakai'],
                     'expiredCuti' => $r['expired_cuti']
-                ];
-            }
-        } else {
+                    ];
+                }
+            } catch (Throwable $e) {}
+        }
+        if (empty($data)) {
             $data = getFallbackPegawai();
         }
         jsonResponse(['success' => true, 'total' => count($data), 'data' => $data]);
@@ -359,50 +362,54 @@ if ($route === 'cuti' || str_starts_with($route, 'cuti/')) {
     // Helper: load cuti items
     $loadCuti = function() use ($pdo, $useMysql, $cutiStoragePath) {
         if ($useMysql && $pdo) {
-            $stmt = $pdo->query("SELECT * FROM tb_cuti ORDER BY id DESC");
-            $rows = $stmt->fetchAll();
-            $result = [];
-            foreach ($rows as $r) {
-                $result[] = [
-                    'id' => $r['cuti_code'],
-                    'no' => (int)$r['no_urut'],
-                    'pegawaiId' => $r['pegawai_id'],
-                    'nip' => $r['nip'],
-                    'nama' => $r['nama'],
-                    'jabatan' => $r['jabatan'],
-                    'divisi' => $r['divisi'],
-                    'tanggalPengajuan' => $r['tanggal_pengajuan'],
-                    'tanggalMulai' => $r['tanggal_mulai'],
-                    'tanggalAkhir' => $r['tanggal_akhir'],
-                    'jumlahHari' => (int)$r['jumlah_hari'],
-                    'jatahTahun' => $r['jatah_tahun'],
-                    'jenisCuti' => $r['jenis_cuti'],
-                    'alasan' => $r['alasan'],
-                    'status' => $r['status'],
-                    'statusLabel' => $r['status_label'],
-                    'verifikasi' => [
-                        'tahap1' => [
-                            'roleRequired' => 'verifikator_1',
-                            'label' => 'Verifikasi 1: Atasan Langsung / Ketimker',
-                            'status' => $r['verif_1_status'],
-                            'verifikatorNama' => $r['verif_1_nama'],
-                            'verifikatorNip' => $r['verif_1_nip'],
-                            'tanggal' => $r['verif_1_tanggal'],
-                            'catatan' => $r['verif_1_catatan']
-                        ],
-                        'tahap2' => [
-                            'roleRequired' => 'verifikator_2',
-                            'label' => 'Verifikasi 2: Kepala Bagian TU (Final)',
-                            'status' => $r['verif_2_status'],
-                            'verifikatorNama' => $r['verif_2_nama'],
-                            'verifikatorNip' => $r['verif_2_nip'],
-                            'tanggal' => $r['verif_2_tanggal'],
-                            'catatan' => $r['verif_2_catatan']
-                        ]
-                    ]
-                ];
-            }
-            if (!empty($result)) return $result;
+            try {
+                $stmt = $pdo->query("SELECT * FROM tb_cuti ORDER BY id DESC");
+                $rows = ($stmt && is_object($stmt)) ? $stmt->fetchAll() : [];
+                $result = [];
+                if (!empty($rows)) {
+                    foreach ($rows as $r) {
+                        $result[] = [
+                            'id' => $r['cuti_code'],
+                            'no' => (int)$r['no_urut'],
+                            'pegawaiId' => $r['pegawai_id'],
+                            'nip' => $r['nip'],
+                            'nama' => $r['nama'],
+                            'jabatan' => $r['jabatan'],
+                            'divisi' => $r['divisi'],
+                            'tanggalPengajuan' => $r['tanggal_pengajuan'],
+                            'tanggalMulai' => $r['tanggal_mulai'],
+                            'tanggalAkhir' => $r['tanggal_akhir'],
+                            'jumlahHari' => (int)$r['jumlah_hari'],
+                            'jatahTahun' => $r['jatah_tahun'],
+                            'jenisCuti' => $r['jenis_cuti'],
+                            'alasan' => $r['alasan'],
+                            'status' => $r['status'],
+                            'statusLabel' => $r['status_label'],
+                            'verifikasi' => [
+                                'tahap1' => [
+                                    'roleRequired' => 'verifikator_1',
+                                    'label' => 'Verifikasi 1: Atasan Langsung / Ketimker',
+                                    'status' => $r['verif_1_status'],
+                                    'verifikatorNama' => $r['verif_1_nama'],
+                                    'verifikatorNip' => $r['verif_1_nip'],
+                                    'tanggal' => $r['verif_1_tanggal'],
+                                    'catatan' => $r['verif_1_catatan']
+                                ],
+                                'tahap2' => [
+                                    'roleRequired' => 'verifikator_2',
+                                    'label' => 'Verifikasi 2: Kepala Bagian TU (Final)',
+                                    'status' => $r['verif_2_status'],
+                                    'verifikatorNama' => $r['verif_2_nama'],
+                                    'verifikatorNip' => $r['verif_2_nip'],
+                                    'tanggal' => $r['verif_2_tanggal'],
+                                    'catatan' => $r['verif_2_catatan']
+                                ]
+                            ]
+                        ];
+                    }
+                    return $result;
+                }
+            } catch (Throwable $e) {}
         }
 
         // Fallback JSON
@@ -563,14 +570,18 @@ if ($route === 'cuti' || str_starts_with($route, 'cuti/')) {
         $saveCuti($history);
 
         if ($useMysql && $pdo) {
-            $stmt = $pdo->prepare("INSERT INTO tb_cuti (cuti_code, no_urut, pegawai_id, nip, nama, jabatan, divisi, tanggal_pengajuan, tanggal_mulai, tanggal_akhir, jumlah_hari, jatah_tahun, jenis_cuti, alasan, status, status_label) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-            $stmt->execute([
-                $cutiCode, $newNum, $newItem['pegawaiId'], $newItem['nip'], $newItem['nama'],
-                $newItem['jabatan'], $newItem['divisi'], $newItem['tanggalPengajuan'],
-                $newItem['tanggalMulai'], $newItem['tanggalAkhir'], $newItem['jumlahHari'],
-                $newItem['jatahTahun'], $newItem['jenisCuti'], $newItem['alasan'],
-                $newItem['status'], $newItem['statusLabel']
-            ]);
+            try {
+                $stmt = $pdo->prepare("INSERT INTO tb_cuti (cuti_code, no_urut, pegawai_id, nip, nama, jabatan, divisi, tanggal_pengajuan, tanggal_mulai, tanggal_akhir, jumlah_hari, jatah_tahun, jenis_cuti, alasan, status, status_label) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                if ($stmt && is_object($stmt)) {
+                    $stmt->execute([
+                        $cutiCode, $newNum, $newItem['pegawaiId'], $newItem['nip'], $newItem['nama'],
+                        $newItem['jabatan'], $newItem['divisi'], $newItem['tanggalPengajuan'],
+                        $newItem['tanggalMulai'], $newItem['tanggalAkhir'], $newItem['jumlahHari'],
+                        $newItem['jatahTahun'], $newItem['jenisCuti'], $newItem['alasan'],
+                        $newItem['status'], $newItem['statusLabel']
+                    ]);
+                }
+            } catch (Throwable $e) {}
         }
 
         jsonResponse([
@@ -630,8 +641,12 @@ if ($route === 'cuti' || str_starts_with($route, 'cuti/')) {
                         if ($item['jenisCuti'] === 'Tahunan') {
                             $days = (int)$item['jumlahHari'];
                             if ($useMysql && $pdo) {
-                                $stmt = $pdo->prepare("UPDATE tb_pegawai SET sisa_cuti = GREATEST(0, sisa_cuti - ?), cuti_terpakai = cuti_terpakai + ? WHERE nip = ? OR pegawai_id = ?");
-                                $stmt->execute([$days, $days, $item['nip'], $item['pegawaiId']]);
+                                try {
+                                    $stmt = $pdo->prepare("UPDATE tb_pegawai SET sisa_cuti = GREATEST(0, sisa_cuti - ?), cuti_terpakai = cuti_terpakai + ? WHERE nip = ? OR pegawai_id = ?");
+                                    if ($stmt && is_object($stmt)) {
+                                        $stmt->execute([$days, $days, $item['nip'], $item['pegawaiId']]);
+                                    }
+                                } catch (Throwable $e) {}
                             }
                         }
                     } else {
@@ -652,16 +667,20 @@ if ($route === 'cuti' || str_starts_with($route, 'cuti/')) {
         if ($found) {
             $saveCuti($history);
             if ($useMysql && $pdo && $targetItem) {
-                $stmt = $pdo->prepare("UPDATE tb_cuti SET status = ?, status_label = ?, verif_1_status = ?, verif_1_nama = ?, verif_1_nip = ?, verif_1_tanggal = ?, verif_1_catatan = ?, verif_2_status = ?, verif_2_nama = ?, verif_2_nip = ?, verif_2_tanggal = ?, verif_2_catatan = ? WHERE cuti_code = ?");
-                $stmt->execute([
-                    $targetItem['status'], $targetItem['statusLabel'],
-                    $targetItem['verifikasi']['tahap1']['status'], $targetItem['verifikasi']['tahap1']['verifikatorNama'],
-                    $targetItem['verifikasi']['tahap1']['verifikatorNip'], $targetItem['verifikasi']['tahap1']['tanggal'],
-                    $targetItem['verifikasi']['tahap1']['catatan'], $targetItem['verifikasi']['tahap2']['status'],
-                    $targetItem['verifikasi']['tahap2']['verifikatorNama'], $targetItem['verifikasi']['tahap2']['verifikatorNip'],
-                    $targetItem['verifikasi']['tahap2']['tanggal'], $targetItem['verifikasi']['tahap2']['catatan'],
-                    $cutiId
-                ]);
+                try {
+                    $stmt = $pdo->prepare("UPDATE tb_cuti SET status = ?, status_label = ?, verif_1_status = ?, verif_1_nama = ?, verif_1_nip = ?, verif_1_tanggal = ?, verif_1_catatan = ?, verif_2_status = ?, verif_2_nama = ?, verif_2_nip = ?, verif_2_tanggal = ?, verif_2_catatan = ? WHERE cuti_code = ?");
+                    if ($stmt && is_object($stmt)) {
+                        $stmt->execute([
+                            $targetItem['status'], $targetItem['statusLabel'],
+                            $targetItem['verifikasi']['tahap1']['status'], $targetItem['verifikasi']['tahap1']['verifikatorNama'],
+                            $targetItem['verifikasi']['tahap1']['verifikatorNip'], $targetItem['verifikasi']['tahap1']['tanggal'],
+                            $targetItem['verifikasi']['tahap1']['catatan'], $targetItem['verifikasi']['tahap2']['status'],
+                            $targetItem['verifikasi']['tahap2']['verifikatorNama'], $targetItem['verifikasi']['tahap2']['verifikatorNip'],
+                            $targetItem['verifikasi']['tahap2']['tanggal'], $targetItem['verifikasi']['tahap2']['catatan'],
+                            $cutiId
+                        ]);
+                    }
+                } catch (Throwable $e) {}
             }
             jsonResponse([
                 'success' => true,

@@ -542,52 +542,6 @@ export const apiService = {
     }
   },
 
-  async createUser(payload) {
-    try {
-      const res = await fetch(`${API_BASE_URL}/users`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message);
-      return data;
-    } catch (err) {
-      console.warn('Create user error:', err.message);
-      throw err;
-    }
-  },
-
-  async updateUser(id, payload) {
-    try {
-      const res = await fetch(`${API_BASE_URL}/users/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message);
-      return data;
-    } catch (err) {
-      console.warn('Update user error:', err.message);
-      throw err;
-    }
-  },
-
-  async deleteUser(id) {
-    try {
-      const res = await fetch(`${API_BASE_URL}/users/${id}`, {
-        method: 'DELETE'
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message);
-      return data;
-    } catch (err) {
-      console.warn('Delete user error:', err.message);
-      throw err;
-    }
-  },
-
   async getAdminSummary() {
     try {
       const res = await fetch(`${API_BASE_URL}/admin/summary`);
@@ -714,7 +668,7 @@ export const apiService = {
       return data;
     } catch (err) {
       console.warn('updateUser API error:', err.message);
-      return { success: true, data: payload };
+      throw err;
     }
   },
 
@@ -733,7 +687,7 @@ export const apiService = {
       return data;
     } catch (err) {
       console.warn('createUser API error:', err.message);
-      return { success: true, data: payload };
+      throw err;
     }
   },
 
@@ -747,7 +701,7 @@ export const apiService = {
       return data;
     } catch (err) {
       console.warn('deleteUser API error:', err.message);
-      return { success: true };
+      throw err;
     }
   },
 

@@ -200,8 +200,8 @@ export default function App() {
 
         {/* Dynamic Main View */}
         <main className={`main-content ${isSptView ? 'flush-view' : ''}`}>
-          {(currentView === 'dashboard' || currentView === 'admin-dashboard') && (
-            (isUserAdmin && (isAdminRoute || currentView === 'admin-dashboard')) ? (
+          {currentView === 'dashboard' && (
+            (isUserAdmin && isAdminRoute) ? (
               <AdminDashboard 
                 user={user} 
                 onNavigate={setCurrentView} 

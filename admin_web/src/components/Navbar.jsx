@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { 
-  Search, 
   Bell, 
   LogOut, 
   ShieldCheck, 
@@ -8,67 +7,90 @@ import {
   ChevronDown, 
   Menu, 
   X, 
-  Settings, 
-  Camera,
-  Check,
-  CheckCheck,
-  Trash2,
-  Calendar,
-  FileText,
-  CheckCircle2,
-  Clock,
-  Sparkles
+  Camera, 
+  Check, 
+  CheckCheck, 
+  Trash2, 
+  Calendar, 
+  FileText, 
+  CheckCircle2, 
+  Clock, 
+  Sparkles 
 } from 'lucide-react';
-import { apiService, getStoredAvatar, setStoredAvatar } from '../services/api';
+import { apiService, getStoredAvatar, setStoredAvatar, getStoredNotifications, saveStoredNotifications } from '../services/api';
 
 export default function Navbar({ user, onLogout, onSwitchUser, onNavigate, isMobileMenuOpen, onToggleMobileMenu }) {
   const [showRoleMenu, setShowRoleMenu] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
+  const [activeCategory, setActiveCategory] = useState('all');
   const notificationRef = useRef(null);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const navbarPhotoInputRef = useRef(null);
 
-  // Dynamic system notifications matching government workflow
-  const [notifications, setNotifications] = useState([
-    {
-      id: 'notif-1',
-      type: 'spt',
-      title: 'Penerbitan Surat Tugas (SPT)',
-      message: 'SPT No. 042/BRMP-DIY/TU/2026 ke Sleman telah terbit & disahkan Kepala Balai.',
-      time: '12 menit lalu',
-      read: false,
-      targetView: 'spt-tracking'
-    },
-    {
-      id: 'notif-2',
-      type: 'cuti',
-      title: 'Verifikasi Pengajuan Cuti',
-      message: 'Pengajuan cuti tahunan staf SDM telah disetujui Verifikator 1 (Ketimker).',
-      time: '45 menit lalu',
-      read: false,
-      targetView: 'pengajuan-cuti'
-    },
-    {
-      id: 'notif-3',
-      type: 'presensi',
-      title: 'Presensi Masuk Berhasil',
-      message: 'Presensi harian tercatat pukul 07:28 WIB (Radius Kotagede 38m - Valid Hadir).',
-      time: 'Hari ini, 07:28 WIB',
-      read: true,
-      targetView: 'absensi-bulanan'
-    },
-    {
-      id: 'notif-4',
-      type: 'agenda',
-      title: 'Agenda Rapat Koordinasi',
-      message: 'Rapat Evaluasi Triwulan Modernisasi Pertanian pukul 13:30 WIB di Ruang Rapat Balai.',
-      time: 'Kemarin',
-      read: true,
-      targetView: 'dashboard'
-    }
-  ]);
+  // Dynamic system notifications connected to storage & live events
+  const [notifications, setNotifications] = useState(getStoredNotifications);
 
-  const unreadCount = notifications.filter(n => !n.read).length;
+  // Sync notifications when custom event or storage changes
+  useEffect(() => {
+    const handleSync = () => {
+      setNotifications(getStoredNotifications());
+    };
+    handleSync();
+    window.addEventListener('brmp_notifications_updated', handleSync);
+    window.addEventListener('storage', handleSync);
+    return () => {
+      window.removeEventListener('brmp_notifications_updated', handleSync);
+      window.removeEventListener('storage', handleSync);
+    };
+  }, []);
+
+  // Resolve user identity & role for notifications
+  const userNip = user?.nip || '';
+  const isAdmin = user?.systemRole === 'admin' || user?.role === 'admin' || userNip === '198001012005011001' || user?.id === 'PEG-ADM';
+  const isKobag = user?.sptRole === 'kobag_tu' || user?.role === 'kobag_tu' || user?.approvalRole === 'verifikator_2' || userNip === '198101312009121004';
+  const isKetimker = user?.sptRole === 'ketimker' || user?.role === 'ketimker' || user?.approvalRole === 'verifikator_1' || userNip === '198604092011012024' || userNip === '197106141992032001';
+  const isSekretariat = user?.sptRole === 'admin_sekretariat' || user?.role === 'admin_sekretariat' || userNip === '199111042023212041';
+  const isKopoks = user?.sptRole === 'kopoks' || user?.role === 'kopoks' || userNip === '197402062000032001';
+  const isRegularUser = !isAdmin && !isKobag && !isKetimker && !isSekretariat;
+
+  // Filter notifications specifically for the active user & role
+  const userFilteredNotifications = notifications.filter(n => {
+    // 1. Superadmin sees all notifications
+    if (isAdmin) return true;
+
+    // 2. Direct recipient match by NIP (personal confirmation/status)
+    if (userNip && (n.recipientNip === userNip || (Array.isArray(n.recipientNips) && n.recipientNips.includes(userNip)))) {
+      return true;
+    }
+
+    // 3. Broadcast to all users (agenda / general)
+    if (n.targetRoles?.includes('all')) {
+      return true;
+    }
+
+    // 4. Role-specific matches
+    if (isKobag && n.targetRoles?.includes('kobag_tu')) return true;
+    if (isKetimker && n.targetRoles?.includes('ketimker')) return true;
+    if (isSekretariat && n.targetRoles?.includes('admin_sekretariat')) return true;
+    if (isKopoks && (n.targetRoles?.includes('kopoks') || n.targetRoles?.includes('ketimker'))) return true;
+
+    // 5. Regular employee (pemohon) sees personal or applicant notifications
+    if (isRegularUser && (n.targetRoles?.includes('pemohon') || n.targetRoles?.includes('pegawai') || n.targetRoles?.includes('user'))) {
+      if (n.recipientNip) {
+        return n.recipientNip === userNip;
+      }
+      return true;
+    }
+
+    // 6. Fallback for legacy notification without targetRoles/recipientNip
+    if (!n.targetRoles && !n.recipientNip && !n.recipientNips) {
+      return true;
+    }
+
+    return false;
+  });
+
+  const unreadCount = userFilteredNotifications.filter(n => !n.read).length;
 
   // Close notification panel when clicking outside
   useEffect(() => {
@@ -87,11 +109,16 @@ export default function Navbar({ user, onLogout, onSwitchUser, onNavigate, isMob
   };
 
   const handleMarkAllRead = () => {
-    setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+    const visibleIds = new Set(userFilteredNotifications.map(n => n.id));
+    const updated = notifications.map(n => visibleIds.has(n.id) ? ({ ...n, read: true }) : n);
+    setNotifications(updated);
+    saveStoredNotifications(updated);
   };
 
   const handleNotificationClick = (notif) => {
-    setNotifications(prev => prev.map(n => n.id === notif.id ? ({ ...n, read: true }) : n));
+    const updated = notifications.map(n => n.id === notif.id ? ({ ...n, read: true }) : n);
+    setNotifications(updated);
+    saveStoredNotifications(updated);
     setShowNotifications(false);
     if (notif.targetView && onNavigate) {
       onNavigate(notif.targetView);
@@ -100,7 +127,9 @@ export default function Navbar({ user, onLogout, onSwitchUser, onNavigate, isMob
 
   const handleDeleteNotif = (e, notifId) => {
     e.stopPropagation();
-    setNotifications(prev => prev.filter(n => n.id !== notifId));
+    const updated = notifications.filter(n => n.id !== notifId);
+    setNotifications(updated);
+    saveStoredNotifications(updated);
   };
 
   const demoAccounts = [
@@ -305,8 +334,6 @@ export default function Navbar({ user, onLogout, onSwitchUser, onNavigate, isMob
     reader.readAsDataURL(file);
   };
 
-  const isAdmin = user?.systemRole === 'admin' || user?.role === 'admin' || user?.nip === '198001012005011001';
-
   return (
     <header className="top-navbar no-print" style={{ background: 'linear-gradient(135deg, #064e3b 0%, #065f46 60%, #047857 100%)', boxShadow: '0 2px 10px rgba(6, 78, 59, 0.3)' }}>
       <div className="brand-wrapper" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -349,7 +376,7 @@ export default function Navbar({ user, onLogout, onSwitchUser, onNavigate, isMob
         </div>
 
         <span style={{ fontSize: '1.05rem', fontWeight: 800, letterSpacing: '0.02em', color: '#ffffff', display: 'flex', alignItems: 'center' }}>
-          SI-AP BRMP DIY
+          BRMP DIY
         </span>
 
         <span style={{ 
@@ -365,16 +392,6 @@ export default function Navbar({ user, onLogout, onSwitchUser, onNavigate, isMob
         }}>
           RESMI
         </span>
-      </div>
-
-      <div className="navbar-search" style={{ width: '380px', background: 'rgba(0, 0, 0, 0.25)', borderColor: 'rgba(255, 255, 255, 0.2)' }}>
-        <Search size={16} style={{ color: '#a7f3d0' }} />
-        <input 
-          type="text" 
-          placeholder="Cari fitur, SPT, cuti, atau disposisi..." 
-          aria-label="Cari"
-          style={{ color: '#ffffff' }}
-        />
       </div>
 
       <div className="navbar-right">
@@ -430,11 +447,11 @@ export default function Navbar({ user, onLogout, onSwitchUser, onNavigate, isMob
                 position: 'absolute',
                 right: '-40px',
                 top: '44px',
-                width: 'min(380px, calc(100vw - 24px))',
+                width: 'min(410px, calc(100vw - 20px))',
                 background: '#ffffff',
                 color: '#1e293b',
-                borderRadius: '14px',
-                boxShadow: '0 20px 40px -10px rgba(0, 0, 0, 0.3), 0 0 1px 1px rgba(0,0,0,0.08)',
+                borderRadius: '16px',
+                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.35), 0 0 1px 1px rgba(0,0,0,0.08)',
                 border: '1px solid #cbd5e1',
                 zIndex: 1000,
                 overflow: 'hidden'
@@ -442,64 +459,136 @@ export default function Navbar({ user, onLogout, onSwitchUser, onNavigate, isMob
             >
               {/* Header */}
               <div style={{ 
-                padding: '12px 16px', 
-                background: '#f8fafc', 
-                borderBottom: '1px solid #e2e8f0', 
-                display: 'flex', 
-                alignItems: 'center', 
-                justifyContent: 'space-between' 
+                padding: '14px 16px 10px', 
+                background: 'linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%)', 
+                borderBottom: '1px solid #e2e8f0'
               }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <Bell size={16} color="#047857" />
-                  <span style={{ fontSize: '12.5px', fontWeight: 800, color: '#0f172a' }}>
-                    NOTIFIKASI KEDINASAN
-                  </span>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <div style={{ width: '28px', height: '28px', borderRadius: '8px', background: '#dcfce7', color: '#047857', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <Bell size={16} />
+                    </div>
+                    <div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <span style={{ fontSize: '13px', fontWeight: 800, color: '#0f172a', letterSpacing: '0.01em' }}>
+                          PUSAT NOTIFIKASI
+                        </span>
+                        <span style={{
+                          fontSize: '9.5px',
+                          fontWeight: 700,
+                          background: isAdmin ? '#ecfdf5' : isKobag ? '#f3e8ff' : isKetimker ? '#fef3c7' : isSekretariat ? '#e0f2fe' : '#f1f5f9',
+                          color: isAdmin ? '#047857' : isKobag ? '#7c3aed' : isKetimker ? '#b45309' : isSekretariat ? '#0284c7' : '#475569',
+                          padding: '1px 6px',
+                          borderRadius: '6px',
+                          border: '1px solid rgba(0,0,0,0.06)'
+                        }}>
+                          {isAdmin ? 'Superadmin' : isKobag ? 'Kobag TU' : isKetimker ? 'Ketimker' : isSekretariat ? 'Sekretariat' : 'Pegawai'}
+                        </span>
+                      </div>
+                      <div style={{ fontSize: '10.5px', color: '#64748b' }}>
+                        {isAdmin 
+                          ? 'Mode Pantau Administrator (Seluruh Instansi)' 
+                          : isKobag 
+                          ? 'Persetujuan Eksekutif & Disposisi Kobag TU' 
+                          : isKetimker 
+                          ? 'Telaah & Verifikasi Tim Kerja' 
+                          : isSekretariat 
+                          ? 'Penomoran Naskah Dinas & Tata Persuratan' 
+                          : `Status Penugasan & Notifikasi ${user?.nama?.split(' ')[0] || 'Pegawai'}`}
+                      </div>
+                    </div>
+                  </div>
+
                   {unreadCount > 0 && (
-                    <span style={{ fontSize: '10px', fontWeight: 800, background: '#fee2e2', color: '#dc2626', padding: '1.5px 6px', borderRadius: '10px' }}>
-                      {unreadCount} Baru
-                    </span>
+                    <button
+                      onClick={handleMarkAllRead}
+                      style={{
+                        background: '#ffffff',
+                        border: '1px solid #cbd5e1',
+                        color: '#059669',
+                        fontSize: '11px',
+                        fontWeight: 700,
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '4px',
+                        padding: '4px 8px',
+                        borderRadius: '6px',
+                        boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
+                      }}
+                      title="Tandai semua notifikasi telah dibaca"
+                    >
+                      <CheckCheck size={13} />
+                      <span>Baca Semua</span>
+                    </button>
                   )}
                 </div>
 
-                {unreadCount > 0 && (
-                  <button
-                    onClick={handleMarkAllRead}
-                    style={{
-                      background: 'none',
-                      border: 'none',
-                      color: '#059669',
-                      fontSize: '11px',
-                      fontWeight: 700,
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '4px',
-                      padding: '2px 4px'
-                    }}
-                    title="Tandai semua notifikasi telah dibaca"
-                  >
-                    <CheckCheck size={14} />
-                    <span>Tandai dibaca</span>
-                  </button>
-                )}
+                {/* Filter Tabs by Category */}
+                <div style={{ display: 'flex', gap: '6px', overflowX: 'auto', paddingBottom: '2px' }}>
+                  {[
+                    { id: 'all', label: 'Semua', count: userFilteredNotifications.length },
+                    { id: 'spt', label: 'SPT & Tugas', count: userFilteredNotifications.filter(n => n.type === 'spt').length },
+                    { id: 'cuti', label: 'Cuti', count: userFilteredNotifications.filter(n => n.type === 'cuti').length },
+                    { id: 'presensi', label: 'Presensi', count: userFilteredNotifications.filter(n => n.type === 'presensi').length }
+                  ].map(tab => (
+                    <button
+                      key={tab.id}
+                      onClick={() => setActiveCategory(tab.id)}
+                      style={{
+                        background: activeCategory === tab.id ? '#059669' : '#ffffff',
+                        color: activeCategory === tab.id ? '#ffffff' : '#475569',
+                        border: activeCategory === tab.id ? '1px solid #059669' : '1px solid #cbd5e1',
+                        borderRadius: '9999px',
+                        padding: '3px 10px',
+                        fontSize: '11px',
+                        fontWeight: 700,
+                        cursor: 'pointer',
+                        whiteSpace: 'nowrap',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '5px',
+                        transition: 'all 0.15s'
+                      }}
+                    >
+                      <span>{tab.label}</span>
+                      <span style={{
+                        fontSize: '9.5px',
+                        background: activeCategory === tab.id ? 'rgba(255,255,255,0.25)' : '#e2e8f0',
+                        color: activeCategory === tab.id ? '#ffffff' : '#475569',
+                        padding: '0.5px 5px',
+                        borderRadius: '10px'
+                      }}>
+                        {tab.count}
+                      </span>
+                    </button>
+                  ))}
+                </div>
               </div>
 
               {/* Notification Items List */}
-              <div style={{ maxHeight: '340px', overflowY: 'auto' }}>
-                {notifications.length === 0 ? (
-                  <div style={{ padding: '2rem 1rem', textAlign: 'center', color: '#94a3b8' }}>
-                    <Bell size={32} style={{ margin: '0 auto 8px', opacity: 0.4 }} />
-                    <div style={{ fontSize: '13px', fontWeight: 700, color: '#64748b' }}>Belum ada notifikasi</div>
-                    <div style={{ fontSize: '11px', marginTop: '2px' }}>Semua pengajuan dan aktivitas kedinasan terpantau lancar.</div>
-                  </div>
-                ) : (
-                  notifications.map((n) => {
+              <div style={{ maxHeight: '360px', overflowY: 'auto' }}>
+                {(() => {
+                  const items = userFilteredNotifications.filter(n => activeCategory === 'all' || n.type === activeCategory);
+                  if (items.length === 0) {
+                    return (
+                      <div style={{ padding: '2.5rem 1.5rem', textAlign: 'center', color: '#94a3b8' }}>
+                        <Bell size={36} style={{ margin: '0 auto 10px', opacity: 0.35, color: '#047857' }} />
+                        <div style={{ fontSize: '13.5px', fontWeight: 700, color: '#475569' }}>Tidak ada notifikasi {activeCategory !== 'all' ? activeCategory.toUpperCase() : ''}</div>
+                        <div style={{ fontSize: '11.5px', marginTop: '3px', color: '#94a3b8' }}>
+                          Seluruh permohonan dan surat penugasan telah diproses dengan tertib.
+                        </div>
+                      </div>
+                    );
+                  }
+
+                  return items.map((n) => {
                     const iconConfig = {
-                      spt: { bg: '#ffedd5', color: '#ea580c', icon: <FileText size={16} /> },
-                      cuti: { bg: '#dcfce7', color: '#166534', icon: <Calendar size={16} /> },
-                      presensi: { bg: '#f3e8ff', color: '#7c3aed', icon: <CheckCircle2 size={16} /> },
-                      agenda: { bg: '#e0f2fe', color: '#0284c7', icon: <Clock size={16} /> }
-                    }[n.type] || { bg: '#f1f5f9', color: '#475569', icon: <Bell size={16} /> };
+                      spt: { bg: '#ffedd5', color: '#ea580c', icon: <FileText size={17} />, tag: 'SURAT TUGAS' },
+                      cuti: { bg: '#dcfce7', color: '#166534', icon: <Calendar size={17} />, tag: 'CUTI PEGAWAI' },
+                      presensi: { bg: '#f3e8ff', color: '#7c3aed', icon: <CheckCircle2 size={17} />, tag: 'PRESENSI' },
+                      agenda: { bg: '#e0f2fe', color: '#0284c7', icon: <Clock size={17} />, tag: 'AGENDA' }
+                    }[n.type] || { bg: '#f1f5f9', color: '#475569', icon: <Bell size={17} />, tag: 'INFO' };
 
                     return (
                       <div
@@ -513,15 +602,28 @@ export default function Navbar({ user, onLogout, onSwitchUser, onNavigate, isMob
                           display: 'flex',
                           alignItems: 'flex-start',
                           gap: '12px',
-                          transition: 'background 0.15s'
+                          transition: 'background 0.15s',
+                          position: 'relative'
                         }}
                         onMouseEnter={(e) => { e.currentTarget.style.background = '#f8fafc'; }}
                         onMouseLeave={(e) => { e.currentTarget.style.background = !n.read ? '#f0fdf4' : '#ffffff'; }}
                       >
+                        {/* Unread Left Border Accent */}
+                        {!n.read && (
+                          <div style={{
+                            position: 'absolute',
+                            left: 0,
+                            top: 0,
+                            bottom: 0,
+                            width: '4px',
+                            background: '#10b981'
+                          }} />
+                        )}
+
                         {/* Icon Circle */}
                         <div style={{
-                          width: '34px',
-                          height: '34px',
+                          width: '36px',
+                          height: '36px',
                           borderRadius: '10px',
                           background: iconConfig.bg,
                           color: iconConfig.color,
@@ -529,28 +631,44 @@ export default function Navbar({ user, onLogout, onSwitchUser, onNavigate, isMob
                           alignItems: 'center',
                           justifyContent: 'center',
                           flexShrink: 0,
-                          marginTop: '2px'
+                          marginTop: '2px',
+                          boxShadow: '0 2px 5px rgba(0,0,0,0.06)'
                         }}>
                           {iconConfig.icon}
                         </div>
 
                         {/* Content */}
                         <div style={{ flex: 1, minWidth: 0 }}>
-                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
-                            <span style={{ fontSize: '12.5px', fontWeight: !n.read ? 800 : 700, color: !n.read ? '#065f46' : '#0f172a' }}>
-                              {n.title}
-                            </span>
-                            {!n.read && (
-                              <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#10b981', flexShrink: 0 }} />
-                            )}
-                          </div>
-                          <p style={{ fontSize: '11.5px', color: '#475569', margin: '3px 0 4px', lineHeight: 1.4 }}>
-                            {n.message}
-                          </p>
-                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                            <span style={{ fontSize: '10.5px', color: '#94a3b8' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '6px', marginBottom: '2px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                              <span style={{ fontSize: '9.5px', fontWeight: 800, color: iconConfig.color, background: iconConfig.bg, padding: '1px 6px', borderRadius: '4px', letterSpacing: '0.02em' }}>
+                                {iconConfig.tag}
+                              </span>
+                              {!n.read && (
+                                <span style={{ fontSize: '9.5px', fontWeight: 800, color: '#dc2626', background: '#fee2e2', padding: '1px 5px', borderRadius: '4px' }}>
+                                  BARU
+                                </span>
+                              )}
+                            </div>
+                            <span style={{ fontSize: '10px', color: '#94a3b8', whiteSpace: 'nowrap' }}>
                               {n.time}
                             </span>
+                          </div>
+
+                          <div style={{ fontSize: '12.5px', fontWeight: !n.read ? 800 : 700, color: !n.read ? '#065f46' : '#0f172a', lineHeight: 1.35, marginTop: '2px' }}>
+                            {n.title}
+                          </div>
+
+                          <p style={{ fontSize: '11.5px', color: '#475569', margin: '4px 0 6px', lineHeight: 1.45 }}>
+                            {n.message}
+                          </p>
+
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '4px' }}>
+                            <span style={{ fontSize: '11px', color: '#059669', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                              <span>Buka Surat / Verifikasi</span>
+                              <span>→</span>
+                            </span>
+
                             <button
                               onClick={(e) => handleDeleteNotif(e, n.id)}
                               title="Hapus notifikasi"
@@ -559,12 +677,13 @@ export default function Navbar({ user, onLogout, onSwitchUser, onNavigate, isMob
                                 border: 'none',
                                 color: '#94a3b8',
                                 cursor: 'pointer',
-                                padding: '2px',
+                                padding: '3px 5px',
                                 display: 'flex',
-                                alignItems: 'center'
+                                alignItems: 'center',
+                                borderRadius: '4px'
                               }}
-                              onMouseEnter={(e) => { e.currentTarget.style.color = '#ef4444'; }}
-                              onMouseLeave={(e) => { e.currentTarget.style.color = '#94a3b8'; }}
+                              onMouseEnter={(e) => { e.currentTarget.style.color = '#ef4444'; e.currentTarget.style.background = '#fee2e2'; }}
+                              onMouseLeave={(e) => { e.currentTarget.style.color = '#94a3b8'; e.currentTarget.style.background = 'transparent'; }}
                             >
                               <Trash2 size={13} />
                             </button>
@@ -572,13 +691,13 @@ export default function Navbar({ user, onLogout, onSwitchUser, onNavigate, isMob
                         </div>
                       </div>
                     );
-                  })
-                )}
+                  });
+                })()}
               </div>
 
               {/* Footer */}
               <div style={{
-                padding: '8px 14px',
+                padding: '10px 16px',
                 background: '#f8fafc',
                 borderTop: '1px solid #e2e8f0',
                 display: 'flex',
@@ -587,8 +706,11 @@ export default function Navbar({ user, onLogout, onSwitchUser, onNavigate, isMob
                 fontSize: '11px',
                 color: '#64748b'
               }}>
-                <span>KITA BRMP DIY Real-time Alerts</span>
-                <span style={{ color: '#059669', fontWeight: 700 }}>Aktif • Terhubung</span>
+                <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#10b981', display: 'inline-block' }}></span>
+                  <span>Sinkronisasi Realtime Balai</span>
+                </span>
+                <span style={{ color: '#059669', fontWeight: 700 }}>Online • Terhubung</span>
               </div>
             </div>
           )}
@@ -662,26 +784,6 @@ export default function Navbar({ user, onLogout, onSwitchUser, onNavigate, isMob
               </span>
             </div>
           </div>
-
-          <button
-            onClick={() => onNavigate && onNavigate('pengaturan-akun')}
-            title="Pengaturan Akun & Profil Lengkap"
-            className="navbar-settings-btn"
-            style={{
-              background: 'rgba(255, 255, 255, 0.15)',
-              border: '1px solid rgba(255, 255, 255, 0.25)',
-              color: '#ffffff',
-              padding: '6px',
-              borderRadius: '8px',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              transition: 'all 0.2s'
-            }}
-          >
-            <Settings size={15} />
-          </button>
 
           <button
             onClick={onLogout}

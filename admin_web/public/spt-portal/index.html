@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Sistem Informasi Pengeluaran Surat Perintah Tugas (SPT) Digital Standar Pemerintahan RI - Kementerian Pertanian BRMP Daerah Istimewa Yogyakarta">
+  <title>Sistem SPT Digital - Kementan BRMP DIY</title>
+  
+  <!-- CSS Stylesheets -->
+  <link rel="icon" type="image/png" href="img/logo-kementan.png">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/print.css">
+  <script>
+    // Deteksi jika dijalankan di dalam portal internalBRMP
+    const isEmbedded = (window.self !== window.top || window.location.search.includes('embedded=1'));
+    if (isEmbedded) {
+      document.addEventListener('DOMContentLoaded', () => {
+        document.body.classList.add('embedded-mode');
+      });
+      if (document.body) document.body.classList.add('embedded-mode');
+
+      // Listen for sync messages from portal parent
+      window.addEventListener('message', (event) => {
+        if (event.data && event.data.type === 'SYNC_SPT_USER') {
+          const { user, targetView } = event.data;
+          if (window.App && typeof window.App.syncPortalUser === 'function') {
+            window.App.syncPortalUser(user, targetView);
+          }
+        }
+      });
+    }
+  </script>
+</head>
+<body>
+
+  <!-- ==============================================================
+       HALAMAN LOGIN SISTEM (PORTAL RESMI BRMP DIY)
+       ============================================================== -->
+  <div class="login-portal-wrapper" id="loginPortalWrapper">
+    <div class="login-portal-card">
+      <!-- Panel Kiri: Identitas & Fitur Institusional -->
+      <div class="login-brand-panel">
+        <div>
+          <div class="login-brand-header">
+            <div class="login-logo-circle">
+              <img src="img/logo-kementan.png" alt="Logo Kementerian Pertanian" style="width: 44px; height: 44px; object-fit: contain;">
+            </div>
+            <div>
+              <div class="login-brand-title">E-SPT <span>BRMP DIY</span></div>
+              <div class="login-brand-subtitle">Kementerian Pertanian Republik Indonesia</div>
+            </div>
+          </div>
+
+          <p style="font-size: 13px; opacity: 0.95; line-height: 1.5; margin-bottom: 20px;">
+            Sistem Informasi Surat Perintah Tugas (SPT) Digital terintegrasi dengan tata naskah dinas resmi, 
+            pencegahan bentrok jadwal penugasan otomatis, serta verifikasi berjenjang multi-role.
+          </p>
+
+          <div class="login-features-list">
+            <div class="login-feature-item">
+              <div class="login-feature-icon">🛡️</div>
+              <div><strong>Validasi Jadwal Otomatis:</strong> Mencegah anggota memiliki 2 penugasan SPT pada tanggal bersamaan.</div>
+            </div>
+            <div class="login-feature-item">
+              <div class="login-feature-icon">⚡</div>
+              <div><strong>Approval 2 Tingkat:</strong> Verifikasi tingkat Unit Kerja (Ketimker) dilanjutkan Persetujuan Utama (Kobag TU).</div>
+            </div>
+            <div class="login-feature-item">
+              <div class="login-feature-icon">🖨️</div>
+              <div><strong>Format Tata Naskah RI:</strong> Konsiderans Menimbang, Dasar, stempel barcode BSRE, siap cetak A4.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="login-footer-info">
+          <div>Balai Penerapan Standar Instrumen Pertanian D.I. Yogyakarta</div>
+          <div style="font-size: 10.5px; opacity: 0.7; margin-top: 2px;">Jl. Stadion Maguwoharjo No. 22, Sleman, DIY 55584</div>
+        </div>
+      </div>
+
+      <!-- Panel Kanan: Form Login Mandiri & Demo Quick Login -->
+      <div class="login-form-panel">
+        <h2 class="login-form-title">Masuk ke Sistem</h2>
+        <p class="login-form-desc">Silakan login menggunakan akun kedinasan Anda</p>
+
+        <!-- Alert Error Login -->
+        <div id="loginAlertBox" style="display: none; background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; padding: 10px 14px; border-radius: 8px; font-size: 12.5px; margin-bottom: 16px;"></div>
+
+        <form id="loginForm" onsubmit="App.handleLoginSubmit(event)">
+          <!-- Pilih Cepat Akun Pegawai (Semua 115 Pegawai BRMP DIY) -->
+          <div class="form-group mb-3">
+            <label class="form-label" for="loginQuickSelect">
+              <span style="display:flex; justify-content:space-between; align-items:center;">
+                <span>Pilih Cepat Akun Pegawai (115 Pegawai):</span>
+                <span style="font-size:11px; color:#15803d; font-weight:600;">Opsi Instan</span>
+              </span>
+            </label>
+            <select class="form-control" id="loginQuickSelect" onchange="App.handleQuickSelectUser(this.value)">
+              <option value="">-- Pilih Akun Pegawai BRMP DIY --</option>
+            </select>
+            <div class="form-help" style="font-size: 11px; margin-top: 4px;">Pilih salah satu untuk mengisi form username & password secara otomatis</div>
+          </div>
+
+          <div class="form-group mb-3">
+            <label class="form-label" for="loginUsername">Username atau NIP:</label>
+            <input type="text" class="form-control" id="loginUsername" placeholder="Contoh: devi.eka / 198906012015032004" required>
+          </div>
+
+          <div class="form-group mb-3">
+            <label class="form-label" for="loginPassword">Kata Sandi (Password):</label>
+            <input type="password" class="form-control" id="loginPassword" placeholder="Masukkan kata sandi (Default: 123456)..." required>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-lg w-100 mt-2">
+            🔐 Masuk ke Dashboard
+          </button>
+        </form>
+
+        <!-- Akun Demonstrasi Cepat (Pilih untuk Otomatis Login ke Role Spesifik) -->
+        <div class="login-demo-section">
+          <div class="login-demo-title">
+            <span>⚡ Masuk Cepat dengan Akun Role:</span>
+          </div>
+          <div class="demo-account-buttons">
+            <button type="button" class="btn-demo-account" onclick="App.loginAsDemo('admin_sekretariat')">
+              <strong>👑 Admin Sekretariat</strong>
+              <span>Novita Widiyanti, A.Md</span>
+            </button>
+            <button type="button" class="btn-demo-account" onclick="App.loginAsDemo('user')">
+              <strong>👤 User (Pemohon)</strong>
+              <span>Devi Eka Nuvitasari, S.H.</span>
+            </button>
+            <button type="button" class="btn-demo-account" onclick="App.loginAsDemo('ketimker')">
+              <strong>🛡️ Ketimker (10 Tim Kerja)</strong>
+              <span>Dwi Dinia / Yuni Pratiwi</span>
+            </button>
+            <button type="button" class="btn-demo-account" onclick="App.loginAsDemo('kopoks')">
+              <strong>📊 Kopoks (Monitoring)</strong>
+              <span>Dr. Fibrianty, M.Si</span>
+            </button>
+            <button type="button" class="btn-demo-account" onclick="App.loginAsDemo('kobag_tu')" style="grid-column: span 2;">
+              <strong>⚡ Kobag TU (Approval Utama)</strong>
+              <span>Agung Ariyanto, SEI., M.Ec., Dev.</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==============================================================
+       APLIKASI UTAMA (DITAMPILKAN SETELAH LOGIN)
+       ============================================================== -->
+  <div class="app-layout" id="appMainLayout" style="display: none;">
+    <!-- SIDEBAR NAVIGASI -->
+    <aside class="sidebar no-print">
+      <div class="sidebar-header">
+        <div class="brand-icon-box" style="padding: 4px; background: #ffffff;">
+          <img src="img/logo-kementan.png" alt="Logo Kementerian Pertanian" style="width: 32px; height: 32px; object-fit: contain;">
+        </div>
+        <div class="brand-info">
+          <div class="brand-title">E-SPT <span>BRMP DIY</span></div>
+          <div class="brand-subtitle">Kementerian Pertanian RI</div>
+        </div>
+      </div>
+
+      <nav class="sidebar-menu" id="sidebarMenuContainer">
+        <!-- Menu navigasi dinamis yang disesuaikan per role via JS -->
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="app-version-tag">
+          <span id="sidebarRoleBadge">Role</span>
+          <span style="color: #4ade80;">Online</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT AREA -->
+    <div class="main-wrapper">
+      <!-- APP HEADER -->
+      <header class="app-header no-print">
+        <div class="header-left">
+          <button class="toggle-sidebar-btn" id="toggleSidebarBtn" aria-label="Buka Menu">
+            <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" fill="none" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+          </button>
+          <div class="header-title-container">
+            <h1 id="pageMainHeaderTitle">Balai Penerapan Standar Instrumen Pertanian DIY</h1>
+            <p id="pageMainHeaderSubtitle">Sistem Pengelolaan Surat Perintah Tugas Terintegrasi Standar Kementan RI</p>
+          </div>
+        </div>
+
+        <div class="header-right">
+          <div class="header-user-menu">
+            <!-- User Profile Card (Clickable to open Account Settings) -->
+            <div class="current-user-card" onclick="App.openSwitchAccountModal()" style="cursor: pointer;" title="Klik untuk Pengaturan Akun & Beralih Peran">
+              <div class="user-avatar" id="headerUserAvatar">AP</div>
+              <div class="user-meta">
+                <span class="user-meta-name" id="headerUserName">-</span>
+                <span class="user-meta-role" id="headerUserRole">-</span>
+              </div>
+            </div>
+
+            <!-- Switch Account Dialog Button -->
+            <button class="btn-switch-account" onclick="App.openSwitchAccountModal()" title="Beralih peran (Multi-Role)">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg>
+              <span>Ganti Akun</span>
+            </button>
+
+            <!-- Logout Button -->
+            <button class="btn-logout" onclick="App.handleLogout()" title="Keluar dari sistem">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+              <span>Keluar</span>
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <!-- PAGE MAIN VIEWS -->
+      <main class="main-content">
+
+        <!-- ==============================================================
+             1. VIEW: DASHBOARD DINAMIS (DEDIKASI SPESIFIK SESUAI ROLE)
+             ============================================================== -->
+        <section id="view-dashboard" class="view-section active">
+          <!-- Konten dashboard di-render secara dinamis sesuai Role yang sedang login -->
+          <div id="roleDashboardContainer"></div>
+        </section>
+
+        <!-- ==============================================================
+             2. VIEW: FORM PENGAJUAN SPT (USER)
+             ============================================================== -->
+        <section id="view-pengajuan" class="view-section">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-header-title">
+                <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" fill="none" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                <div>
+                  <h3>Formulir Pengajuan Surat Perintah Tugas (SPT)</h3>
+                  <div class="card-header-subtitle">Ikuti 5 langkah pengajuan sesuai SOP. Sistem otomatis memvalidasi irisan jadwal anggota.</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card-body">
+              <!-- Wizard Steps Progress Bar -->
+              <div class="wizard-steps">
+                <div class="wizard-step-item completed">
+                  <div class="step-circle">1</div>
+                  <div class="step-label">1. Klasifikasi</div>
+                </div>
+                <div class="wizard-step-item completed">
+                  <div class="step-circle">2</div>
+                  <div class="step-label">2. Tanggal</div>
+                </div>
+                <div class="wizard-step-item active">
+                  <div class="step-circle">3</div>
+                  <div class="step-label">3. Anggota</div>
+                </div>
+                <div class="wizard-step-item">
+                  <div class="step-circle">4</div>
+                  <div class="step-label">4. Tujuan</div>
+                </div>
+                <div class="wizard-step-item">
+                  <div class="step-circle">5</div>
+                  <div class="step-label">5. Uraian Tugas</div>
+                </div>
+              </div>
+
+              <!-- UNREPORTED SPT LOCK ALERT BANNER -->
+              <div class="unreported-lock-banner" id="unreportedLockBanner" style="display: none;">
+                <!-- Populated dynamically via JS -->
+              </div>
+
+              <!-- REAL-TIME CONFLICT ALERT BOX -->
+              <div class="conflict-alert-box" id="conflictAlertBox">
+                <div class="conflict-alert-title">
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+                  <span>PERINGATAN: TERDETEKSI BENTROK JADWAL PENUGASAN (DOUBLE BOOKING)!</span>
+                </div>
+                <p style="font-size: 13px; margin-bottom: 6px;">
+                  Sesuai ketentuan SOP, anggota yang diajukan <strong>tidak dapat memiliki 2 SPT di waktu yang bersamaan</strong>. 
+                  Berikut adalah personil yang jadwalnya bertabrakan pada rentang tanggal yang dipilih:
+                </p>
+                <ul class="conflict-list" id="conflictListUl">
+                  <!-- Populated dynamically via JS -->
+                </ul>
+              </div>
+
+              <!-- Form Element -->
+              <form id="formPengajuanSpt">
+                <!-- LANGKAH 1: KLASIFIKASI -->
+                <div class="form-group">
+                  <label class="form-label" for="formKlasifikasi">
+                    Langkah 1: Memilih Klasifikasi Penugasan <span class="req">*</span>
+                  </label>
+                  <select class="form-control" id="formKlasifikasi" required>
+                    <!-- Populated via JS -->
+                  </select>
+                  <div class="form-help">Pilih kategori tugas (Perjalanan dinas biasa, pendampingan, pengujian, uji lab, dll.)</div>
+                </div>
+
+                <!-- LANGKAH 3: MEMILIH TANGGAL -->
+                <div class="form-row-2">
+                  <div class="form-group">
+                    <label class="form-label" for="formTglMulai">
+                      Langkah 3a: Tanggal Mulai Penugasan <span class="req">*</span>
+                    </label>
+                    <input type="date" class="form-control" id="formTglMulai" required>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="formTglSelesai">
+                      Langkah 3b: Tanggal Selesai Penugasan <span class="req">*</span>
+                    </label>
+                    <input type="date" class="form-control" id="formTglSelesai" required>
+                  </div>
+                </div>
+
+                <!-- LANGKAH 2: MEMILIH ANGGOTA DENGAN FILTER & VALIDASI BENTROK -->
+                <div class="form-group">
+                  <label class="form-label">
+                    Langkah 2: Memilih Anggota / Personil BRMP DIY <span class="req">*</span>
+                  </label>
+                  <div class="form-help mb-2">
+                    User yang mengajukan SPT <strong>otomatis tercantum pada urutan pertama</strong> sebagai <strong>Penanggung Jawab (PJ)</strong>.
+                    Silakan centang rekan personil lainnya untuk ditugaskan bersama. Sistem secara otomatis memvalidasi irisan jadwal agar tidak bentrok.
+                  </div>
+
+                  <div class="member-picker-container">
+                    <div class="member-search-bar">
+                      <input type="text" class="form-control" id="memberSearchInput" placeholder="🔍 Cari nama pegawai, NIP, atau unit kerja BRMP DIY...">
+                    </div>
+                    <div class="member-list-scroll" id="memberPickerScroll">
+                      <!-- Populated via JS -->
+                    </div>
+                    <div class="selected-members-bar" id="selectedMembersBar">
+                      <!-- Populated via JS -->
+                    </div>
+                  </div>
+                </div>
+
+                <!-- LANGKAH 4: MENGISI TUJUAN DAERAH -->
+                <div class="form-row-2">
+                  <div class="form-group">
+                    <label class="form-label" for="formTujuanDaerah">
+                      Langkah 4a: Tujuan Daerah (Kabupaten / Kota) <span class="req">*</span>
+                    </label>
+                    <input type="text" class="form-control" id="formTujuanDaerah" placeholder="Contoh: Kabupaten Kulon Progo / Sleman / Bantul" required>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="formTempatTujuan">
+                      Langkah 4b: Tempat / Instansi Tujuan Spesifik
+                    </label>
+                    <input type="text" class="form-control" id="formTempatTujuan" placeholder="Contoh: BPP Sentolo, Gapoktan Makmur Lestari, Dinas Pertanian DIY">
+                  </div>
+                </div>
+
+                <!-- LANGKAH 5: MENGISI UNTUK MELAKSANAKAN APA -->
+                <div class="form-group">
+                  <label class="form-label" for="formUntukMelaksanakan">
+                    Langkah 5: Mengisi Untuk Melaksanakan Apa (Uraian Tugas) <span class="req">*</span>
+                  </label>
+                  <textarea class="form-control" id="formUntukMelaksanakan" rows="3" placeholder="Uraikan secara jelas maksud kedinasan, kegiatan yang dilaksanakan, serta output yang diharapkan..." required></textarea>
+                  <div class="form-help">Uraian ini akan tercetak pada naskah dinas resmi SPT standar Kementerian Pertanian.</div>
+                </div>
+
+                <!-- Action Button -->
+                <div class="d-flex justify-content-end gap-2 mt-4">
+                  <button type="button" class="btn btn-secondary" onclick="App.navigateTo('dashboard')">
+                    Batal
+                  </button>
+                  <button type="submit" class="btn btn-primary btn-lg" id="btnSubmitPengajuan">
+                    Kirim Pengajuan SPT
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==============================================================
+             3. VIEW: TRACKING & UNDUH SPT (USER)
+             ============================================================== -->
+        <section id="view-tracking" class="view-section">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-header-title">
+                <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" fill="none" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                <div>
+                  <h3>Tracking Proses & Unduh SPT Ter-TTD</h3>
+                  <div class="card-header-subtitle">Pantau posisi berkas pengajuan, unduh salinan resmi bertanda tangan, dan unggah laporan (maks 2MB)</div>
+                </div>
+              </div>
+              <div>
+                <button class="btn btn-primary btn-sm" onclick="App.navigateTo('pengajuan')">+ Ajukan SPT Baru</button>
+              </div>
+            </div>
+
+            <div class="card-body p-0">
+              <div class="table-responsive">
+                <table class="app-table">
+                  <thead>
+                    <tr>
+                      <th>Nomor SPT / ID</th>
+                      <th>Klasifikasi & Lokasi</th>
+                      <th>Personil Pelaksana</th>
+                      <th>Jadwal Penugasan</th>
+                      <th>Status Persetujuan</th>
+                      <th>Aksi & Unduhan</th>
+                    </tr>
+                  </thead>
+                  <tbody id="trackingTableBody">
+                    <!-- Populated via JS -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==============================================================
+             4. VIEW: APPROVAL KETIMKER (APPROVAL UNIT)
+             ============================================================== -->
+        <section id="view-approval-ketimker" class="view-section">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-header-title">
+                <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" fill="none" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                <div>
+                  <h3>Approval Tingkat Unit Kerja (Ketimker)</h3>
+                  <div class="card-header-subtitle">Verifikasi usulan penugasan dari staf tim kerja sebelum diteruskan ke Kepala Bagian TU</div>
+                </div>
+              </div>
+            </div>
+            <div class="card-body">
+              <div id="ketimkerPendingList">
+                <!-- Populated via JS -->
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==============================================================
+             5. VIEW: APPROVAL KOBAG TU (APPROVAL UTAMA)
+             ============================================================== -->
+        <section id="view-approval-kobag" class="view-section">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-header-title">
+                <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" fill="none" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                <div>
+                  <h3>Approval Utama (Kepala Bagian Tata Usaha)</h3>
+                  <div class="card-header-subtitle">Persetujuan definitif substantif sebelum penerbitan nomor surat resmi oleh Sekretariat</div>
+                </div>
+              </div>
+            </div>
+            <div class="card-body">
+              <div id="kobagPendingList">
+                <!-- Populated via JS -->
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==============================================================
+             6. VIEW: MONITORING KOPOKS
+             ============================================================== -->
+        <section id="view-monitoring-kopoks" class="view-section">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-header-title">
+                <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" fill="none" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
+                <div>
+                  <h3>Monitoring Penugasan SPT (Kopoks / Poksi)</h3>
+                  <div class="card-header-subtitle">Pemantauan distribusi penugasan personil, evaluasi kegiatan dinas, dan pengawasan jadwal</div>
+                </div>
+              </div>
+              <div class="d-flex gap-2">
+                <select class="form-control" id="filterMonStatus" onchange="App.renderMonitoringKopoks()" style="width: 170px;">
+                  <option value="all">Semua Status</option>
+                  <option value="terbit">SPT Terbit</option>
+                  <option value="approved_kobag_tu">Approved Kobag TU</option>
+                  <option value="approved_ketimker">Approved Ketimker</option>
+                  <option value="diajukan">Menunggu Approval</option>
+                </select>
+                <select class="form-control" id="filterMonBulan" onchange="App.renderMonitoringKopoks()" style="width: 160px;">
+                  <option value="all">Semua Bulan</option>
+                  <option value="2026-10">Oktober 2026</option>
+                  <option value="2026-09">September 2026</option>
+                </select>
+              </div>
+            </div>
+            <div class="card-body p-0">
+              <div class="table-responsive">
+                <table class="app-table">
+                  <thead>
+                    <tr>
+                      <th>Nomor SPT</th>
+                      <th>Klasifikasi & Maksud</th>
+                      <th>Personil Ditugaskan</th>
+                      <th>Rentang Tanggal</th>
+                      <th>Tujuan Daerah</th>
+                      <th>Status</th>
+                      <th>Aksi</th>
+                    </tr>
+                  </thead>
+                  <tbody id="monitoringTableBody">
+                    <!-- Populated via JS -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==============================================================
+             7. VIEW: ADMIN SEKRETARIAT (5 TUGAS UTAMA)
+             ============================================================== -->
+        <section id="view-admin-sekretariat" class="view-section">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-header-title">
+                <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" fill="none" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                <div>
+                  <h3>Pusat Administrasi Sekretariat BRMP DIY</h3>
+                  <div class="card-header-subtitle">Pengelolaan konsiderans Menimbang, Dasar hukum, Database personil, Penomoran SPT ter-ttd, Setting user, & Cetak</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card-body">
+              <!-- Admin Sub Tabs -->
+              <div class="d-flex flex-wrap gap-2 mb-4">
+                <button class="btn btn-secondary active" id="tabBtnPenerbitan" onclick="App.showAdminSubTab('penerbitan')">
+                  📄 1. Penomoran & Upload SPT TTD
+                </button>
+                <button class="btn btn-secondary" id="tabBtnMenimbang" onclick="App.showAdminSubTab('menimbang')">
+                  ⚖️ 2. Update Menimbang
+                </button>
+                <button class="btn btn-secondary" id="tabBtnDasar" onclick="App.showAdminSubTab('dasar')">
+                  📜 3. Update Dasar Hukum
+                </button>
+                <button class="btn btn-secondary" id="tabBtnDatabase" onclick="App.showAdminSubTab('database')">
+                  👥 4. Update Database Pegawai
+                </button>
+                <button class="btn btn-secondary" id="tabBtnUsers" onclick="App.showAdminSubTab('users')">
+                  ⚙️ 5. Setting User
+                </button>
+              </div>
+
+              <!-- SUBTAB 1: PENERBITAN & UPLOAD SPT TER TTD -->
+              <div id="adminSubTab-penerbitan" class="admin-subtab-pane">
+                <h4 class="mb-2">Daftar SPT Siap Terbit & Upload Berkas Bertanda Tangan</h4>
+                <p class="text-muted mb-3" style="font-size: 12.5px;">
+                  Setelah disetujui Kobag TU, Sekretariat menginput nomor surat resmi sesuai buku agenda dinas, 
+                  mencetak naskah SPT fisik, dan mengunggah hasil scan/file ter-ttd basah atau digital.
+                </p>
+                <div class="table-responsive">
+                  <table class="app-table">
+                    <thead>
+                      <tr>
+                        <th>ID SPT / Nomor Resmi</th>
+                        <th>Klasifikasi & Lokasi</th>
+                        <th>Jadwal Penugasan</th>
+                        <th>Status</th>
+                        <th>Aksi Sekretariat</th>
+                      </tr>
+                    </thead>
+                    <tbody id="adminPenerbitanTableBody">
+                      <!-- Populated via JS -->
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <!-- SUBTAB 2: UPDATE MENIMBANG -->
+              <div id="adminSubTab-menimbang" class="admin-subtab-pane" style="display: none;">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                  <div>
+                    <h4>Pengaturan Konsiderans Menimbang</h4>
+                    <p class="text-muted" style="font-size: 12px;">Butir-butir pertimbangan resmi yang otomatis tercetak pada bagian Menimbang SPT</p>
+                  </div>
+                  <div class="d-flex gap-2">
+                    <button class="btn btn-secondary btn-sm" onclick="App.addMenimbangItem()">+ Tambah Butir</button>
+                    <button class="btn btn-primary btn-sm" onclick="App.saveAllMenimbang()">Simpan Perubahan</button>
+                  </div>
+                </div>
+                <div id="menimbangListContainer">
+                  <!-- Populated via JS -->
+                </div>
+              </div>
+
+              <!-- SUBTAB 3: UPDATE DASAR HUKUM -->
+              <div id="adminSubTab-dasar" class="admin-subtab-pane" style="display: none;">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                  <div>
+                    <h4>Pengaturan Landasan Hukum Dasar</h4>
+                    <p class="text-muted" style="font-size: 12px;">Peraturan perundang-undangan dan DIPA yang otomatis tercetak pada bagian Dasar SPT</p>
+                  </div>
+                  <div class="d-flex gap-2">
+                    <button class="btn btn-secondary btn-sm" onclick="App.addDasarItem()">+ Tambah Dasar</button>
+                    <button class="btn btn-primary btn-sm" onclick="App.saveAllDasar()">Simpan Perubahan</button>
+                  </div>
+                </div>
+                <div id="dasarListContainer">
+                  <!-- Populated via JS -->
+                </div>
+              </div>
+
+              <!-- SUBTAB 4: UPDATE DATABASE PEGAWAI -->
+              <div id="adminSubTab-database" class="admin-subtab-pane" style="display: none;">
+                <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                  <div>
+                    <h4>Database Pegawai BRMP DIY (<span id="adminTotalPegawaiBadge">70 Pegawai</span>)</h4>
+                    <p class="text-muted" style="font-size: 12px;">Data personil yang menjadi referensi pemilihan anggota SPT</p>
+                  </div>
+                  <div class="d-flex gap-2">
+                    <input type="text" class="form-control" id="adminSearchPegawaiInput" oninput="App.renderAdminTabDatabasePegawai()" placeholder="🔍 Cari pegawai..." style="width: 220px;">
+                    <button class="btn btn-primary btn-sm" onclick="App.openAddPegawaiModal()">+ Tambah Personil</button>
+                  </div>
+                </div>
+                <div class="table-responsive">
+                  <table class="app-table">
+                    <thead>
+                      <tr>
+                        <th>Nama Pegawai & Gelar</th>
+                        <th>NIP</th>
+                        <th>Golongan</th>
+                        <th>Jabatan</th>
+                        <th>Unit / Tim Kerja</th>
+                        <th>Aksi</th>
+                      </tr>
+                    </thead>
+                    <tbody id="adminPegawaiTableBody">
+                      <!-- Populated via JS -->
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <!-- SUBTAB 5: SETTING USER -->
+              <div id="adminSubTab-users" class="admin-subtab-pane" style="display: none;">
+                <div class="mb-3">
+                  <h4>Manajemen Pengguna & Hak Akses (Setting User)</h4>
+                  <p class="text-muted" style="font-size: 12px;">Kelola akun dan penetapan peran pengguna (Admin, User, Ketimker, Kopoks, Kobag TU)</p>
+                </div>
+                <div class="table-responsive">
+                  <table class="app-table">
+                    <thead>
+                      <tr>
+                        <th>Username</th>
+                        <th>Nama Lengkap</th>
+                        <th>NIP</th>
+                        <th>Peran (Role) Aktif</th>
+                        <th>Unit Kerja</th>
+                        <th>Pengaturan</th>
+                      </tr>
+                    </thead>
+                    <tbody id="adminUsersTableBody">
+                      <!-- Populated via JS -->
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==============================================================
+             8. VIEW: SOP & TATA KERJA DINAS
+             ============================================================== -->
+        <section id="view-sop" class="view-section">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-header-title">
+                <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" fill="none" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+                <div>
+                  <h3>Standar Operasional Prosedur (SOP) Penerbitan SPT</h3>
+                  <div class="card-header-subtitle">Baku mutu tata kelola persuratan dinas Balai Penerapan Standar Instrumen Pertanian DIY</div>
+                </div>
+              </div>
+              <div>
+                <span class="badge badge-terbit">Nomor: SOP/BRMP-DIY/TU/04/2026</span>
+              </div>
+            </div>
+
+            <div class="card-body">
+              <!-- Dasar Hukum & Prinsip -->
+              <div class="form-row-2 mb-4">
+                <div class="p-3 bg-light rounded">
+                  <h4 class="text-success mb-2">📜 Landasan Yuridis & Dasar Hukum:</h4>
+                  <ul style="padding-left: 20px; font-size: 12.5px; line-height: 1.6;">
+                    <li>Undang-Undang Nomor 20 Tahun 2023 tentang Aparatur Sipil Negara.</li>
+                    <li>Peraturan Presiden Nomor 117 Tahun 2022 tentang Kementerian Pertanian.</li>
+                    <li>Peraturan Menteri Pertanian tentang Tata Naskah Dinas Kementerian Pertanian.</li>
+                    <li>PMK Nomor 49/PMK.02/2023 tentang Standar Biaya Masukan.</li>
+                    <li>DIPA Balai Penerapan Standar Instrumen Pertanian DIY.</li>
+                  </ul>
+                </div>
+
+                <div class="p-3 bg-light rounded">
+                  <h4 class="text-primary mb-2">🛡️ Ketentuan Pokok & Anti-Bentrok:</h4>
+                  <ul style="padding-left: 20px; font-size: 12.5px; line-height: 1.6;">
+                    <li><strong>Larangan SPT Ganda (Single Assignment):</strong> Anggota yang telah terbit/berjalan SPT-nya dilarang masuk ke SPT lain di tanggal bersamaan.</li>
+                    <li><strong>Approval 2 Tingkat:</strong> Wajib persetujuan Ketimker (Unit) lalu Kobag TU (Utama).</li>
+                    <li><strong>Kewajiban Laporan (Maks 2MB):</strong> Pelaksana wajib upload laporan hasil tugas maks 5 hari paska kegiatan.</li>
+                  </ul>
+                </div>
+              </div>
+
+              <!-- Tahapan Alur Interaktif -->
+              <h4 class="mb-3">Bagan 6 Tahap Alur Standar Pelayanan:</h4>
+              <div class="sop-steps-grid" id="sopStepsContainer">
+                <!-- Populated via JS -->
+              </div>
+
+              <!-- Matriks Peran RACI -->
+              <h4 class="mt-4 mb-2">Matriks Wewenang & Tanggung Jawab (RACI Matrix):</h4>
+              <p class="text-muted mb-3" style="font-size: 12px;">R = Responsible, A = Accountable, C = Consulted, I = Informed</p>
+              <div class="table-responsive">
+                <table class="app-table">
+                  <thead>
+                    <tr>
+                      <th>Aktivitas Penugasan Dinas</th>
+                      <th class="text-center">User (Pemohon)</th>
+                      <th class="text-center">Ketimker</th>
+                      <th class="text-center">Kobag TU</th>
+                      <th class="text-center">Kopoks</th>
+                      <th class="text-center">Admin Sekretariat</th>
+                    </tr>
+                  </thead>
+                  <tbody id="sopRaciTableBody">
+                    <!-- Populated via JS -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- ==============================================================
+       MODAL: GANTI AKUN / PENGATURAN AKUN (MULTI-ROLE)
+       ============================================================== -->
+  <div class="modal-overlay" id="modalSwitchAccount">
+    <div class="modal-dialog modal-account-settings">
+      <div class="modal-header account-modal-header">
+        <div class="account-modal-title-wrap">
+          <div class="account-modal-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+          </div>
+          <div>
+            <h3>Pengaturan Akun Pengguna</h3>
+            <p class="account-modal-sub">Kelola sesi aktif dan beralih peran (multi-role) di lingkungan BRMP DIY</p>
+          </div>
+        </div>
+        <button class="modal-close-btn" onclick="App.closeModal('modalSwitchAccount')">&times;</button>
+      </div>
+
+      <!-- Tab Bar -->
+      <div class="account-modal-tabs">
+        <button class="account-tab-btn active" id="tabBtnSwitch" onclick="App.switchAccountModalTab('switch')">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg>
+          <span>Beralih Peran (Multi-Role)</span>
+        </button>
+        <button class="account-tab-btn" id="tabBtnProfile" onclick="App.switchAccountModalTab('profile')">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+          <span>Profil & Hak Akses</span>
+        </button>
+      </div>
+
+      <div class="modal-body account-modal-body">
+        <!-- TAB 1: SWITCH ROLE -->
+        <div id="accountTabContentSwitch">
+          <!-- Active Account Highlight Card -->
+          <div id="activeAccountHighlight"></div>
+
+          <div class="account-list-header">
+            <div class="account-list-title">
+              <span>Pilih Akun Peran Kedinasan</span>
+              <span class="account-count-badge" id="accountCountBadge">115 Akun Tersedia</span>
+            </div>
+          </div>
+
+          <!-- Input Pencarian Akun Pengguna -->
+          <div class="account-search-bar" style="margin-bottom: 12px;">
+            <input type="text" class="form-control" id="switchAccountSearchInput" placeholder="🔍 Cari nama pegawai, NIP, peran, atau unit kerja..." oninput="App.filterSwitchAccountList()">
+          </div>
+
+          <div class="account-cards-list" id="switchAccountListContainer" style="max-height: 420px; overflow-y: auto; padding-right: 4px;">
+            <!-- Populated via JS -->
+          </div>
+        </div>
+
+        <!-- TAB 2: PROFIL LENGKAP & WEWENANG -->
+        <div id="accountTabContentProfile" style="display: none;">
+          <div id="activeProfileDetailContainer"></div>
+        </div>
+      </div>
+
+      <div class="modal-footer account-modal-footer">
+        <button class="btn-logout" onclick="App.handleLogout()" style="margin-right: auto;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+          <span>Keluar Sesi (Logout)</span>
+        </button>
+        <button class="btn btn-secondary" onclick="App.closeModal('modalSwitchAccount')">Tutup</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==============================================================
+       MODAL 1: PREVIEW NASKAH DINAS RESMI STANDAR RI
+       ============================================================== -->
+  <div class="modal-overlay" id="previewModal">
+    <div class="modal-dialog modal-xl">
+      <div class="modal-header">
+        <div class="d-flex align-items-center gap-2">
+          <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" fill="none" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+          <h3>Pratinjau Format Resmi Naskah Dinas SPT (Kementan BRMP DIY)</h3>
+        </div>
+        <button class="modal-close-btn" onclick="App.closeModal('previewModal')">&times;</button>
+      </div>
+      <div class="modal-body bg-light">
+        <div id="previewModalBody">
+          <!-- Populated dynamically via DocumentPrinter -->
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="App.closeModal('previewModal')">Tutup</button>
+        <button class="btn btn-primary" onclick="DocumentPrinter.printFromModal()">🖨️ Cetak ke Kertas A4 / Simpan PDF</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==============================================================
+       MODAL 2: DETAIL SPT & TIMELINE TRACKING
+       ============================================================== -->
+  <div class="modal-overlay" id="modalDetailSpt">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <div class="d-flex align-items-center gap-2">
+          <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" fill="none" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+          <h3>Detail & Histori Tracking Proses SPT</h3>
+        </div>
+        <button class="modal-close-btn" onclick="App.closeModal('modalDetailSpt')">&times;</button>
+      </div>
+      <div class="modal-body" id="modalDetailSptBody">
+        <!-- Populated via JS -->
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="App.closeModal('modalDetailSpt')">Tutup</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==============================================================
+       MODAL 3: PENOMORAN RESMI & UPLOAD SPT TER-TTD (ADMIN)
+       ============================================================== -->
+  <div class="modal-overlay" id="modalPenomoranSpt">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3>Input Nomor Surat Resmi & Upload SPT Ter-TTD</h3>
+        <button class="modal-close-btn" onclick="App.closeModal('modalPenomoranSpt')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="penomoranSptId">
+        <div class="form-group">
+          <label class="form-label" for="penomoranNomorSpt">Nomor Surat Dinas Resmi <span class="req">*</span></label>
+          <input type="text" class="form-control" id="penomoranNomorSpt" placeholder="Contoh: B-145/KP.320/H.14.7/10/2026" required>
+          <div class="form-help">Sesuai klasifikasi kode persuratan naskah dinas Kementerian Pertanian.</div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Upload Berkas SPT Ter-TTD (Scan/PDF maks 2MB):</label>
+          <input type="file" class="form-control" id="penomoranFileInput" accept=".pdf,.jpg,.jpeg,.png">
+          <div class="form-help mt-1" id="penomoranCurrentFileLabel">Belum ada file ter-ttd yang diunggah.</div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="App.closeModal('modalPenomoranSpt')">Batal</button>
+        <button class="btn btn-success" onclick="App.submitPenomoranDanUpload()">Sah & Terbitkan SPT</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==============================================================
+       MODAL 4: UPLOAD LAPORAN KEGIATAN (MAX 2MB)
+       ============================================================== -->
+  <div class="modal-overlay" id="modalUploadLaporan">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 id="uploadLaporanSptTitle">Upload Laporan Hasil Penugasan</h3>
+        <button class="modal-close-btn" onclick="App.closeModal('modalUploadLaporan')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="uploadLaporanSptId">
+        <p class="text-muted mb-3" style="font-size: 13px;">
+          Sesuai SOP BRMP DIY, pelaksana tugas wajib menyampaikan laporan tertulis setelah pelaksanaan tugas dinas selesai.
+        </p>
+
+        <div class="upload-dropzone" onclick="document.getElementById('laporanFileInput').click()">
+          <div class="upload-icon-circle">
+            <svg viewBox="0 0 24 24" width="28" height="28" stroke="currentColor" fill="none" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+          </div>
+          <div class="fw-bold" style="font-size: 14px;">Klik untuk memilih file Laporan</div>
+          <div class="text-muted" style="font-size: 12px; margin-top: 4px;">Format: PDF, DOC, atau DOCX (Maksimal 2MB)</div>
+          <input type="file" id="laporanFileInput" accept=".pdf,.doc,.docx" style="display: none;">
+        </div>
+
+        <div class="mt-3 text-center" id="uploadFileInfo">
+          <!-- Display file selected name & size status -->
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="App.closeModal('modalUploadLaporan')">Batal</button>
+        <button class="btn btn-primary" id="btnSubmitLaporan" onclick="App.submitUploadLaporan()">
+          Simpan Laporan Kegiatan
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PRINT CONTAINER KHUSUS CETAK A4 RESMI (HIDDEN SCREEN, VISIBLE PRINT) -->
+  <div id="printContainer" style="display: none !important;"></div>
+
+  <!-- JAVASCRIPT LIBRARIES & MODULES -->
+  <script src="js/data-pegawai.js"></script>
+  <script src="js/sop-data.js"></script>
+  <script src="js/conflict.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/logo-data.js"></script>
+  <script src="js/print.js"></script>
+  <script src="js/app.js"></script>
+
+  <!-- Script tambahan untuk Sub-tab navigasi Admin Sekretariat -->
+  <script>
+    App.showAdminSubTab = function(tabKey) {
+      document.querySelectorAll('.admin-subtab-pane').forEach(p => p.style.display = 'none');
+      const target = document.getElementById(`adminSubTab-${tabKey}`);
+      if (target) target.style.display = 'block';
+
+      const tabBtns = {
+        penerbitan: 'tabBtnPenerbitan',
+        menimbang: 'tabBtnMenimbang',
+        dasar: 'tabBtnDasar',
+        database: 'tabBtnDatabase',
+        users: 'tabBtnUsers'
+      };
+
+      Object.keys(tabBtns).forEach(k => {
+        const btn = document.getElementById(tabBtns[k]);
+        if (btn) btn.classList.toggle('active', k === tabKey);
+      });
+    };
+  </script>
+</body>
+</html>

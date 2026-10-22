@@ -140,8 +140,24 @@ export default function AdminDashboard({ user, onNavigate, onUpdateUser, initial
   useEffect(() => {
     if (initialTab) {
       setActiveTab(initialTab);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }, [initialTab]);
+
+  const handleTabSwitch = (tab) => {
+    setActiveTab(tab);
+    if (onNavigate) {
+      if (tab === 'dashboard') {
+        onNavigate('admin-dashboard');
+      } else {
+        onNavigate(`admin-${tab}`);
+      }
+    }
+    window.scrollTo({ top: 0, behavior: 'instant' });
+    setTimeout(() => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, 10);
+  };
 
   // Export CSV Handler
   const handleExportCSV = () => {
@@ -354,228 +370,180 @@ export default function AdminDashboard({ user, onNavigate, onUpdateUser, initial
           <div className="admin-breadcrumb">
             <span>Admin</span>
             <span className="sep">/</span>
-            <span className="current">Dashboard Kontrol</span>
+            <span className="current">
+              {activeTab === 'dashboard' ? 'Dashboard Kontrol' :
+               activeTab === 'pegawai' ? 'Data Pegawai (CRUD)' :
+               activeTab === 'presensi' ? 'Data Presensi All' :
+               activeTab === 'cuti' ? 'Data Cuti Pegawai' :
+               activeTab === 'spt' ? 'Data SPT & Penugasan' :
+               activeTab === 'disposisi' ? 'Manajemen Disposisi' :
+               activeTab === 'agenda' ? 'Agenda & Libur Kantor' :
+               activeTab === 'pengaturan' ? 'Pengaturan Instansi' : 'Dashboard'}
+            </span>
           </div>
           <h1 className="admin-page-title">
-            Dashboard Administrator Sistem & Kepegawaian
+            {activeTab === 'dashboard' ? 'Dashboard Administrator Sistem & Kepegawaian' :
+             activeTab === 'pegawai' ? 'Data Master Pegawai (ASN & PPPK BRMP DIY)' :
+             activeTab === 'presensi' ? 'Rekap Data Presensi Seluruh Pegawai' :
+             activeTab === 'cuti' ? 'Data Permohonan & Verifikasi Cuti Pegawai' :
+             activeTab === 'spt' ? 'Data Surat Perintah Tugas (SPT) Dinas' :
+             activeTab === 'disposisi' ? 'Manajemen Surat Masuk & Disposisi Pimpinan' :
+             activeTab === 'agenda' ? 'Agenda Kerja & Kalender Libur Kantor' :
+             activeTab === 'pengaturan' ? 'Pengaturan Master Balai & Radius Geofence' : 'Dashboard Administrator'}
           </h1>
         </div>
 
         <div className="admin-top-actions">
-          <button className="btn-admin-export" onClick={handleExportCSV} title="Unduh CSV seluruh master data">
-            <Download size={16} />
-            <span>Export Data (CSV)</span>
-          </button>
-          <button className="btn-admin-add" onClick={() => setShowAddModal(true)} title="Tambah Pegawai Baru">
-            <Plus size={16} />
-            <span>+ Tambah Pegawai</span>
-          </button>
+          {activeTab === 'pegawai' && (
+            <>
+              <button className="btn-admin-export" onClick={handleExportCSV} title="Unduh CSV seluruh master data">
+                <Download size={16} />
+                <span>Export Data (CSV)</span>
+              </button>
+              <button className="btn-admin-add" onClick={() => setShowAddModal(true)} title="Tambah Pegawai Baru">
+                <Plus size={16} />
+                <span>Tambah Pegawai</span>
+              </button>
+            </>
+          )}
+          {activeTab === 'disposisi' && (
+            <button className="btn-admin-add" onClick={() => setShowAddDispModal(true)} title="Catat Surat Disposisi Baru">
+              <Plus size={16} />
+              <span>+ Catat Surat Baru</span>
+            </button>
+          )}
         </div>
       </div>
 
-      {/* 2. Big Hero Banner (Pusat Komando & Administrasi Kepegawaian) */}
-      <div className="admin-hero-banner">
-        <div className="admin-hero-badges">
-          <div className="hero-pill-active">
-            <span className="dot"></span>
-            <span>SISTEM AKTIF & SINKRON</span>
-          </div>
-          <div className="hero-pill-version">
-            <span>VERSI SI-AP 3.0 BRMP DIY</span>
-          </div>
-        </div>
-
-        <h2 className="admin-hero-title">
-          Pusat Komando & Administrasi Kepegawaian
-        </h2>
-        <p className="admin-hero-desc">
-          Portal terintegrasi pengelolaan master data ASN/PPPK, verifikasi presensi berbasis geofence GPS, pemantauan pengajuan cuti, validasi Surat Perintah Tugas (SPT), dan audit sistem Balai Besar Penerapan Modernisasi Pertanian Daerah Istimewa Yogyakarta.
-        </p>
-
-        {/* Status Pills Row */}
-        <div className="admin-status-pills">
-          <div className="status-tag online">
-            <span className="dot-online"></span>
-            <span>Server Node.js: Online</span>
-          </div>
-          <div className="status-tag">
-            <MapPin size={14} color="#34d399" />
-            <span>Radius GPS: {settingsData?.lokasiKantor || 'Kotagede'} ({settingsData?.radiusGps || 200}m)</span>
-          </div>
-          <div className="status-tag">
-            <Shield size={14} color="#60a5fa" />
-            <span>Hak Akses: Super Administrator</span>
-          </div>
-          <div className="status-tag">
-            <Clock size={14} color="#f472b6" />
-            <span>Waktu Server: {currentTime || '12:38:27 WIB'}</span>
-          </div>
-        </div>
-
-        {/* Hero Actions Row */}
-        <div className="admin-hero-actions">
-          <button className="btn-hero-primary" onClick={() => setShowAddModal(true)}>
-            <Plus size={16} />
-            <span>+ Tambah Pegawai Baru</span>
-          </button>
-          <button className="btn-hero-glass" onClick={() => setActiveTab('presensi')}>
-            <Eye size={16} />
-            <span>👁️ Log Presensi Realtime</span>
-          </button>
-          <button className="btn-hero-glass" onClick={() => setShowSettingsModal(true)}>
-            <Settings size={16} />
-            <span>⚙️ Pengaturan Balai</span>
-          </button>
-        </div>
-      </div>
-
-      {/* 3. Four Metric Stat Cards (Matching User Screenshot Exactly) */}
-      <div className="admin-stats-grid">
-        {/* Card 1: TOTAL MASTER PEGAWAI */}
-        <div className="metric-card" onClick={() => setActiveTab('pegawai')} style={{ cursor: 'pointer' }}>
-          <div>
-            <div className="metric-top">
-              <span className="metric-label">TOTAL MASTER PEGAWAI</span>
-              <div className="metric-icon-box" style={{ background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)', color: '#ffffff', boxShadow: '0 3px 8px rgba(37,99,235,0.3)' }}>
-                <Users size={19} strokeWidth={2.4} />
+      {/* 2. Big Hero Banner & 3. Four Metric Stat Cards - HANYA TAMPIL DI TAB DASHBOARD ADMIN */}
+      {activeTab === 'dashboard' && (
+        <>
+          <div className="admin-hero-banner">
+            <div className="admin-hero-badges">
+              <div className="hero-pill-active">
+                <span className="dot"></span>
+                <span>SISTEM AKTIF & SINKRON</span>
+              </div>
+              <div className="hero-pill-version">
+                <span>VERSI SI-AP 3.0 BRMP DIY</span>
               </div>
             </div>
-            <div className="metric-number-row">
-              <span className="metric-number">
-                {usersList.length > 0 ? (usersList.length > 50 ? '8' : usersList.length) : '8'}
-              </span>
-              <span className="metric-unit">Orang</span>
-            </div>
-          </div>
-          <div className="metric-bottom">
-            <span className="metric-sub-left green">✓ Terdaftar Lengkap</span>
-            <span className="metric-sub-right">ASN & PPPK Balai</span>
-          </div>
-        </div>
 
-        {/* Card 2: PRESENSI HARI INI */}
-        <div className="metric-card" onClick={() => setActiveTab('presensi')} style={{ cursor: 'pointer' }}>
-          <div>
-            <div className="metric-top">
-              <span className="metric-label">PRESENSI HARI INI</span>
-              <div className="metric-icon-box" style={{ background: 'linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%)', color: '#ffffff', boxShadow: '0 3px 8px rgba(139,92,246,0.3)' }}>
-                <Fingerprint size={20} strokeWidth={2.4} />
+            <h2 className="admin-hero-title">
+              Pusat Komando & Administrasi Kepegawaian
+            </h2>
+            <p className="admin-hero-desc">
+              Portal terintegrasi pengelolaan master data ASN/PPPK, verifikasi presensi berbasis geofence GPS, pemantauan pengajuan cuti, validasi Surat Perintah Tugas (SPT), dan audit sistem Balai Besar Penerapan Modernisasi Pertanian Daerah Istimewa Yogyakarta.
+            </p>
+
+            {/* Status Pills Row */}
+            <div className="admin-status-pills">
+              <div className="status-tag online">
+                <span className="dot-online"></span>
+                <span>Server Node.js: Online</span>
+              </div>
+              <div className="status-tag">
+                <MapPin size={14} color="#34d399" />
+                <span>Radius GPS: {settingsData?.lokasiKantor || 'Kotagede'} ({settingsData?.radiusGps || 200}m)</span>
+              </div>
+              <div className="status-tag">
+                <Shield size={14} color="#60a5fa" />
+                <span>Hak Akses: Super Administrator</span>
+              </div>
+              <div className="status-tag">
+                <Clock size={14} color="#f472b6" />
+                <span>Waktu Server: {currentTime || '12:38:27 WIB'}</span>
               </div>
             </div>
-            <div className="metric-number-row">
-              <span className="metric-number">7</span>
-              <span className="metric-unit">Pegawai</span>
-            </div>
           </div>
-          <div className="metric-bottom">
-            <span className="metric-sub-left green">✓ 87.5% Hadir</span>
-            <span className="metric-sub-right">1 Izin / Cuti</span>
-          </div>
-        </div>
 
-        {/* Card 3: PERMOHONAN CUTI */}
-        <div className="metric-card" onClick={() => setActiveTab('cuti')} style={{ cursor: 'pointer' }}>
-          <div>
-            <div className="metric-top">
-              <span className="metric-label">PERMOHONAN CUTI</span>
-              <div className="metric-icon-box" style={{ background: 'linear-gradient(135deg, #14b8a6 0%, #0f766e 100%)', color: '#ffffff', boxShadow: '0 3px 8px rgba(20,184,166,0.3)' }}>
-                <CalendarHeart size={19} strokeWidth={2.4} />
+          {/* 3. Four Metric Stat Cards (Matching User Screenshot Exactly) */}
+          <div className="admin-stats-grid">
+            {/* Card 1: TOTAL MASTER PEGAWAI */}
+            <div className="metric-card" onClick={() => handleTabSwitch('pegawai')} style={{ cursor: 'pointer' }}>
+              <div>
+                <div className="metric-top">
+                  <span className="metric-label">TOTAL MASTER PEGAWAI</span>
+                  <div className="metric-icon-box" style={{ background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)', color: '#ffffff', boxShadow: '0 3px 8px rgba(37,99,235,0.3)' }}>
+                    <Users size={19} strokeWidth={2.4} />
+                  </div>
+                </div>
+                <div className="metric-number-row">
+                  <span className="metric-number">
+                    {usersList.length > 0 ? (usersList.length > 50 ? '8' : usersList.length) : '8'}
+                  </span>
+                  <span className="metric-unit">Orang</span>
+                </div>
+              </div>
+              <div className="metric-bottom">
+                <span className="metric-sub-left green">✓ Terdaftar Lengkap</span>
+                <span className="metric-sub-right">ASN & PPPK Balai</span>
               </div>
             </div>
-            <div className="metric-number-row">
-              <span className="metric-number">3</span>
-              <span className="metric-unit">Pengajuan</span>
-            </div>
-          </div>
-          <div className="metric-bottom">
-            <span className="metric-sub-left orange">⚡ 1 Menunggu Approval</span>
-            <span className="metric-sub-right">Tahun Berjalan</span>
-          </div>
-        </div>
 
-        {/* Card 4: SURAT PERINTAH TUGAS */}
-        <div className="metric-card" onClick={() => setActiveTab('spt')} style={{ cursor: 'pointer' }}>
-          <div>
-            <div className="metric-top">
-              <span className="metric-label">SURAT PERINTAH TUGAS</span>
-              <div className="metric-icon-box" style={{ background: 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)', color: '#ffffff', boxShadow: '0 3px 8px rgba(249,115,22,0.3)' }}>
-                <ScrollText size={19} strokeWidth={2.4} />
+            {/* Card 2: PRESENSI HARI INI */}
+            <div className="metric-card" onClick={() => handleTabSwitch('presensi')} style={{ cursor: 'pointer' }}>
+              <div>
+                <div className="metric-top">
+                  <span className="metric-label">PRESENSI HARI INI</span>
+                  <div className="metric-icon-box" style={{ background: 'linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%)', color: '#ffffff', boxShadow: '0 3px 8px rgba(139,92,246,0.3)' }}>
+                    <Fingerprint size={20} strokeWidth={2.4} />
+                  </div>
+                </div>
+                <div className="metric-number-row">
+                  <span className="metric-number">7</span>
+                  <span className="metric-unit">Pegawai</span>
+                </div>
+              </div>
+              <div className="metric-bottom">
+                <span className="metric-sub-left green">✓ 87.5% Hadir</span>
+                <span className="metric-sub-right">1 Izin / Cuti</span>
               </div>
             </div>
-            <div className="metric-number-row">
-              <span className="metric-number">3</span>
-              <span className="metric-unit">Surat</span>
+
+            {/* Card 3: PERMOHONAN CUTI */}
+            <div className="metric-card" onClick={() => handleTabSwitch('cuti')} style={{ cursor: 'pointer' }}>
+              <div>
+                <div className="metric-top">
+                  <span className="metric-label">PERMOHONAN CUTI</span>
+                  <div className="metric-icon-box" style={{ background: 'linear-gradient(135deg, #14b8a6 0%, #0f766e 100%)', color: '#ffffff', boxShadow: '0 3px 8px rgba(20,184,166,0.3)' }}>
+                    <CalendarHeart size={19} strokeWidth={2.4} />
+                  </div>
+                </div>
+                <div className="metric-number-row">
+                  <span className="metric-number">3</span>
+                  <span className="metric-unit">Pengajuan</span>
+                </div>
+              </div>
+              <div className="metric-bottom">
+                <span className="metric-sub-left orange">⚡ 1 Menunggu Approval</span>
+                <span className="metric-sub-right">Tahun Berjalan</span>
+              </div>
+            </div>
+
+            {/* Card 4: SURAT PERINTAH TUGAS */}
+            <div className="metric-card" onClick={() => handleTabSwitch('spt')} style={{ cursor: 'pointer' }}>
+              <div>
+                <div className="metric-top">
+                  <span className="metric-label">SURAT PERINTAH TUGAS</span>
+                  <div className="metric-icon-box" style={{ background: 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)', color: '#ffffff', boxShadow: '0 3px 8px rgba(249,115,22,0.3)' }}>
+                    <ScrollText size={19} strokeWidth={2.4} />
+                  </div>
+                </div>
+                <div className="metric-number-row">
+                  <span className="metric-number">3</span>
+                  <span className="metric-unit">Surat</span>
+                </div>
+              </div>
+              <div className="metric-bottom">
+                <span className="metric-sub-left blue">📍 Sleman & Kulon Progo</span>
+                <span className="metric-sub-right">Dinas Lapangan</span>
+              </div>
             </div>
           </div>
-          <div className="metric-bottom">
-            <span className="metric-sub-left blue">📍 Sleman & Kulon Progo</span>
-            <span className="metric-sub-right">Dinas Lapangan</span>
-          </div>
-        </div>
-      </div>
+        </>
+      )}
 
-      {/* 4. Sub-Navigation Tabs with Specific Realistic Icons */}
-      <div className="admin-subnav-tabs no-print">
-        <button 
-          className={`subnav-tab-btn ${activeTab === 'dashboard' ? 'active' : ''}`}
-          onClick={() => setActiveTab('dashboard')}
-        >
-          <Gauge size={16} color="#059669" />
-          <span>Dashboard Admin</span>
-        </button>
-        <button 
-          className={`subnav-tab-btn ${activeTab === 'pegawai' ? 'active' : ''}`}
-          onClick={() => setActiveTab('pegawai')}
-        >
-          <Users size={16} color="#2563eb" />
-          <span>Data Pegawai (CRUD)</span>
-          <span style={{ fontSize: '11px', background: '#dcfce7', color: '#166534', padding: '1px 6px', borderRadius: '10px' }}>
-            {usersList.length}
-          </span>
-        </button>
-        <button 
-          className={`subnav-tab-btn ${activeTab === 'presensi' ? 'active' : ''}`}
-          onClick={() => setActiveTab('presensi')}
-        >
-          <Fingerprint size={16} color="#7c3aed" />
-          <span>Data Presensi All</span>
-        </button>
-        <button 
-          className={`subnav-tab-btn ${activeTab === 'cuti' ? 'active' : ''}`}
-          onClick={() => setActiveTab('cuti')}
-        >
-          <CalendarHeart size={16} color="#0d9488" />
-          <span>Data Cuti Pegawai</span>
-        </button>
-        <button 
-          className={`subnav-tab-btn ${activeTab === 'spt' ? 'active' : ''}`}
-          onClick={() => setActiveTab('spt')}
-        >
-          <ScrollText size={16} color="#ea580c" />
-          <span>Data SPT & Penugasan</span>
-        </button>
-        <button 
-          className={`subnav-tab-btn ${activeTab === 'disposisi' ? 'active' : ''}`}
-          onClick={() => setActiveTab('disposisi')}
-        >
-          <FileStack size={16} color="#0284c7" />
-          <span>Manajemen Disposisi</span>
-        </button>
-        <button 
-          className={`subnav-tab-btn ${activeTab === 'agenda' ? 'active' : ''}`}
-          onClick={() => setActiveTab('agenda')}
-        >
-          <CalendarDays size={16} color="#dc2626" />
-          <span>Agenda & Libur Kantor</span>
-        </button>
-        <button 
-          className={`subnav-tab-btn ${activeTab === 'pengaturan' ? 'active' : ''}`}
-          onClick={() => setActiveTab('pengaturan')}
-        >
-          <Sliders size={16} color="#475569" />
-          <span>Pengaturan Instansi</span>
-        </button>
-      </div>
 
       {/* 5. TAB CONTENT */}
 
@@ -592,7 +560,7 @@ export default function AdminDashboard({ user, onNavigate, onUpdateUser, initial
               <button 
                 className="btn-admin-export" 
                 style={{ padding: '4px 10px', fontSize: '0.78rem' }}
-                onClick={() => setActiveTab('presensi')}
+                onClick={() => handleTabSwitch('presensi')}
               >
                 Lihat Semua
               </button>
@@ -802,11 +770,6 @@ export default function AdminDashboard({ user, onNavigate, onUpdateUser, initial
                 <option value="Standar">Tim Standardisasi</option>
                 <option value="Pengujian">Tim Pengujian</option>
               </select>
-
-              <button className="btn-admin-add" onClick={() => setShowAddModal(true)}>
-                <Plus size={15} />
-                <span>Tambah Pegawai</span>
-              </button>
             </div>
           </div>
 

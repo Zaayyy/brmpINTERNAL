@@ -93,7 +93,7 @@ export default function Sidebar({ currentView, setCurrentView, user, isOpen, onC
         <div className="sidebar-mobile-header">
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <ShieldCheck size={20} color="#059669" />
-            <span style={{ fontWeight: 800, fontSize: '0.9rem', color: '#064e3b' }}>SI-AP ADMIN</span>
+            <span style={{ fontWeight: 800, fontSize: '0.9rem', color: '#064e3b' }}>BRMP DIY ADMIN</span>
           </div>
           <button 
             className="sidebar-close-btn"

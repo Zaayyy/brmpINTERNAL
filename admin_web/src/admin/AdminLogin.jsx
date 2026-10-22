@@ -45,7 +45,7 @@ export default function AdminLogin({ onLoginSuccess }) {
           username.trim().toLowerCase() === 'admin';
 
         if (!isAdmin) {
-          setError('Akses Ditolak: Akun Anda (' + (userData.nama || username) + ') bukan Administrator SI-AP. Portal ini khusus untuk Administrator Kepegawaian.');
+          setError('Akses Ditolak: Akun Anda (' + (userData.nama || username) + ') bukan Administrator BRMP DIY. Portal ini khusus untuk Administrator Kepegawaian.');
           setLoading(false);
           return;
         }
@@ -56,7 +56,7 @@ export default function AdminLogin({ onLoginSuccess }) {
           systemRole: 'admin',
           approvalRole: 'admin',
           role: 'admin',
-          roleLabel: 'Administrator Sistem SI-AP (Superadmin)'
+          roleLabel: 'Administrator Sistem BRMP DIY (Superadmin)'
         };
 
         if (rememberMe) {
@@ -204,7 +204,7 @@ export default function AdminLogin({ onLoginSuccess }) {
               marginBottom: '12px',
               letterSpacing: '0.02em'
             }}>
-              SI-AP BRMP DIY
+              BRMP DIY
             </div>
 
             <p style={{ 
@@ -320,7 +320,7 @@ export default function AdminLogin({ onLoginSuccess }) {
               margin: 0,
               lineHeight: 1.5
             }}>
-              Masuk untuk mengelola data pegawai, persetujuan cuti, mesin absensi, dan pengaturan sistem SI-AP.
+              Masuk untuk mengelola data pegawai, persetujuan cuti, mesin absensi, dan pengaturan sistem BRMP DIY.
             </p>
           </div>
 
@@ -480,7 +480,7 @@ export default function AdminLogin({ onLoginSuccess }) {
 
               <button
                 type="button"
-                onClick={() => alert('Untuk reset akun administrator SI-AP, silakan hubungi tim IT/Kepegawaian Balai.')}
+                onClick={() => alert('Untuk reset akun administrator BRMP DIY, silakan hubungi tim IT/Kepegawaian Balai.')}
                 style={{
                   background: 'none',
                   border: 'none',
@@ -546,39 +546,8 @@ export default function AdminLogin({ onLoginSuccess }) {
             color: '#94a3b8',
             lineHeight: 1.5
           }}>
-            Portal Rahasia Administrator SI-AP BRMP DIY.<br />
+            Portal Rahasia Administrator BRMP DIY.<br />
             Hak akses dibatasi ketat berdasarkan wewenang kepegawaian.
-            <div style={{ marginTop: '10px' }}>
-              <a 
-                href="/" 
-                onClick={(e) => {
-                  e.preventDefault();
-                  if (window.history.pushState) {
-                    window.history.pushState({}, '', '/');
-                    window.dispatchEvent(new Event('popstate'));
-                  } else {
-                    window.location.href = '/';
-                  }
-                }}
-                style={{
-                  color: '#059669',
-                  textDecoration: 'none',
-                  fontWeight: 700,
-                  fontSize: '0.8rem',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '4px',
-                  padding: '4px 10px',
-                  borderRadius: '6px',
-                  background: '#ecfdf5',
-                  transition: 'background 0.2s'
-                }}
-                onMouseEnter={(e) => e.currentTarget.style.background = '#d1fae5'}
-                onMouseLeave={(e) => e.currentTarget.style.background = '#ecfdf5'}
-              >
-                ← Kembali ke Portal Presensi Pegawai
-              </a>
-            </div>
           </div>
         </div>
       </div>

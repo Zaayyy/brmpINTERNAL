@@ -26,10 +26,14 @@ export default function Login({ onLoginSuccess }) {
 
     try {
       const res = await apiService.login(usr, pwd);
-      if (res.success) {
+      if (res && res.success && res.data) {
+        if (res.data.id === 'PEG-DEMO' || res.data.nama === 'PEGAWAI BRMP DIY') {
+          setError(`NIP / Username "${usr}" tidak terdaftar di sistem kepegawaian BRMP DIY.`);
+          return;
+        }
         onLoginSuccess(res.data);
       } else {
-        setError(res.message || 'Login gagal, periksa NIP dan password.');
+        setError(res?.message || 'Login gagal, periksa NIP dan password.');
       }
     } catch (err) {
       setError(err.message || 'Terjadi kesalahan saat menghubungi server.');

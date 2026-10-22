@@ -8,7 +8,11 @@ import AbsensiBulanan from './components/AbsensiBulanan';
 import AbsensiChart from './components/AbsensiChart';
 import AdmsMonitor from './components/AdmsMonitor';
 import PengajuanCuti from './components/PengajuanCuti';
-import SptProgram from './components/SptProgram';
+import PengajuanSpt from './components/PengajuanSpt';
+import ReportSpt from './components/ReportSpt';
+import SptAdmin from './components/SptAdmin';
+import SptApproval from './components/SptApproval';
+import SptSop from './components/SptSop';
 import { getStoredAvatar } from './services/api';
 
 export default function App() {
@@ -45,6 +49,13 @@ export default function App() {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'instant' });
+    setTimeout(() => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, 10);
+  }, [currentView]);
 
   const handleLoginSuccess = (adminUser) => {
     const targetNip = adminUser?.nip;
@@ -86,21 +97,6 @@ export default function App() {
     return <AdminLogin onLoginSuccess={handleLoginSuccess} />;
   }
 
-  // Map SPT views for operational sub-navigation
-  const getSptTargetView = () => {
-    if (currentView === 'spt-pengajuan' || currentView === 'pengajuan-spt') return 'pengajuan';
-    if (currentView === 'spt-tracking' || currentView === 'report-spt') return 'tracking';
-    if (currentView === 'spt-approval-ketimker') return 'approval-ketimker';
-    if (currentView === 'spt-approval-kobag') return 'approval-kobag';
-    if (currentView === 'spt-approval' || currentView === 'approval-spt') return 'approval';
-    if (currentView === 'spt-admin-sekretariat' || currentView === 'spt-admin' || currentView === 'admin-spt') return 'admin-sekretariat';
-    if (currentView === 'spt-monitoring-kopoks') return 'monitoring-kopoks';
-    if (currentView === 'spt-sop' || currentView === 'sop-spt') return 'sop';
-    return 'dashboard';
-  };
-
-  const isSptView = currentView.includes('spt') && currentView !== 'admin-spt';
-
   return (
     <div className="app-shell" style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', background: '#f8fafc' }}>
       {/* Top Header Navbar */}
@@ -136,7 +132,7 @@ export default function App() {
         />
 
         {/* Main View */}
-        <main className={`main-content ${isSptView ? 'flush-view' : ''}`}>
+        <main className="main-content">
           {(currentView === 'dashboard' || currentView.startsWith('admin')) && (
             <AdminDashboard 
               user={user} 
@@ -175,11 +171,50 @@ export default function App() {
             <PengajuanCuti user={user} onSwitchUser={handleUpdateUser} />
           )}
 
-          {isSptView && (
-            <SptProgram 
+          {/* Modul SPT Digital (Native React Components - Tanpa Iframe) */}
+          {(currentView === 'spt-tracking' || currentView === 'report-spt' || currentView === 'spt-dashboard' || currentView === 'spt') && (
+            <ReportSpt 
               user={user} 
-              targetView={getSptTargetView()} 
+              onNavigateToPengajuan={() => setCurrentView('spt-pengajuan')} 
             />
+          )}
+
+          {(currentView === 'spt-pengajuan' || currentView === 'pengajuan-spt') && (
+            <PengajuanSpt 
+              user={user} 
+              onNavigateToReport={() => setCurrentView('spt-tracking')} 
+            />
+          )}
+
+          {(currentView === 'spt-admin-sekretariat' || currentView === 'spt-admin') && (
+            <SptAdmin user={user} />
+          )}
+
+          {currentView === 'spt-approval-ketimker' && (
+            <SptApproval 
+              user={user} 
+              onNavigateToReport={() => setCurrentView('spt-tracking')} 
+              initialTab="ketimker"
+            />
+          )}
+
+          {currentView === 'spt-approval-kobag' && (
+            <SptApproval 
+              user={user} 
+              onNavigateToReport={() => setCurrentView('spt-tracking')} 
+              initialTab="kobag"
+            />
+          )}
+
+          {(currentView === 'spt-approval' || currentView === 'approval-spt' || currentView === 'spt-monitoring-kopoks') && (
+            <SptApproval 
+              user={user} 
+              onNavigateToReport={() => setCurrentView('spt-tracking')} 
+            />
+          )}
+
+          {(currentView === 'spt-sop' || currentView === 'sop-spt') && (
+            <SptSop />
           )}
         </main>
       </div>

@@ -93,6 +93,56 @@ export default function App() {
     localStorage.setItem('brmp_user', JSON.stringify(merged));
   };
 
+  // Batas Waktu Tidak Aktif (Session Timeout) Listener
+  useEffect(() => {
+    if (!user) return;
+
+    const getTimeoutMinutes = () => {
+      const savedTimeout = localStorage.getItem('brmp_session_timeout');
+      if (savedTimeout !== null) {
+        return parseInt(savedTimeout, 10);
+      }
+      const savedPrefs = localStorage.getItem('brmp_admin_notif_prefs');
+      if (savedPrefs) {
+        try {
+          const parsed = JSON.parse(savedPrefs);
+          if (parsed.sessionTimeout !== undefined) return parsed.sessionTimeout;
+        } catch {}
+      }
+      return 30; // default 30 menit
+    };
+
+    let timeoutDuration = getTimeoutMinutes();
+    if (timeoutDuration <= 0) return; // 0 = Dinonaktifkan
+
+    let idleTimer = null;
+
+    const resetIdleTimer = () => {
+      if (idleTimer) clearTimeout(idleTimer);
+      if (timeoutDuration <= 0) return;
+      idleTimer = setTimeout(() => {
+        alert(`Batas Waktu Tidak Aktif (Session Timeout) tercapai (${timeoutDuration} menit). Anda otomatis di-logout dari sistem.`);
+        handleLogout();
+      }, timeoutDuration * 60 * 1000);
+    };
+
+    const events = ['mousemove', 'keydown', 'mousedown', 'touchstart', 'scroll'];
+    events.forEach(evt => window.addEventListener(evt, resetIdleTimer, { passive: true }));
+    resetIdleTimer();
+
+    const handleTimeoutUpdated = () => {
+      timeoutDuration = getTimeoutMinutes();
+      resetIdleTimer();
+    };
+    window.addEventListener('brmp_session_timeout_updated', handleTimeoutUpdated);
+
+    return () => {
+      if (idleTimer) clearTimeout(idleTimer);
+      events.forEach(evt => window.removeEventListener(evt, resetIdleTimer));
+      window.removeEventListener('brmp_session_timeout_updated', handleTimeoutUpdated);
+    };
+  }, [user]);
+
   if (!user) {
     return <AdminLogin onLoginSuccess={handleLoginSuccess} />;
   }
@@ -129,11 +179,12 @@ export default function App() {
           user={user} 
           isOpen={isMobileMenuOpen}
           onClose={() => setIsMobileMenuOpen(false)}
+          onLogout={handleLogout}
         />
 
         {/* Main View */}
         <main className="main-content">
-          {(currentView === 'dashboard' || currentView.startsWith('admin')) && (
+          {(currentView === 'dashboard' || currentView.startsWith('admin') || currentView === 'pengaturan-akun') && (
             <AdminDashboard 
               user={user} 
               onNavigate={setCurrentView} 
@@ -146,13 +197,9 @@ export default function App() {
                 currentView === 'admin-spt' ? 'spt' :
                 currentView === 'admin-disposisi' ? 'disposisi' :
                 currentView === 'admin-agenda' ? 'agenda' :
-                currentView === 'admin-pengaturan' ? 'pengaturan' : 'dashboard'
+                (currentView === 'admin-pengaturan' || currentView === 'pengaturan-akun') ? 'pengaturan' : 'dashboard'
               } 
             />
-          )}
-
-          {currentView === 'pengaturan-akun' && (
-            <PengaturanAkun user={user} onUpdateUser={handleUpdateUser} />
           )}
 
           {currentView === 'absensi-bulanan' && (

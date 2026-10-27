@@ -5,10 +5,10 @@ import authRoutes from './routes/auth.js';
 import dashboardRoutes from './routes/dashboard.js';
 import absensiRoutes from './routes/absensi.js';
 import cutiRoutes from './routes/cuti.js';
-import sptRoutes from './routes/spt.js';
+import sptRoutes from './spt/index.js';
 import usersRoutes from './routes/users.js';
 import admsRoutes from './routes/adms.js';
-import adminRoutes from './routes/admin.js';
+import adminRoutes from './admin/index.js';
 
 import path from 'path';
 import { fileURLToPath } from 'url';

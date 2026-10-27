@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { resolveSptRole } from './SptProgram';
+import { resolveSptRole } from '../spt/SptProgram';
 import { 
   LayoutDashboard, 
   CalendarCheck2, 
@@ -14,10 +14,24 @@ import {
   ShieldCheck,
   BookOpen,
   Settings,
+  UserCheck,
+  Eye,
   X
 } from 'lucide-react';
 
-export default function Sidebar({ currentView, setCurrentView, user, isOpen, onClose }) {
+export default function Sidebar({ currentView, setCurrentView, user, isUserAdmin = false, isOpen, onClose }) {
+  const checkIsAdmin = Boolean(
+    isUserAdmin || (
+      user && (
+        user.systemRole === 'admin' ||
+        user.role === 'admin' ||
+        user.approvalRole === 'admin' ||
+        user.nip === '198001012005011001' ||
+        user.id === 'PEG-ADM'
+      )
+    )
+  );
+
   // Accordion state for submenus
   const [openAbsensi, setOpenAbsensi] = useState(
     currentView === 'absensi-bulanan' || currentView === 'absensi-chart'
@@ -138,6 +152,48 @@ export default function Sidebar({ currentView, setCurrentView, user, isOpen, onC
 
       {/* Navigation */}
       <nav className="sidebar-nav">
+        {/* Administrator Portal Button (For Admin Users) */}
+        {checkIsAdmin && (
+          <button 
+            className="nav-item-btn"
+            onClick={() => navigateTo(currentView.startsWith('admin') ? 'dashboard' : 'admin-dashboard')}
+            style={{
+              background: currentView.startsWith('admin') 
+                ? 'linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(37, 99, 235, 0.25))'
+                : 'linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(5, 150, 105, 0.3))',
+              border: currentView.startsWith('admin')
+                ? '1px solid rgba(96, 165, 250, 0.45)'
+                : '1px solid rgba(16, 185, 129, 0.45)',
+              marginBottom: '6px'
+            }}
+          >
+            <div className="nav-item-left">
+              {currentView.startsWith('admin') ? (
+                <>
+                  <UserCheck size={18} style={{ color: '#93c5fd' }} />
+                  <span style={{ fontWeight: 700, color: '#eff6ff' }}>Mode Pegawai</span>
+                </>
+              ) : (
+                <>
+                  <ShieldCheck size={18} style={{ color: '#4ade80' }} />
+                  <span style={{ fontWeight: 700, color: '#ecfdf5' }}>Portal Admin</span>
+                </>
+              )}
+            </div>
+            <span style={{
+              fontSize: '9px',
+              fontWeight: 800,
+              background: currentView.startsWith('admin') ? '#2563eb' : '#059669',
+              color: '#ffffff',
+              padding: '2px 6px',
+              borderRadius: '6px',
+              letterSpacing: '0.5px'
+            }}>
+              {currentView.startsWith('admin') ? 'CEK' : 'SI-AP'}
+            </span>
+          </button>
+        )}
+
         {/* Dashboard */}
         <button 
           className={`nav-item-btn ${currentView === 'dashboard' ? 'active' : ''}`}

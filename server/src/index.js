@@ -8,6 +8,7 @@ import cutiRoutes from './routes/cuti.js';
 import sptRoutes from './routes/spt.js';
 import usersRoutes from './routes/users.js';
 import admsRoutes from './routes/adms.js';
+import adminRoutes from './routes/admin.js';
 
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -54,6 +55,7 @@ app.use('/api/absensi', absensiRoutes);
 app.use('/api/cuti', cutiRoutes);
 app.use('/api/spt', sptRoutes);
 app.use('/api/users', usersRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Root route
 app.get('/', (req, res) => {

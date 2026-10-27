@@ -259,10 +259,62 @@ router.get('/api/logs', (req, res) => {
 });
 
 // GET /api/adms/machines - Get connected machine list
-router.get('/api/machines', (req, res) => {
+router.get(['/api/machines', '/machines'], (req, res) => {
   res.json({
     success: true,
     data: admsMachines
+  });
+});
+
+// POST /api/adms/machines - Add a new ADMS machine
+router.post(['/api/machines', '/machines'], (req, res) => {
+  const { sn, namaMesin, ip, port, lokasi } = req.body;
+
+  if (!sn || !namaMesin) {
+    return res.status(400).json({ success: false, message: 'Serial Number (SN) dan Nama Mesin wajib diisi' });
+  }
+
+  const cleanSn = String(sn).trim().toUpperCase();
+  const existing = admsMachines.find(m => m.sn.toUpperCase() === cleanSn);
+  if (existing) {
+    return res.status(400).json({ success: false, message: `Mesin dengan Serial Number ${cleanSn} sudah terdaftar (${existing.namaMesin})` });
+  }
+
+  const newMachine = {
+    sn: cleanSn,
+    namaMesin: String(namaMesin).trim(),
+    ip: String(ip || '192.168.2.100').trim(),
+    port: String(port || '4370').trim(),
+    lokasi: String(lokasi || 'Kantor BRMP DIY').trim(),
+    lastSync: new Date().toISOString(),
+    status: 'Online',
+    totalLogs: 0
+  };
+
+  admsMachines.push(newMachine);
+
+  res.status(201).json({
+    success: true,
+    message: `Mesin "${newMachine.namaMesin}" (${newMachine.sn}) berhasil ditambahkan ke sistem!`,
+    data: newMachine
+  });
+});
+
+// DELETE /api/adms/machines/:sn - Delete an ADMS machine
+router.delete(['/api/machines/:sn', '/machines/:sn'], (req, res) => {
+  const { sn } = req.params;
+  const cleanSn = String(sn).trim().toUpperCase();
+  const index = admsMachines.findIndex(m => m.sn.toUpperCase() === cleanSn);
+
+  if (index === -1) {
+    return res.status(404).json({ success: false, message: `Mesin dengan Serial Number ${sn} tidak ditemukan` });
+  }
+
+  const deleted = admsMachines.splice(index, 1)[0];
+  res.json({
+    success: true,
+    message: `Mesin "${deleted.namaMesin}" (${deleted.sn}) berhasil dihapus`,
+    data: deleted
   });
 });
 

@@ -8,7 +8,9 @@ import AbsensiChart from './components/AbsensiChart';
 import AdmsMonitor from './components/AdmsMonitor';
 import PengajuanCuti from './components/PengajuanCuti';
 import PengaturanAkun from './components/PengaturanAkun';
-import SptProgram from './components/SptProgram';
+import SptProgram from './spt/SptProgram';
+import { AdminDashboard, AdminLogin } from './admin';
+import { getStoredAvatar } from './services/api';
 import { 
   LayoutDashboard, 
   CalendarCheck2, 
@@ -20,11 +22,49 @@ import {
 export default function App() {
   const [user, setUser] = useState(() => {
     const saved = localStorage.getItem('brmp_user');
-    return saved ? JSON.parse(saved) : null;
+    if (!saved) return null;
+    try {
+      const parsed = JSON.parse(saved);
+      if (parsed?.nip === '198001012005011001' || parsed?.id === 'PEG-ADM') {
+        parsed.systemRole = 'admin';
+        parsed.approvalRole = 'admin';
+        parsed.role = 'admin';
+        parsed.roleLabel = 'Administrator (Akses Penuh Semua Modul)';
+      }
+      if (parsed?.nip && !parsed.fotoProfil) {
+        const cached = getStoredAvatar(parsed.nip);
+        if (cached) parsed.fotoProfil = cached;
+      }
+      return parsed;
+    } catch {
+      return null;
+    }
   });
 
   const [currentView, setCurrentView] = useState('dashboard');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  // Detect whether current route is the Secret Admin Portal (/admin or #/admin)
+  const checkIsAdminRoute = () => {
+    if (typeof window === 'undefined') return false;
+    const path = window.location.pathname.toLowerCase();
+    const hash = window.location.hash.toLowerCase();
+    return path.startsWith('/admin') || hash.startsWith('#/admin') || path.includes('/admin');
+  };
+
+  const [isAdminRoute, setIsAdminRoute] = useState(checkIsAdminRoute);
+
+  useEffect(() => {
+    const handleUrlChange = () => {
+      setIsAdminRoute(checkIsAdminRoute());
+    };
+    window.addEventListener('popstate', handleUrlChange);
+    window.addEventListener('hashchange', handleUrlChange);
+    return () => {
+      window.removeEventListener('popstate', handleUrlChange);
+      window.removeEventListener('hashchange', handleUrlChange);
+    };
+  }, []);
 
   // Close mobile drawer whenever viewport resizes to desktop or view changes
   useEffect(() => {
@@ -37,10 +77,36 @@ export default function App() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const handleLoginSuccess = (userData) => {
-    setUser(userData);
-    localStorage.setItem('brmp_user', JSON.stringify(userData));
-    setCurrentView('dashboard');
+  const isUserAdmin = Boolean(
+    user && (
+      user.systemRole === 'admin' ||
+      user.role === 'admin' ||
+      user.approvalRole === 'admin' ||
+      user.nip === '198001012005011001' ||
+      user.id === 'PEG-ADM'
+    )
+  );
+
+  const handleLoginSuccess = (userData, fromAdminGate = false) => {
+    const targetNip = userData?.nip;
+    const cachedPhoto = getStoredAvatar(targetNip);
+    const mergedUser = {
+      ...userData,
+      fotoProfil: userData.fotoProfil || cachedPhoto || null
+    };
+    setUser(mergedUser);
+    localStorage.setItem('brmp_user', JSON.stringify(mergedUser));
+
+    if (fromAdminGate) {
+      // Pintu 1: Login dari Panel Admin -> langsung diarahkan ke Dashboard Admin
+      setCurrentView('admin-dashboard');
+      if (typeof window !== 'undefined' && window.location.hash !== '#/admin' && !window.location.pathname.includes('/admin')) {
+        window.history.pushState(null, '', '#/admin');
+      }
+    } else {
+      // Pintu 2: Login dari Gerbang Biasa (/) -> diarahkan ke Halaman Biasa Pegawai untuk cek tampilan
+      setCurrentView('dashboard');
+    }
   };
 
   const handleLogout = () => {
@@ -49,12 +115,37 @@ export default function App() {
   };
 
   const handleSwitchUser = (newUser) => {
-    setUser(newUser);
-    localStorage.setItem('brmp_user', JSON.stringify(newUser));
+    if (!newUser) return;
+    const targetNip = newUser?.nip;
+    const cachedPhoto = getStoredAvatar(targetNip);
+    const mergedUser = {
+      ...newUser,
+      fotoProfil: newUser.fotoProfil || cachedPhoto || null
+    };
+    setUser(mergedUser);
+    localStorage.setItem('brmp_user', JSON.stringify(mergedUser));
   };
 
+  // 1. GERBANG PORTAL ADMIN (/admin atau #/admin)
+  if (isAdminRoute && (!user || !isUserAdmin)) {
+    return (
+      <AdminLogin 
+        onLoginSuccess={(adminUser) => {
+          handleLoginSuccess(adminUser, true);
+        }} 
+      />
+    );
+  }
+
+  // 2. GERBANG PORTAL PEGAWAI BIASA (/)
   if (!user) {
-    return <Login onLoginSuccess={handleLoginSuccess} />;
+    return (
+      <Login 
+        onLoginSuccess={(regUser) => {
+          handleLoginSuccess(regUser, false);
+        }} 
+      />
+    );
   }
 
   // Map currentView to the SPT target view in the brmpSPT program
@@ -77,6 +168,8 @@ export default function App() {
       {/* Top Header Navbar with Quick Role Switcher */}
       <Navbar 
         user={user} 
+        currentView={currentView}
+        isUserAdmin={isUserAdmin}
         onLogout={handleLogout} 
         onSwitchUser={handleSwitchUser} 
         onNavigate={setCurrentView}
@@ -84,7 +177,7 @@ export default function App() {
         onToggleMobileMenu={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
       />
 
-      <div style={{ display: 'flex', flex: 1, position: 'relative' }}>
+      <div style={{ display: 'flex', flex: 1, position: 'relative', width: '100%', minWidth: 0 }}>
         {/* Mobile Backdrop Overlay */}
         {isMobileMenuOpen && (
           <div 
@@ -102,6 +195,7 @@ export default function App() {
             setIsMobileMenuOpen(false);
           }} 
           user={user} 
+          isUserAdmin={isUserAdmin}
           isOpen={isMobileMenuOpen}
           onClose={() => setIsMobileMenuOpen(false)}
         />
@@ -110,6 +204,29 @@ export default function App() {
         <main className={`main-content ${isSptView ? 'flush-view' : ''}`}>
           {currentView === 'dashboard' && (
             <DashboardView user={user} onNavigate={setCurrentView} />
+          )}
+
+          {/* Admin Dashboard & Management Views */}
+          {currentView.startsWith('admin') && (
+            isUserAdmin ? (
+              <AdminDashboard 
+                user={user} 
+                onNavigate={setCurrentView} 
+                onUpdateUser={handleSwitchUser}
+                onLogout={handleLogout}
+                initialTab={
+                  currentView === 'admin-pegawai' ? 'pegawai' :
+                  currentView === 'admin-presensi' ? 'presensi' :
+                  currentView === 'admin-cuti' ? 'cuti' :
+                  currentView === 'admin-spt' ? 'spt' :
+                  currentView === 'admin-disposisi' ? 'disposisi' :
+                  currentView === 'admin-agenda' ? 'agenda' :
+                  currentView === 'admin-pengaturan' ? 'pengaturan' : 'dashboard'
+                } 
+              />
+            ) : (
+              <DashboardView user={user} onNavigate={setCurrentView} />
+            )
           )}
 
           {currentView === 'absensi-bulanan' && (

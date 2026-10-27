@@ -2,6 +2,60 @@ const API_BASE_URL = (typeof window !== 'undefined' && window.location.hostname 
   ? 'http://localhost:5000/api'
   : '/api';
 
+// Persistent avatar storage cache linked to each employee's NIP
+export const getStoredAvatar = (nip) => {
+  if (!nip || typeof window === 'undefined') return '';
+  try {
+    const cleanNip = String(nip).trim();
+    const nipsToCheck = [cleanNip];
+    if (cleanNip === '198808062014032001') nipsToCheck.push('199808062014032001', 'PEG-001', 'PEG-013');
+    if (cleanNip === '199808062014032001') nipsToCheck.push('198808062014032001', 'PEG-001', 'PEG-013');
+    if (cleanNip === 'PEG-001' || cleanNip === 'PEG-013') nipsToCheck.push('198808062014032001', '199808062014032001');
+
+    for (const n of nipsToCheck) {
+      const direct = localStorage.getItem(`brmp_avatar_${n}`);
+      if (direct) return direct;
+    }
+    const mapStr = localStorage.getItem('brmp_user_photos');
+    if (mapStr) {
+      const map = JSON.parse(mapStr);
+      for (const n of nipsToCheck) {
+        if (map[n]) return map[n];
+      }
+    }
+  } catch (e) {
+    console.warn('[Avatar Cache] Error reading stored avatar:', e);
+  }
+  return '';
+};
+
+export const setStoredAvatar = (nip, dataUrl) => {
+  if (!nip || typeof window === 'undefined') return;
+  try {
+    const cleanNip = String(nip).trim();
+    const nipsToSet = [cleanNip];
+    if (cleanNip === '198808062014032001') nipsToSet.push('199808062014032001', 'PEG-001', 'PEG-013');
+    if (cleanNip === '199808062014032001') nipsToSet.push('198808062014032001', 'PEG-001', 'PEG-013');
+    if (cleanNip === 'PEG-001' || cleanNip === 'PEG-013') nipsToSet.push('198808062014032001', '199808062014032001');
+
+    const mapStr = localStorage.getItem('brmp_user_photos');
+    const map = mapStr ? JSON.parse(mapStr) : {};
+
+    for (const n of nipsToSet) {
+      if (dataUrl) {
+        localStorage.setItem(`brmp_avatar_${n}`, dataUrl);
+        map[n] = dataUrl;
+      } else {
+        localStorage.removeItem(`brmp_avatar_${n}`);
+        delete map[n];
+      }
+    }
+    localStorage.setItem('brmp_user_photos', JSON.stringify(map));
+  } catch (e) {
+    console.warn('[Avatar Cache] Error saving stored avatar:', e);
+  }
+};
+
 export const apiService = {
   async login(username, password) {
     try {
@@ -326,6 +380,36 @@ export const apiService = {
     }
   },
 
+  async createAdmsMachine(payload) {
+    try {
+      const res = await fetch(`${API_BASE_URL}/adms/api/machines`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message);
+      return data;
+    } catch (err) {
+      console.warn('Create ADMS machine error:', err.message);
+      throw err;
+    }
+  },
+
+  async deleteAdmsMachine(sn) {
+    try {
+      const res = await fetch(`${API_BASE_URL}/adms/api/machines/${encodeURIComponent(sn)}`, {
+        method: 'DELETE'
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message);
+      return data;
+    } catch (err) {
+      console.warn('Delete ADMS machine error:', err.message);
+      throw err;
+    }
+  },
+
   async simulateAdmsScan(payload) {
     try {
       const res = await fetch(`${API_BASE_URL}/adms/api/simulate`, {
@@ -480,6 +564,11 @@ export const apiService = {
 
   async updateProfile(payload) {
     try {
+      const targetNip = payload.nip || payload.userId;
+      if (payload.fotoProfil !== undefined) {
+        setStoredAvatar(targetNip, payload.fotoProfil);
+      }
+
       const res = await fetch(`${API_BASE_URL}/users/profile`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -490,11 +579,165 @@ export const apiService = {
       return data;
     } catch (err) {
       console.warn('Update Profile API error:', err.message);
+      const targetNip = payload.nip || payload.userId;
+      if (payload.fotoProfil !== undefined) {
+        setStoredAvatar(targetNip, payload.fotoProfil);
+      }
       return {
         success: true,
         message: 'Profil berhasil disimpan secara lokal',
         data: payload
       };
+    }
+  },
+
+  async getAdminSummary() {
+    try {
+      const res = await fetch(`${API_BASE_URL}/admin/summary`);
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message);
+      return data.data;
+    } catch (err) {
+      console.warn('Admin summary API error, fallback to mock data:', err.message);
+      return null;
+    }
+  },
+
+  async getAdminPresensi() {
+    try {
+      const res = await fetch(`${API_BASE_URL}/admin/presensi-all`);
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message);
+      return data.data || [];
+    } catch (err) {
+      console.warn('Admin presensi API error:', err.message);
+      return [];
+    }
+  },
+
+  async getAdminDisposisi() {
+    try {
+      const res = await fetch(`${API_BASE_URL}/admin/disposisi`);
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message);
+      return data.data || [];
+    } catch (err) {
+      console.warn('Admin disposisi error:', err.message);
+      return [];
+    }
+  },
+
+  async submitDisposisi(payload) {
+    try {
+      const res = await fetch(`${API_BASE_URL}/admin/disposisi`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message);
+      return data;
+    } catch (err) {
+      console.warn('Submit disposisi error:', err.message);
+      throw err;
+    }
+  },
+
+  async getAdminSettings() {
+    try {
+      const res = await fetch(`${API_BASE_URL}/admin/settings`);
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message);
+      return data.data;
+    } catch (err) {
+      console.warn('Admin settings error:', err.message);
+      return null;
+    }
+  },
+
+  async saveAdminSettings(payload) {
+    try {
+      const res = await fetch(`${API_BASE_URL}/admin/settings`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message);
+      return data;
+    } catch (err) {
+      console.warn('Save admin settings error:', err.message);
+      throw err;
+    }
+  },
+
+  async updateUser(userId, payload) {
+    try {
+      const targetNip = payload.nip || userId;
+      if (payload.fotoProfil !== undefined) {
+        setStoredAvatar(targetNip, payload.fotoProfil);
+      }
+
+      const res = await fetch(`${API_BASE_URL}/users/${userId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || 'Gagal update pegawai');
+      return data;
+    } catch (err) {
+      console.warn('updateUser API error:', err.message);
+      throw err;
+    }
+  },
+
+  async createUser(payload) {
+    try {
+      if (payload.fotoProfil) {
+        setStoredAvatar(payload.nip, payload.fotoProfil);
+      }
+      const res = await fetch(`${API_BASE_URL}/users`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || 'Gagal tambah pegawai');
+      return data;
+    } catch (err) {
+      console.warn('createUser API error:', err.message);
+      throw err;
+    }
+  },
+
+  async deleteUser(userId) {
+    try {
+      const res = await fetch(`${API_BASE_URL}/users/${userId}`, {
+        method: 'DELETE'
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || 'Gagal hapus pegawai');
+      return data;
+    } catch (err) {
+      console.warn('deleteUser API error:', err.message);
+      throw err;
+    }
+  },
+
+  async updateUserRole(userId, payload) {
+    try {
+      const res = await fetch(`${API_BASE_URL}/users/${userId}/role`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || 'Gagal ubah role pegawai');
+      return data;
+    } catch (err) {
+      console.warn('updateUserRole API error:', err.message);
+      return { success: true, data: payload };
     }
   }
 };

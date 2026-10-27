@@ -14,9 +14,30 @@ import {
   Command
 } from 'lucide-react';
 
-export default function Navbar({ user, onLogout, onSwitchUser, onNavigate, isMobileMenuOpen, onToggleMobileMenu }) {
+export default function Navbar({ 
+  user, 
+  currentView = 'dashboard',
+  isUserAdmin = false,
+  onLogout, 
+  onSwitchUser, 
+  onNavigate, 
+  isMobileMenuOpen, 
+  onToggleMobileMenu 
+}) {
   const [showRoleMenu, setShowRoleMenu] = useState(false);
   const dropdownRef = useRef(null);
+
+  const checkIsAdmin = Boolean(
+    isUserAdmin || (
+      user && (
+        user.systemRole === 'admin' ||
+        user.role === 'admin' ||
+        user.approvalRole === 'admin' ||
+        user.nip === '198001012005011001' ||
+        user.id === 'PEG-ADM'
+      )
+    )
+  );
 
   const demoAccounts = [
     {
@@ -159,6 +180,9 @@ export default function Navbar({ user, onLogout, onSwitchUser, onNavigate, isMob
   const handleSelectAccount = (acc) => {
     if (onSwitchUser) {
       onSwitchUser(acc);
+    }
+    if (acc.role === 'admin' || acc.systemRole === 'admin') {
+      if (onNavigate) onNavigate('admin-dashboard');
     }
     setShowRoleMenu(false);
   };
@@ -324,6 +348,48 @@ export default function Navbar({ user, onLogout, onSwitchUser, onNavigate, isMob
             </div>
           )}
         </div>
+
+        {/* Toggle Mode Khusus Administrator (Portal Admin <-> Tampilan Pegawai) */}
+        {checkIsAdmin && (
+          <button
+            onClick={() => onNavigate && onNavigate(currentView?.startsWith('admin') ? 'dashboard' : 'admin-dashboard')}
+            title={currentView?.startsWith('admin') ? "Beralih ke Tampilan Pegawai Biasa (Cek Tampilan)" : "Buka Pusat Komando Dashboard Admin"}
+            className="navbar-mode-btn"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              padding: '6px 13px',
+              borderRadius: '9999px',
+              fontSize: '0.78rem',
+              fontWeight: 800,
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+              border: currentView?.startsWith('admin') 
+                ? '1.5px solid #86efac' 
+                : '1.5px solid rgba(255,255,255,0.4)',
+              background: currentView?.startsWith('admin') 
+                ? '#ffffff' 
+                : 'linear-gradient(135deg, #15803d 0%, #166534 100%)',
+              color: currentView?.startsWith('admin') 
+                ? '#166534' 
+                : '#ffffff',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.15)'
+            }}
+          >
+            {currentView?.startsWith('admin') ? (
+              <>
+                <UserCheck size={14} color="#166534" />
+                <span>Mode Pegawai</span>
+              </>
+            ) : (
+              <>
+                <ShieldCheck size={14} color="#ffffff" />
+                <span>Panel Admin</span>
+              </>
+            )}
+          </button>
+        )}
 
         <button 
           title="Notifikasi" 

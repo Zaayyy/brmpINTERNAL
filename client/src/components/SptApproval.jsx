@@ -14,12 +14,18 @@ import {
   Calendar
 } from 'lucide-react';
 
-export default function SptApproval({ user, onNavigateToReport }) {
-  const [activeTab, setActiveTab] = useState('ketimker'); // 'ketimker' | 'kobag'
+export default function SptApproval({ user, onNavigateToReport, initialTab = 'ketimker' }) {
+  const [activeTab, setActiveTab] = useState(initialTab);
   const [sptList, setSptList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [notes, setNotes] = useState({});
   const [processingId, setProcessingId] = useState(null);
+
+  useEffect(() => {
+    if (initialTab) {
+      setActiveTab(initialTab);
+    }
+  }, [initialTab]);
 
   const loadData = async () => {
     try {
@@ -37,6 +43,8 @@ export default function SptApproval({ user, onNavigateToReport }) {
 
   useEffect(() => {
     loadData();
+    window.addEventListener('brmp_spt_updated', loadData);
+    return () => window.removeEventListener('brmp_spt_updated', loadData);
   }, []);
 
   const handleApprove = async (sptId, role) => {

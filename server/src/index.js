@@ -8,7 +8,7 @@ import cutiRoutes from './routes/cuti.js';
 import sptRoutes from './routes/spt.js';
 import usersRoutes from './routes/users.js';
 import admsRoutes from './routes/adms.js';
-import adminRoutes from './routes/admin.js';
+import adminRoutes from './admin/index.js';
 
 import path from 'path';
 import { fileURLToPath } from 'url';

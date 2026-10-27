@@ -58,6 +58,8 @@ export default function SptAdmin({ user }) {
 
   useEffect(() => {
     loadData();
+    window.addEventListener('brmp_spt_updated', loadData);
+    return () => window.removeEventListener('brmp_spt_updated', loadData);
   }, []);
 
   // Action: Terbitkan Nomor Resmi

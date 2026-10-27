@@ -196,6 +196,7 @@ export default function App() {
           user={user} 
           isOpen={isMobileMenuOpen}
           onClose={() => setIsMobileMenuOpen(false)}
+          onLogout={handleLogout}
         />
 
         {/* Dynamic Main View */}

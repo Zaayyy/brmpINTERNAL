@@ -566,3 +566,80 @@
   gap: 10px;
   background: #f8fafc;
 }
+
+/* ========================================================
+   ADMIN SIDEBAR GREEN & INDEPENDENT SCROLLBAR STYLING
+   ======================================================== */
+.admin-sidebar-green {
+  background: linear-gradient(180deg, #064e3b 0%, #065f46 50%, #047857 100%) !important;
+  border-right: 1px solid rgba(255, 255, 255, 0.12) !important;
+  box-shadow: 4px 0 16px rgba(6, 78, 59, 0.25) !important;
+  height: calc(100vh - 64px) !important;
+  max-height: calc(100vh - 64px) !important;
+  position: sticky !important;
+  top: 64px !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.25) transparent;
+}
+
+.admin-sidebar-green::-webkit-scrollbar {
+  width: 6px;
+}
+
+.admin-sidebar-green::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.admin-sidebar-green::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.25);
+  border-radius: 9999px;
+}
+
+.admin-sidebar-green::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.45);
+}
+
+.admin-sidebar-green .nav-item-btn {
+  color: #f1f5f9 !important;
+  border-radius: 0 10px 10px 0 !important;
+  margin: 3px 0 !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  border-left: 3px solid transparent !important;
+}
+
+.admin-sidebar-green .nav-item-btn span {
+  color: #f1f5f9 !important;
+  transition: color 0.2s ease !important;
+}
+
+.admin-sidebar-green .nav-item-btn:hover {
+  background: rgba(52, 211, 153, 0.12) !important;
+  color: #ffffff !important;
+  transform: translateX(3px);
+}
+
+.admin-sidebar-green .nav-item-btn:hover span {
+  color: #ffffff !important;
+}
+
+.admin-sidebar-green .nav-item-btn.active-green,
+.admin-sidebar-green .nav-item-btn.active {
+  background: linear-gradient(90deg, rgba(52, 211, 153, 0.26) 0%, rgba(16, 185, 129, 0.14) 100%) !important;
+  color: #ffffff !important;
+  border-left: 4px solid #34d399 !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15), inset 0 0 14px rgba(52, 211, 153, 0.12) !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+}
+
+.admin-sidebar-green .nav-item-btn.active-green span,
+.admin-sidebar-green .nav-item-btn.active span {
+  color: #ffffff !important;
+  font-weight: 800 !important;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+}
+
+
+

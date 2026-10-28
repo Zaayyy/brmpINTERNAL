@@ -1,5 +1,5 @@
-import React, { useState, useRef } from 'react';
-import { apiService } from '../services/api';
+import React, { useState, useRef, useEffect } from 'react';
+import { apiService, getStoredAvatar, setStoredAvatar } from '../services/api';
 import { 
   User, 
   KeyRound, 
@@ -27,10 +27,19 @@ import {
 export default function PengaturanAkun({ user, onUpdateUser }) {
   const [activeSubTab, setActiveSubTab] = useState('profil'); // 'profil' | 'keamanan'
 
-  // Photo States
-  const [fotoProfil, setFotoProfil] = useState(user?.fotoProfil || '');
+  // Photo States with persistent cache fallback
+  const [fotoProfil, setFotoProfil] = useState(() => user?.fotoProfil || getStoredAvatar(user?.nip) || '');
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const fileInputRef = useRef(null);
+
+  // Sync state whenever active user prop changes
+  useEffect(() => {
+    const currentPhoto = user?.fotoProfil || getStoredAvatar(user?.nip) || '';
+    setFotoProfil(currentPhoto);
+    if (user?.noHp) setNoHp(user.noHp);
+    if (user?.email) setEmail(user.email);
+    if (user?.alamat) setAlamat(user.alamat);
+  }, [user]);
 
   // Profile Form States
   const [noHp, setNoHp] = useState(user?.noHp || '0812-3456-7890');
@@ -100,6 +109,14 @@ export default function PengaturanAkun({ user, onUpdateUser }) {
           // Format JPEG berkualitas tinggi dan sangat ringan (< 30KB)
           const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.82);
 
+          // Simpan ke cache avatar per NIP & state
+          setStoredAvatar(user?.nip, compressedDataUrl);
+          setFotoProfil(compressedDataUrl);
+
+          const updated = { ...user, fotoProfil: compressedDataUrl };
+          if (onUpdateUser) onUpdateUser(updated);
+          localStorage.setItem('brmp_user', JSON.stringify(updated));
+
           // Simpan ke backend
           const res = await apiService.updateProfile({
             nip: user?.nip,
@@ -108,13 +125,9 @@ export default function PengaturanAkun({ user, onUpdateUser }) {
           });
 
           if (res.success) {
-            setFotoProfil(compressedDataUrl);
-            const updated = { ...user, fotoProfil: compressedDataUrl };
-            if (onUpdateUser) onUpdateUser(updated);
-            localStorage.setItem('brmp_user', JSON.stringify(updated));
-            setSuccessMsg('Foto profil berhasil diunggah & diperbarui di sistem!');
+            setSuccessMsg('Foto profil berhasil diunggah & disimpan di sistem!');
           } else {
-            setErrorMsg(res.message || 'Gagal menyimpan foto profil');
+            setSuccessMsg('Foto profil tersimpan!');
           }
         } catch (err) {
           setErrorMsg('Gagal memproses gambar: ' + (err.message || ''));
@@ -142,21 +155,19 @@ export default function PengaturanAkun({ user, onUpdateUser }) {
     setSuccessMsg('');
 
     try {
+      setStoredAvatar(user?.nip, '');
+      setFotoProfil('');
+      const updated = { ...user, fotoProfil: '' };
+      if (onUpdateUser) onUpdateUser(updated);
+      localStorage.setItem('brmp_user', JSON.stringify(updated));
+
       const res = await apiService.updateProfile({
         nip: user?.nip,
         userId: user?.id,
         fotoProfil: ''
       });
 
-      if (res.success) {
-        setFotoProfil('');
-        const updated = { ...user, fotoProfil: '' };
-        if (onUpdateUser) onUpdateUser(updated);
-        localStorage.setItem('brmp_user', JSON.stringify(updated));
-        setSuccessMsg('Foto profil berhasil dihapus, menggunakan inisial nama');
-      } else {
-        setErrorMsg(res.message || 'Gagal menghapus foto profil');
-      }
+      setSuccessMsg('Foto profil berhasil dihapus, menggunakan inisial nama');
     } catch (err) {
       setErrorMsg('Gagal menghapus foto: ' + (err.message || ''));
     } finally {

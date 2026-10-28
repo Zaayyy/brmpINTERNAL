@@ -174,40 +174,127 @@ if ($route === 'auth/login' || $route === 'login') {
 }
 
 // -------------------------------------------------------
-// 2. USERS: GET /api/users & PUT /api/users/:id/role
+// 2. USERS: GET /api/users, POST /api/users, PUT /api/users/:id, DELETE /api/users/:id
 // -------------------------------------------------------
 if ($route === 'users' || str_starts_with($route, 'users/')) {
+    $parts = explode('/', $route);
+    $subAction = $parts[1] ?? '';
+    $subAction2 = $parts[2] ?? '';
+
+    // GET /api/users or GET /api/users/:id
     if ($method === 'GET') {
+        if (!empty($subAction) && $subAction !== 'profile') {
+            $targetUser = findPegawai($subAction, $pdo, $useMysql);
+            if ($targetUser) {
+                jsonResponse(['success' => true, 'data' => $targetUser]);
+            }
+            jsonResponse(['success' => false, 'message' => 'Pegawai tidak ditemukan'], 404);
+        }
+
         $data = [];
         if ($useMysql && $pdo) {
-            $stmt = $pdo->query("SELECT * FROM tb_pegawai ORDER BY id ASC");
-            $rows = $stmt->fetchAll();
-            foreach ($rows as $r) {
-                $data[] = [
-                    'id' => $r['pegawai_id'],
-                    'nip' => $r['nip'],
-                    'nama' => $r['nama'],
-                    'jabatan' => $r['jabatan'],
-                    'golongan' => $r['golongan'] ?? '',
-                    'divisi' => $r['divisi'],
-                    'systemRole' => $r['system_role'],
-                    'approvalRole' => $r['approval_role'],
-                    'sptRole' => $r['spt_role'] ?? 'user',
-                    'roleLabel' => $r['role_label'],
-                    'pinMesin' => $r['pin_mesin'] ?? '',
-                    'sisaCuti' => (int)$r['sisa_cuti'],
-                    'cutiTerpakai' => (int)$r['cuti_terpakai'],
-                    'expiredCuti' => $r['expired_cuti']
-                ];
-            }
-        } else {
+            try {
+                // Ensure tb_pegawai table exists
+                $pdo->exec("CREATE TABLE IF NOT EXISTS tb_pegawai (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    pegawai_id VARCHAR(50) UNIQUE,
+                    nip VARCHAR(50) UNIQUE,
+                    nama VARCHAR(150),
+                    password_year VARCHAR(50) DEFAULT '1980',
+                    jabatan VARCHAR(150) DEFAULT 'Pegawai BRMP DIY',
+                    golongan VARCHAR(50) DEFAULT '',
+                    divisi VARCHAR(150) DEFAULT 'Balai Penerapan Standar Instrumen Pertanian DIY',
+                    system_role VARCHAR(50) DEFAULT 'pegawai',
+                    approval_role VARCHAR(50) DEFAULT 'pemohon',
+                    spt_role VARCHAR(50) DEFAULT 'user',
+                    role_label VARCHAR(150) DEFAULT 'Pegawai',
+                    pin_mesin VARCHAR(50) DEFAULT '',
+                    sisa_cuti INT DEFAULT 12,
+                    cuti_terpakai INT DEFAULT 0,
+                    expired_cuti VARCHAR(50) DEFAULT '31-12-2026',
+                    foto_profil LONGTEXT DEFAULT NULL,
+                    no_hp VARCHAR(50) DEFAULT '',
+                    email VARCHAR(100) DEFAULT '',
+                    alamat TEXT DEFAULT NULL,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+
+                // Add missing columns if upgrading an older table
+                try { $pdo->exec("ALTER TABLE tb_pegawai ADD COLUMN no_hp VARCHAR(50) DEFAULT ''"); } catch (\Throwable $e) {}
+                try { $pdo->exec("ALTER TABLE tb_pegawai ADD COLUMN email VARCHAR(100) DEFAULT ''"); } catch (\Throwable $e) {}
+                try { $pdo->exec("ALTER TABLE tb_pegawai ADD COLUMN alamat TEXT DEFAULT NULL"); } catch (\Throwable $e) {}
+                try { $pdo->exec("ALTER TABLE tb_pegawai ADD COLUMN foto_profil LONGTEXT DEFAULT NULL"); } catch (\Throwable $e) {}
+                try { $pdo->exec("ALTER TABLE tb_pegawai ADD COLUMN spt_role VARCHAR(50) DEFAULT 'user'"); } catch (\Throwable $e) {}
+
+                // If tb_pegawai is empty, seed from pegawaiData.json
+                $cntStmt = $pdo->query("SELECT COUNT(*) FROM tb_pegawai");
+                $existingCount = $cntStmt ? (int)$cntStmt->fetchColumn() : 0;
+                if ($existingCount === 0) {
+                    $seeds = getFallbackPegawai();
+                    if (!empty($seeds)) {
+                        $seedStmt = $pdo->prepare("INSERT INTO tb_pegawai (pegawai_id, nip, nama, password_year, jabatan, golongan, divisi, system_role, approval_role, spt_role, role_label, pin_mesin, sisa_cuti, cuti_terpakai, expired_cuti, foto_profil, no_hp, email, alamat) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                        foreach ($seeds as $s) {
+                            $seedStmt->execute([
+                                $s['id'] ?? ('PEG-' . substr($s['nip'], -3)),
+                                $s['nip'] ?? '',
+                                $s['nama'] ?? '',
+                                $s['passwordDefaultYear'] ?? substr($s['nip'], 0, 4),
+                                $s['jabatan'] ?? 'Pegawai BRMP DIY',
+                                $s['golongan'] ?? '',
+                                $s['divisi'] ?? 'Balai Penerapan Standar Instrumen Pertanian DIY',
+                                $s['systemRole'] ?? 'pegawai',
+                                $s['approvalRole'] ?? 'pemohon',
+                                $s['sptRole'] ?? 'user',
+                                $s['roleLabel'] ?? 'Pegawai',
+                                $s['pinMesin'] ?? '',
+                                (int)($s['sisaCuti'] ?? 12),
+                                (int)($s['cutiTerpakai'] ?? 0),
+                                $s['expiredCuti'] ?? '31-12-2026',
+                                $s['fotoProfil'] ?? '',
+                                $s['noHp'] ?? '',
+                                $s['email'] ?? '',
+                                $s['alamat'] ?? ''
+                            ]);
+                        }
+                    }
+                }
+
+                $stmt = $pdo->query("SELECT * FROM tb_pegawai ORDER BY id ASC");
+                $rows = ($stmt && is_object($stmt)) ? $stmt->fetchAll() : [];
+                foreach ($rows as $r) {
+                    $data[] = [
+                        'id' => $r['pegawai_id'] ?? ((string)$r['id']),
+                        'nip' => $r['nip'] ?? '',
+                        'nama' => $r['nama'] ?? '',
+                        'passwordDefaultYear' => $r['password_year'] ?? '1980',
+                        'jabatan' => $r['jabatan'] ?? '',
+                        'golongan' => $r['golongan'] ?? '',
+                        'divisi' => $r['divisi'] ?? '',
+                        'systemRole' => $r['system_role'] ?? 'pegawai',
+                        'approvalRole' => $r['approval_role'] ?? 'pemohon',
+                        'sptRole' => $r['spt_role'] ?? 'user',
+                        'roleLabel' => $r['role_label'] ?? 'Pegawai',
+                        'pinMesin' => $r['pin_mesin'] ?? '',
+                        'sisaCuti' => (int)($r['sisa_cuti'] ?? 12),
+                        'cutiTerpakai' => (int)($r['cuti_terpakai'] ?? 0),
+                        'expiredCuti' => $r['expired_cuti'] ?? '31-12-2026',
+                        'fotoProfil' => $r['foto_profil'] ?? '',
+                        'noHp' => $r['no_hp'] ?? '',
+                        'email' => $r['email'] ?? '',
+                        'alamat' => $r['alamat'] ?? ''
+                    ];
+                }
+            } catch (\Throwable $e) {}
+        }
+
+        if (empty($data)) {
             $data = getFallbackPegawai();
         }
         jsonResponse(['success' => true, 'total' => count($data), 'data' => $data]);
     }
 
-    // PUT /api/users/profile - Ubah profil & password oleh pegawai
-    if (str_contains($route, 'profile')) {
+    // PUT /api/users/profile - Ubah profil & password oleh pegawai sendiri
+    if ($subAction === 'profile' || str_contains($route, 'profile')) {
         $body = getJsonBody();
         $targetNip = trim($body['nip'] ?? $body['userId'] ?? '');
         $noHp = trim($body['noHp'] ?? '');
@@ -248,22 +335,20 @@ if ($route === 'users' || str_starts_with($route, 'users/')) {
                 $params[] = $newPassword;
             }
             try {
-                $pdo->exec("ALTER TABLE tb_pegawai ADD COLUMN IF NOT EXISTS no_hp VARCHAR(50) DEFAULT ''");
-                $pdo->exec("ALTER TABLE tb_pegawai ADD COLUMN IF NOT EXISTS email VARCHAR(100) DEFAULT ''");
-                $pdo->exec("ALTER TABLE tb_pegawai ADD COLUMN IF NOT EXISTS alamat TEXT DEFAULT NULL");
-                $pdo->exec("ALTER TABLE tb_pegawai ADD COLUMN IF NOT EXISTS foto_profil LONGTEXT DEFAULT NULL");
                 if (!empty($noHp)) { $fields[] = "no_hp = ?"; $params[] = $noHp; }
                 if (!empty($email)) { $fields[] = "email = ?"; $params[] = $email; }
                 if (!empty($alamat)) { $fields[] = "alamat = ?"; $params[] = $alamat; }
                 if ($fotoProfil !== null) { $fields[] = "foto_profil = ?"; $params[] = $fotoProfil; }
-            } catch (Exception $e) {}
+            } catch (\Throwable $e) {}
 
             if (!empty($fields)) {
                 $params[] = $targetNip;
                 $params[] = $targetNip;
                 $sql = "UPDATE tb_pegawai SET " . implode(", ", $fields) . " WHERE nip = ? OR pegawai_id = ?";
-                $stmt = $pdo->prepare($sql);
-                $stmt->execute($params);
+                try {
+                    $stmt = $pdo->prepare($sql);
+                    $stmt->execute($params);
+                } catch (\Throwable $e) {}
             }
         }
 
@@ -295,14 +380,157 @@ if ($route === 'users' || str_starts_with($route, 'users/')) {
         ]);
     }
 
-    // PUT /api/users/:id/role
-    if ($method === 'PUT' || $method === 'POST') {
-        $parts = explode('/', $route);
-        $targetId = $parts[1] ?? '';
+    // POST /api/users - Tambah Pegawai Baru oleh Admin
+    if ($method === 'POST' && (empty($subAction) || $subAction === 'users')) {
         $body = getJsonBody();
+        $nip = trim($body['nip'] ?? '');
+        $nama = trim($body['nama'] ?? '');
+
+        if (empty($nip) || empty($nama)) {
+            jsonResponse(['success' => false, 'message' => 'NIP dan Nama pegawai wajib diisi'], 400);
+        }
+
+        $jabatan = trim($body['jabatan'] ?? 'Staf Pelaksana Standar');
+        $golongan = trim($body['golongan'] ?? 'III/a');
+        $divisi = trim($body['divisi'] ?? 'Tim Kerja Pengelolaan Sumber Daya Manusia');
+        $systemRole = trim($body['systemRole'] ?? 'pegawai');
+        $approvalRole = trim($body['approvalRole'] ?? 'pemohon');
+        $sptRole = trim($body['sptRole'] ?? 'user');
+        $pinMesin = trim((string)($body['pinMesin'] ?? ''));
+        $sisaCuti = isset($body['sisaCuti']) ? (int)$body['sisaCuti'] : 12;
+        $cutiTerpakai = 0;
+        $expiredCuti = '31-12-2026';
+        $fotoProfil = $body['fotoProfil'] ?? '';
+        $noHp = trim($body['noHp'] ?? '');
+        $email = trim($body['email'] ?? '');
+        $alamat = trim($body['alamat'] ?? '');
+
+        // Determine default password (year of birth from NIP if available, e.g. 1990)
+        $passwordYear = '1980';
+        if (preg_match('/^(19\d{2}|20\d{2})/', $nip, $m)) {
+            $passwordYear = $m[1];
+        }
+
+        $roleLabel = 'Pegawai BRMP DIY';
+        if ($approvalRole === 'admin') $roleLabel = 'Administrator Kepegawaian';
+        elseif ($approvalRole === 'verifikator_1') $roleLabel = 'Verifikator 1 (Ketua Tim Kerja)';
+        elseif ($approvalRole === 'verifikator_2') $roleLabel = 'Verifikator 2 (Kepala Bagian TU)';
+        elseif ($approvalRole === 'pemohon') $roleLabel = 'Pegawai (Pemohon Cuti)';
+
+        $list = getFallbackPegawai();
+        $existingIndex = -1;
+        foreach ($list as $idx => $u) {
+            if ($u['nip'] === $nip) {
+                $existingIndex = $idx;
+                break;
+            }
+        }
+
+        $newId = 'PEG-' . str_pad((string)(count($list) + 1), 3, '0', STR_PAD_LEFT);
+        if ($existingIndex >= 0 && !empty($list[$existingIndex]['id'])) {
+            $newId = $list[$existingIndex]['id'];
+        }
+
+        $newPegawai = [
+            'id' => $newId,
+            'nip' => $nip,
+            'passwordDefaultYear' => $passwordYear,
+            'nama' => $nama,
+            'jabatan' => $jabatan,
+            'golongan' => $golongan,
+            'divisi' => $divisi,
+            'systemRole' => $systemRole,
+            'approvalRole' => $approvalRole,
+            'sptRole' => $sptRole,
+            'roleLabel' => $roleLabel,
+            'pinMesin' => $pinMesin,
+            'sisaCuti' => $sisaCuti,
+            'cutiTerpakai' => $cutiTerpakai,
+            'expiredCuti' => $expiredCuti,
+            'fotoProfil' => $fotoProfil,
+            'noHp' => $noHp,
+            'email' => $email,
+            'alamat' => $alamat
+        ];
+
+        // 1. MySQL Persistence
+        if ($useMysql && $pdo) {
+            try {
+                $pdo->exec("CREATE TABLE IF NOT EXISTS tb_pegawai (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    pegawai_id VARCHAR(50) UNIQUE,
+                    nip VARCHAR(50) UNIQUE,
+                    nama VARCHAR(150),
+                    password_year VARCHAR(50) DEFAULT '1980',
+                    jabatan VARCHAR(150) DEFAULT 'Pegawai BRMP DIY',
+                    golongan VARCHAR(50) DEFAULT '',
+                    divisi VARCHAR(150) DEFAULT 'Balai Penerapan Standar Instrumen Pertanian DIY',
+                    system_role VARCHAR(50) DEFAULT 'pegawai',
+                    approval_role VARCHAR(50) DEFAULT 'pemohon',
+                    spt_role VARCHAR(50) DEFAULT 'user',
+                    role_label VARCHAR(150) DEFAULT 'Pegawai',
+                    pin_mesin VARCHAR(50) DEFAULT '',
+                    sisa_cuti INT DEFAULT 12,
+                    cuti_terpakai INT DEFAULT 0,
+                    expired_cuti VARCHAR(50) DEFAULT '31-12-2026',
+                    foto_profil LONGTEXT DEFAULT NULL,
+                    no_hp VARCHAR(50) DEFAULT '',
+                    email VARCHAR(100) DEFAULT '',
+                    alamat TEXT DEFAULT NULL,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+
+                $checkStmt = $pdo->prepare("SELECT id FROM tb_pegawai WHERE nip = ? OR pegawai_id = ?");
+                $checkStmt->execute([$nip, $newId]);
+                $exists = $checkStmt->fetch();
+
+                if ($exists) {
+                    $updateStmt = $pdo->prepare("UPDATE tb_pegawai SET nama=?, jabatan=?, golongan=?, divisi=?, system_role=?, approval_role=?, spt_role=?, role_label=?, pin_mesin=?, sisa_cuti=?, foto_profil=?, no_hp=?, email=?, alamat=? WHERE nip = ? OR pegawai_id = ?");
+                    $updateStmt->execute([
+                        $nama, $jabatan, $golongan, $divisi, $systemRole, $approvalRole, $sptRole, $roleLabel, $pinMesin, $sisaCuti, $fotoProfil, $noHp, $email, $alamat, $nip, $newId
+                    ]);
+                } else {
+                    $insertStmt = $pdo->prepare("INSERT INTO tb_pegawai (pegawai_id, nip, nama, password_year, jabatan, golongan, divisi, system_role, approval_role, spt_role, role_label, pin_mesin, sisa_cuti, cuti_terpakai, expired_cuti, foto_profil, no_hp, email, alamat) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                    $insertStmt->execute([
+                        $newId, $nip, $nama, $passwordYear, $jabatan, $golongan, $divisi, $systemRole, $approvalRole, $sptRole, $roleLabel, $pinMesin, $sisaCuti, $cutiTerpakai, $expiredCuti, $fotoProfil, $noHp, $email, $alamat
+                    ]);
+                }
+            } catch (\Throwable $e) {}
+        }
+
+        // 2. JSON Fallback Persistence
+        if ($existingIndex >= 0) {
+            $list[$existingIndex] = array_merge($list[$existingIndex], $newPegawai);
+        } else {
+            $list[] = $newPegawai;
+        }
+        saveFallbackPegawai($list);
+
+        jsonResponse([
+            'success' => true,
+            'message' => "Pegawai {$nama} berhasil ditambahkan ke database!",
+            'data' => $newPegawai
+        ], 201);
+    }
+
+    // PUT /api/users/:id or PUT /api/users/:id/role - Edit Pegawai oleh Admin
+    if ($method === 'PUT' && !empty($subAction) && $subAction !== 'profile') {
+        $targetId = $subAction;
+        $body = getJsonBody();
+
+        $nama = isset($body['nama']) ? trim($body['nama']) : null;
+        $jabatan = isset($body['jabatan']) ? trim($body['jabatan']) : null;
+        $golongan = isset($body['golongan']) ? trim($body['golongan']) : null;
+        $divisi = isset($body['divisi']) ? trim($body['divisi']) : null;
         $systemRole = $body['systemRole'] ?? null;
         $approvalRole = $body['approvalRole'] ?? null;
+        $sptRole = $body['sptRole'] ?? null;
         $pinMesin = isset($body['pinMesin']) ? trim((string)$body['pinMesin']) : null;
+        $sisaCuti = isset($body['sisaCuti']) ? (int)$body['sisaCuti'] : null;
+        $fotoProfil = isset($body['fotoProfil']) ? $body['fotoProfil'] : null;
+        $noHp = isset($body['noHp']) ? trim($body['noHp']) : null;
+        $email = isset($body['email']) ? trim($body['email']) : null;
+        $alamat = isset($body['alamat']) ? trim($body['alamat']) : null;
 
         $roleLabel = null;
         if ($approvalRole === 'admin') $roleLabel = 'Administrator Kepegawaian';
@@ -310,32 +538,55 @@ if ($route === 'users' || str_starts_with($route, 'users/')) {
         elseif ($approvalRole === 'verifikator_2') $roleLabel = 'Verifikator 2 (Kepala Bagian TU)';
         elseif ($approvalRole === 'pemohon') $roleLabel = 'Pegawai (Pemohon Cuti)';
 
+        // 1. Update MySQL
         if ($useMysql && $pdo) {
-            $fields = [];
-            $params = [];
-            if ($systemRole) { $fields[] = "system_role = ?"; $params[] = $systemRole; }
-            if ($approvalRole) { $fields[] = "approval_role = ?"; $params[] = $approvalRole; }
-            if ($roleLabel) { $fields[] = "role_label = ?"; $params[] = $roleLabel; }
-            if ($pinMesin !== null) { $fields[] = "pin_mesin = ?"; $params[] = $pinMesin; }
+            try {
+                $fields = [];
+                $params = [];
+                if ($nama !== null) { $fields[] = "nama = ?"; $params[] = $nama; }
+                if ($jabatan !== null) { $fields[] = "jabatan = ?"; $params[] = $jabatan; }
+                if ($golongan !== null) { $fields[] = "golongan = ?"; $params[] = $golongan; }
+                if ($divisi !== null) { $fields[] = "divisi = ?"; $params[] = $divisi; }
+                if ($systemRole !== null) { $fields[] = "system_role = ?"; $params[] = $systemRole; }
+                if ($approvalRole !== null) { $fields[] = "approval_role = ?"; $params[] = $approvalRole; }
+                if ($sptRole !== null) { $fields[] = "spt_role = ?"; $params[] = $sptRole; }
+                if ($roleLabel !== null) { $fields[] = "role_label = ?"; $params[] = $roleLabel; }
+                if ($pinMesin !== null) { $fields[] = "pin_mesin = ?"; $params[] = $pinMesin; }
+                if ($sisaCuti !== null) { $fields[] = "sisa_cuti = ?"; $params[] = $sisaCuti; }
+                if ($fotoProfil !== null) { $fields[] = "foto_profil = ?"; $params[] = $fotoProfil; }
+                if ($noHp !== null) { $fields[] = "no_hp = ?"; $params[] = $noHp; }
+                if ($email !== null) { $fields[] = "email = ?"; $params[] = $email; }
+                if ($alamat !== null) { $fields[] = "alamat = ?"; $params[] = $alamat; }
 
-            if (!empty($fields)) {
-                $params[] = $targetId;
-                $params[] = $targetId;
-                $sql = "UPDATE tb_pegawai SET " . implode(", ", $fields) . " WHERE pegawai_id = ? OR nip = ?";
-                $stmt = $pdo->prepare($sql);
-                $stmt->execute($params);
-            }
+                if (!empty($fields)) {
+                    $params[] = $targetId;
+                    $params[] = $targetId;
+                    $sql = "UPDATE tb_pegawai SET " . implode(", ", $fields) . " WHERE pegawai_id = ? OR nip = ?";
+                    $stmt = $pdo->prepare($sql);
+                    $stmt->execute($params);
+                }
+            } catch (\Throwable $e) {}
         }
 
-        // Also update fallback JSON
+        // 2. Update Fallback JSON
         $list = getFallbackPegawai();
         $updatedUser = null;
         foreach ($list as &$u) {
             if ($u['id'] === $targetId || $u['nip'] === $targetId) {
-                if ($systemRole) $u['systemRole'] = $systemRole;
-                if ($approvalRole) $u['approvalRole'] = $approvalRole;
-                if ($roleLabel) $u['roleLabel'] = $roleLabel;
+                if ($nama !== null) $u['nama'] = $nama;
+                if ($jabatan !== null) $u['jabatan'] = $jabatan;
+                if ($golongan !== null) $u['golongan'] = $golongan;
+                if ($divisi !== null) $u['divisi'] = $divisi;
+                if ($systemRole !== null) $u['systemRole'] = $systemRole;
+                if ($approvalRole !== null) $u['approvalRole'] = $approvalRole;
+                if ($sptRole !== null) $u['sptRole'] = $sptRole;
+                if ($roleLabel !== null) $u['roleLabel'] = $roleLabel;
                 if ($pinMesin !== null) $u['pinMesin'] = $pinMesin;
+                if ($sisaCuti !== null) $u['sisaCuti'] = $sisaCuti;
+                if ($fotoProfil !== null) $u['fotoProfil'] = $fotoProfil;
+                if ($noHp !== null) $u['noHp'] = $noHp;
+                if ($email !== null) $u['email'] = $email;
+                if ($alamat !== null) $u['alamat'] = $alamat;
                 $updatedUser = $u;
                 break;
             }
@@ -344,8 +595,32 @@ if ($route === 'users' || str_starts_with($route, 'users/')) {
 
         jsonResponse([
             'success' => true,
-            'message' => 'Role & data pegawai berhasil diperbarui',
+            'message' => 'Data pegawai berhasil diperbarui',
             'data' => $updatedUser ?? findPegawai($targetId, $pdo, $useMysql)
+        ]);
+    }
+
+    // DELETE /api/users/:id - Hapus Pegawai oleh Admin
+    if ($method === 'DELETE' && !empty($subAction)) {
+        $targetId = $subAction;
+
+        if ($useMysql && $pdo) {
+            try {
+                $stmt = $pdo->prepare("DELETE FROM tb_pegawai WHERE pegawai_id = ? OR nip = ?");
+                $stmt->execute([$targetId, $targetId]);
+            } catch (\Throwable $e) {}
+        }
+
+        // Delete from Fallback JSON
+        $list = getFallbackPegawai();
+        $filtered = array_values(array_filter($list, function($u) use ($targetId) {
+            return ($u['id'] !== $targetId && $u['nip'] !== $targetId);
+        }));
+        saveFallbackPegawai($filtered);
+
+        jsonResponse([
+            'success' => true,
+            'message' => 'Pegawai berhasil dihapus dari sistem'
         ]);
     }
 }
@@ -359,50 +634,54 @@ if ($route === 'cuti' || str_starts_with($route, 'cuti/')) {
     // Helper: load cuti items
     $loadCuti = function() use ($pdo, $useMysql, $cutiStoragePath) {
         if ($useMysql && $pdo) {
-            $stmt = $pdo->query("SELECT * FROM tb_cuti ORDER BY id DESC");
-            $rows = $stmt->fetchAll();
-            $result = [];
-            foreach ($rows as $r) {
-                $result[] = [
-                    'id' => $r['cuti_code'],
-                    'no' => (int)$r['no_urut'],
-                    'pegawaiId' => $r['pegawai_id'],
-                    'nip' => $r['nip'],
-                    'nama' => $r['nama'],
-                    'jabatan' => $r['jabatan'],
-                    'divisi' => $r['divisi'],
-                    'tanggalPengajuan' => $r['tanggal_pengajuan'],
-                    'tanggalMulai' => $r['tanggal_mulai'],
-                    'tanggalAkhir' => $r['tanggal_akhir'],
-                    'jumlahHari' => (int)$r['jumlah_hari'],
-                    'jatahTahun' => $r['jatah_tahun'],
-                    'jenisCuti' => $r['jenis_cuti'],
-                    'alasan' => $r['alasan'],
-                    'status' => $r['status'],
-                    'statusLabel' => $r['status_label'],
-                    'verifikasi' => [
-                        'tahap1' => [
-                            'roleRequired' => 'verifikator_1',
-                            'label' => 'Verifikasi 1: Atasan Langsung / Ketimker',
-                            'status' => $r['verif_1_status'],
-                            'verifikatorNama' => $r['verif_1_nama'],
-                            'verifikatorNip' => $r['verif_1_nip'],
-                            'tanggal' => $r['verif_1_tanggal'],
-                            'catatan' => $r['verif_1_catatan']
-                        ],
-                        'tahap2' => [
-                            'roleRequired' => 'verifikator_2',
-                            'label' => 'Verifikasi 2: Kepala Bagian TU (Final)',
-                            'status' => $r['verif_2_status'],
-                            'verifikatorNama' => $r['verif_2_nama'],
-                            'verifikatorNip' => $r['verif_2_nip'],
-                            'tanggal' => $r['verif_2_tanggal'],
-                            'catatan' => $r['verif_2_catatan']
-                        ]
-                    ]
-                ];
-            }
-            if (!empty($result)) return $result;
+            try {
+                $stmt = $pdo->query("SELECT * FROM tb_cuti ORDER BY id DESC");
+                $rows = ($stmt && is_object($stmt)) ? $stmt->fetchAll() : [];
+                $result = [];
+                if (!empty($rows)) {
+                    foreach ($rows as $r) {
+                        $result[] = [
+                            'id' => $r['cuti_code'],
+                            'no' => (int)$r['no_urut'],
+                            'pegawaiId' => $r['pegawai_id'],
+                            'nip' => $r['nip'],
+                            'nama' => $r['nama'],
+                            'jabatan' => $r['jabatan'],
+                            'divisi' => $r['divisi'],
+                            'tanggalPengajuan' => $r['tanggal_pengajuan'],
+                            'tanggalMulai' => $r['tanggal_mulai'],
+                            'tanggalAkhir' => $r['tanggal_akhir'],
+                            'jumlahHari' => (int)$r['jumlah_hari'],
+                            'jatahTahun' => $r['jatah_tahun'],
+                            'jenisCuti' => $r['jenis_cuti'],
+                            'alasan' => $r['alasan'],
+                            'status' => $r['status'],
+                            'statusLabel' => $r['status_label'],
+                            'verifikasi' => [
+                                'tahap1' => [
+                                    'roleRequired' => 'verifikator_1',
+                                    'label' => 'Verifikasi 1: Atasan Langsung / Ketimker',
+                                    'status' => $r['verif_1_status'],
+                                    'verifikatorNama' => $r['verif_1_nama'],
+                                    'verifikatorNip' => $r['verif_1_nip'],
+                                    'tanggal' => $r['verif_1_tanggal'],
+                                    'catatan' => $r['verif_1_catatan']
+                                ],
+                                'tahap2' => [
+                                    'roleRequired' => 'verifikator_2',
+                                    'label' => 'Verifikasi 2: Kepala Bagian TU (Final)',
+                                    'status' => $r['verif_2_status'],
+                                    'verifikatorNama' => $r['verif_2_nama'],
+                                    'verifikatorNip' => $r['verif_2_nip'],
+                                    'tanggal' => $r['verif_2_tanggal'],
+                                    'catatan' => $r['verif_2_catatan']
+                                ]
+                            ]
+                        ];
+                    }
+                    return $result;
+                }
+            } catch (\Throwable $e) {}
         }
 
         // Fallback JSON
@@ -563,14 +842,18 @@ if ($route === 'cuti' || str_starts_with($route, 'cuti/')) {
         $saveCuti($history);
 
         if ($useMysql && $pdo) {
-            $stmt = $pdo->prepare("INSERT INTO tb_cuti (cuti_code, no_urut, pegawai_id, nip, nama, jabatan, divisi, tanggal_pengajuan, tanggal_mulai, tanggal_akhir, jumlah_hari, jatah_tahun, jenis_cuti, alasan, status, status_label) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-            $stmt->execute([
-                $cutiCode, $newNum, $newItem['pegawaiId'], $newItem['nip'], $newItem['nama'],
-                $newItem['jabatan'], $newItem['divisi'], $newItem['tanggalPengajuan'],
-                $newItem['tanggalMulai'], $newItem['tanggalAkhir'], $newItem['jumlahHari'],
-                $newItem['jatahTahun'], $newItem['jenisCuti'], $newItem['alasan'],
-                $newItem['status'], $newItem['statusLabel']
-            ]);
+            try {
+                $stmt = $pdo->prepare("INSERT INTO tb_cuti (cuti_code, no_urut, pegawai_id, nip, nama, jabatan, divisi, tanggal_pengajuan, tanggal_mulai, tanggal_akhir, jumlah_hari, jatah_tahun, jenis_cuti, alasan, status, status_label) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                if ($stmt && is_object($stmt)) {
+                    $stmt->execute([
+                        $cutiCode, $newNum, $newItem['pegawaiId'], $newItem['nip'], $newItem['nama'],
+                        $newItem['jabatan'], $newItem['divisi'], $newItem['tanggalPengajuan'],
+                        $newItem['tanggalMulai'], $newItem['tanggalAkhir'], $newItem['jumlahHari'],
+                        $newItem['jatahTahun'], $newItem['jenisCuti'], $newItem['alasan'],
+                        $newItem['status'], $newItem['statusLabel']
+                    ]);
+                }
+            } catch (\Throwable $e) {}
         }
 
         jsonResponse([
@@ -630,8 +913,12 @@ if ($route === 'cuti' || str_starts_with($route, 'cuti/')) {
                         if ($item['jenisCuti'] === 'Tahunan') {
                             $days = (int)$item['jumlahHari'];
                             if ($useMysql && $pdo) {
-                                $stmt = $pdo->prepare("UPDATE tb_pegawai SET sisa_cuti = GREATEST(0, sisa_cuti - ?), cuti_terpakai = cuti_terpakai + ? WHERE nip = ? OR pegawai_id = ?");
-                                $stmt->execute([$days, $days, $item['nip'], $item['pegawaiId']]);
+                                try {
+                                    $stmt = $pdo->prepare("UPDATE tb_pegawai SET sisa_cuti = GREATEST(0, sisa_cuti - ?), cuti_terpakai = cuti_terpakai + ? WHERE nip = ? OR pegawai_id = ?");
+                                    if ($stmt && is_object($stmt)) {
+                                        $stmt->execute([$days, $days, $item['nip'], $item['pegawaiId']]);
+                                    }
+                                } catch (\Throwable $e) {}
                             }
                         }
                     } else {
@@ -652,16 +939,20 @@ if ($route === 'cuti' || str_starts_with($route, 'cuti/')) {
         if ($found) {
             $saveCuti($history);
             if ($useMysql && $pdo && $targetItem) {
-                $stmt = $pdo->prepare("UPDATE tb_cuti SET status = ?, status_label = ?, verif_1_status = ?, verif_1_nama = ?, verif_1_nip = ?, verif_1_tanggal = ?, verif_1_catatan = ?, verif_2_status = ?, verif_2_nama = ?, verif_2_nip = ?, verif_2_tanggal = ?, verif_2_catatan = ? WHERE cuti_code = ?");
-                $stmt->execute([
-                    $targetItem['status'], $targetItem['statusLabel'],
-                    $targetItem['verifikasi']['tahap1']['status'], $targetItem['verifikasi']['tahap1']['verifikatorNama'],
-                    $targetItem['verifikasi']['tahap1']['verifikatorNip'], $targetItem['verifikasi']['tahap1']['tanggal'],
-                    $targetItem['verifikasi']['tahap1']['catatan'], $targetItem['verifikasi']['tahap2']['status'],
-                    $targetItem['verifikasi']['tahap2']['verifikatorNama'], $targetItem['verifikasi']['tahap2']['verifikatorNip'],
-                    $targetItem['verifikasi']['tahap2']['tanggal'], $targetItem['verifikasi']['tahap2']['catatan'],
-                    $cutiId
-                ]);
+                try {
+                    $stmt = $pdo->prepare("UPDATE tb_cuti SET status = ?, status_label = ?, verif_1_status = ?, verif_1_nama = ?, verif_1_nip = ?, verif_1_tanggal = ?, verif_1_catatan = ?, verif_2_status = ?, verif_2_nama = ?, verif_2_nip = ?, verif_2_tanggal = ?, verif_2_catatan = ? WHERE cuti_code = ?");
+                    if ($stmt && is_object($stmt)) {
+                        $stmt->execute([
+                            $targetItem['status'], $targetItem['statusLabel'],
+                            $targetItem['verifikasi']['tahap1']['status'], $targetItem['verifikasi']['tahap1']['verifikatorNama'],
+                            $targetItem['verifikasi']['tahap1']['verifikatorNip'], $targetItem['verifikasi']['tahap1']['tanggal'],
+                            $targetItem['verifikasi']['tahap1']['catatan'], $targetItem['verifikasi']['tahap2']['status'],
+                            $targetItem['verifikasi']['tahap2']['verifikatorNama'], $targetItem['verifikasi']['tahap2']['verifikatorNip'],
+                            $targetItem['verifikasi']['tahap2']['tanggal'], $targetItem['verifikasi']['tahap2']['catatan'],
+                            $cutiId
+                        ]);
+                    }
+                } catch (\Throwable $e) {}
             }
             jsonResponse([
                 'success' => true,

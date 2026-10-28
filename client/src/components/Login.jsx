@@ -1,103 +1,39 @@
 import React, { useState } from 'react';
 import { apiService } from '../services/api';
 import { 
-  ShieldCheck, 
-  LogIn, 
+  Eye, 
+  EyeOff, 
   AlertCircle, 
-  KeyRound, 
-  User, 
-  CheckCircle2, 
-  UserCheck, 
-  ShieldAlert,
-  ArrowRight,
-  Sparkles
+  LogIn, 
+  CheckCircle2 
 } from 'lucide-react';
 
 export default function Login({ onLoginSuccess }) {
-  const [username, setUsername] = useState('admin');
-  const [password, setPassword] = useState('admin');
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // 6 Demo Accounts for testing each specific official role
-  const demoAccounts = [
-    {
-      roleTag: "SUPER ADMIN",
-      title: "Administrator Kepegawaian",
-      desc: "Superadmin sistem, pantau cuti, ADMS & supervisi semua modul",
-      nip: "admin",
-      pass: "admin",
-      badgeColor: "#dc2626",
-      badgeBg: "#fee2e2",
-      borderColor: "#fca5a5"
-    },
-    {
-      roleTag: "ADMIN SEKRETARIAT",
-      title: "Novita Widiyanti, A.Md",
-      desc: "Tata persuratan, penomoran resmi SPT, konsiderans menimbang & dasar",
-      nip: "199111042023212041",
-      pass: "1991",
-      badgeColor: "#0284c7",
-      badgeBg: "#e0f2fe",
-      borderColor: "#7dd3fc"
-    },
-    {
-      roleTag: "KOBAG TU",
-      title: "Agung Ariyanto, M.Ec., Dev.",
-      desc: "Approval Utama SPT (Tahap 2) & Verifikator 2 Cuti",
-      nip: "198101312009121004",
-      pass: "1981",
-      badgeColor: "#7c3aed",
-      badgeBg: "#f3e8ff",
-      borderColor: "#d8b4fe"
-    },
-    {
-      roleTag: "KETIMKER",
-      title: "Dwi Dinia Rahayu, M.T.I",
-      desc: "Approval Unit Kerja SPT (Tahap 1) & Verifikator 1 Cuti",
-      nip: "198604092011012024",
-      pass: "1986",
-      badgeColor: "#16a34a",
-      badgeBg: "#dcfce7",
-      borderColor: "#86efac"
-    },
-    {
-      roleTag: "KOPOKS",
-      title: "Dr. Fibrianty, SP, M.Si",
-      desc: "Monitoring penugasan & rekapitulasi balai",
-      nip: "197402062000032001",
-      pass: "1974",
-      badgeColor: "#d97706",
-      badgeBg: "#fef3c7",
-      borderColor: "#fde68a"
-    },
-    {
-      roleTag: "PEMOHON / PEGAWAI",
-      title: "Devi Eka Nuvitasari, S.H.",
-      desc: "Pengajuan mandiri SPT, tracking & pengajuan cuti",
-      nip: "198906012015032004",
-      pass: "1989",
-      badgeColor: "#16a34a",
-      badgeBg: "#dcfce7",
-      borderColor: "#86efac"
-    }
-  ];
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await doLogin(username, password);
+    await executeLogin(username, password);
   };
 
-  const doLogin = async (usr, pwd) => {
+  const executeLogin = async (usr, pwd) => {
     setError('');
     setLoading(true);
 
     try {
       const res = await apiService.login(usr, pwd);
-      if (res.success) {
+      if (res && res.success && res.data) {
+        if (res.data.id === 'PEG-DEMO' || res.data.nama === 'PEGAWAI BRMP DIY') {
+          setError(`NIP / Username "${usr}" tidak terdaftar di sistem kepegawaian BRMP DIY.`);
+          return;
+        }
         onLoginSuccess(res.data);
       } else {
-        setError(res.message || 'Login gagal, periksa NIP dan password.');
+        setError(res?.message || 'Login gagal, periksa NIP dan password.');
       }
     } catch (err) {
       setError(err.message || 'Terjadi kesalahan saat menghubungi server.');
@@ -106,225 +42,315 @@ export default function Login({ onLoginSuccess }) {
     }
   };
 
-  // Quick 1-click test login
-  const handleQuickLogin = (acc) => {
-    setUsername(acc.nip);
-    setPassword(acc.pass);
-    doLogin(acc.nip, acc.pass);
-  };
-
   return (
-    <div className="login-screen">
-      <div className="login-card-container">
-        
-        {/* Left Side: Login Form */}
-        <div className="login-form-pane">
-          {/* Logo BRMP DIY */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '1.5rem' }}>
-            <div style={{ 
-              width: '44px', height: '44px', 
-              background: 'linear-gradient(135deg, #166534, #16a34a)', 
-              borderRadius: '10px', display: 'flex', alignItems: 'center', 
-              justifyContent: 'center', color: '#fff', 
-              boxShadow: '0 4px 12px rgba(22,163,74,0.35)',
-              border: '1.5px solid rgba(217, 119, 6, 0.25)'
-            }}>
-              <ShieldCheck size={26} />
-            </div>
-            <div>
-              <div style={{ fontSize: '1.2rem', fontWeight: 800, color: '#0a1f0e', letterSpacing: '-0.5px' }}>
-                BRMP <span style={{ color: '#16a34a' }}>DIY</span>
-              </div>
-              <div style={{ fontSize: '0.75rem', color: '#4b7c5a', fontWeight: 600 }}>
-                Sistem Kepegawaian Internal
-              </div>
-            </div>
-          </div>
-
-          <h2 style={{ fontSize: '1.35rem', fontWeight: 800, color: '#0a1f0e', marginBottom: '0.25rem' }}>
-            Login Pegawai
-          </h2>
-          <p style={{ fontSize: '0.8rem', color: '#4b7c5a', marginBottom: '1.5rem' }}>
-            Masuk dengan NIP/Username untuk mengakses modul cuti
-          </p>
-
-          {error && (
-            <div style={{
-              background: '#fee2e2',
-              border: '1px solid #fca5a5',
-              color: '#b91c1c',
-              padding: '10px 14px',
-              borderRadius: '8px',
-              fontSize: '0.85rem',
-              marginBottom: '1rem',
+    <div 
+      style={{
+        minHeight: '100vh',
+        width: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: 'radial-gradient(circle at 50% 40%, #10b981 0%, #059669 45%, #047857 85%, #064e3b 100%)',
+        padding: '1.5rem',
+        boxSizing: 'border-box',
+        position: 'relative'
+      }}
+    >
+      {/* Centered Floating White Login Card */}
+      <div 
+        style={{
+          width: '100%',
+          maxWidth: '380px',
+          background: '#ffffff',
+          borderRadius: '16px',
+          padding: '2.5rem 2.25rem 2rem',
+          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 10px 25px -5px rgba(0, 0, 0, 0.15)',
+          border: '1px solid rgba(255, 255, 255, 0.4)',
+          boxSizing: 'border-box',
+          position: 'relative',
+          zIndex: 10
+        }}
+      >
+        {/* Header Logo (Emblem Kementan + BRMP DIY) */}
+        <div 
+          style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'center', 
+            gap: '10px', 
+            marginBottom: '0.75rem' 
+          }}
+        >
+          {/* Circular Gold/Green Kementan Emblem */}
+          <div 
+            style={{
+              width: '44px',
+              height: '44px',
+              borderRadius: '50%',
+              background: '#fef08a',
+              border: '2.5px solid #eab308',
               display: 'flex',
               alignItems: 'center',
-              gap: '8px'
-            }}>
-              <AlertCircle size={16} style={{ flexShrink: 0 }} />
-              <span>{error}</span>
-            </div>
-          )}
+              justifyContent: 'center',
+              boxShadow: '0 2px 6px rgba(234, 179, 8, 0.3)',
+              overflow: 'hidden'
+            }}
+          >
+            <img 
+              src="/logo-kementan.png" 
+              alt="Logo BRMP" 
+              style={{ width: '82%', height: '82%', objectFit: 'contain' }}
+              onError={(e) => {
+                // Fallback SVG icon if png is missing
+                e.target.style.display = 'none';
+              }} 
+            />
+          </div>
 
-          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.1rem' }}>
-            <div className="form-group">
-              <label className="form-label" style={{ fontWeight: 700, fontSize: '0.85rem' }}>Username / NIP</label>
-              <div style={{ position: 'relative' }}>
-                <input
-                  type="text"
-                  className="form-input"
-                  placeholder="admin atau NIP Pegawai"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  required
-                  style={{ paddingLeft: '38px', height: '42px' }}
-                />
-                <User size={16} style={{ position: 'absolute', left: '12px', top: '13px', color: '#94a3b8' }} />
-              </div>
-            </div>
-
-            <div className="form-group">
-              <label className="form-label" style={{ fontWeight: 700, fontSize: '0.85rem' }}>Password</label>
-              <div style={{ position: 'relative' }}>
-                <input
-                  type="password"
-                  className="form-input"
-                  placeholder="admin atau tahun lahir"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  style={{ paddingLeft: '38px', height: '42px' }}
-                />
-                <KeyRound size={16} style={{ position: 'absolute', left: '12px', top: '13px', color: '#94a3b8' }} />
-              </div>
-            </div>
-
-            <button 
-              type="submit" 
-              className="btn-primary" 
-              disabled={loading}
-              style={{
-                width: '100%',
-                marginTop: '0.5rem',
-                height: '44px',
-                background: 'linear-gradient(135deg, #16a34a 0%, #15803d 100%)',
-                color: '#fff',
-                fontWeight: 700,
-                fontSize: '0.95rem',
-                borderRadius: '8px',
-                border: 'none',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '8px',
-                boxShadow: '0 4px 14px rgba(22,163,74,0.32)'
+          {/* Typography SI-AP BRMP DIY */}
+          <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1 }}>
+            <span 
+              style={{ 
+                fontSize: '1.75rem', 
+                fontWeight: 900, 
+                color: '#064e3b', 
+                letterSpacing: '-0.03em',
+                fontFamily: 'var(--font-sans)'
               }}
             >
-              {loading ? (
-                <span>Memproses...</span>
-              ) : (
-                <>
-                  <LogIn size={18} />
-                  <span>Masuk ke Sistem</span>
-                </>
-              )}
-            </button>
-          </form>
-
-          <p style={{
-            marginTop: '1.25rem',
-            fontSize: '0.75rem',
-            color: '#64748b',
-            textAlign: 'center'
-          }}>
-            Badan Riset dan Standardisasi Pertanian DIY
-          </p>
+              SI-AP
+            </span>
+            <span 
+              style={{ 
+                fontSize: '0.82rem', 
+                fontWeight: 800, 
+                color: '#059669', 
+                letterSpacing: '0.08em',
+                marginTop: '1px'
+              }}
+            >
+              BRMP DIY
+            </span>
+          </div>
         </div>
 
-        {/* Right Side: 4 Akun untuk Masing-Masing Role (1-Click Test) */}
-        <div className="login-demo-pane">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '0.5rem' }}>
-            <Sparkles size={18} style={{ color: '#d97706' }} />
-            <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 800, color: '#0a1f0e' }}>
-              Pilih Akun untuk Pengujian Role
-            </h3>
-          </div>
-          <p style={{ margin: '0 0 1.25rem 0', fontSize: '0.8rem', color: '#4b7c5a' }}>
-            Klik salah satu akun di bawah ini untuk <strong>langsung masuk (1-Click Login)</strong> dan menguji wewenang masing-masing role:
-          </p>
+        {/* Subtitle "Portal Presensi & Kepegawaian" */}
+        <h2 
+          style={{
+            fontSize: '1.05rem',
+            fontWeight: 600,
+            color: '#475569',
+            textAlign: 'center',
+            marginBottom: '1.75rem',
+            letterSpacing: '0.01em'
+          }}
+        >
+          Portal Presensi & Kepegawaian
+        </h2>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-            {demoAccounts.map((acc, index) => (
-              <div
-                key={index}
-                onClick={() => handleQuickLogin(acc)}
+        {/* Error Alert Box */}
+        {error && (
+          <div 
+            style={{
+              background: '#fef2f2',
+              border: '1px solid #fecaca',
+              color: '#dc2626',
+              padding: '8px 12px',
+              borderRadius: '8px',
+              fontSize: '0.8rem',
+              marginBottom: '1.25rem',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px'
+            }}
+          >
+            <AlertCircle size={15} style={{ flexShrink: 0 }} />
+            <span>{error}</span>
+          </div>
+        )}
+
+        {/* Main Form with Underline Inputs matching image */}
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+          {/* NIP Field */}
+          <div>
+            <label 
+              style={{
+                display: 'block',
+                fontSize: '0.78rem',
+                color: '#64748b',
+                fontWeight: 600,
+                marginBottom: '4px'
+              }}
+            >
+              Nomor Induk Pegawai (NIP)
+            </label>
+            <input
+              type="text"
+              required
+              className="login-underline-input"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              placeholder="Masukkan 18 Digit NIP"
+              style={{
+                width: '100%',
+                border: 'none',
+                borderBottom: '1.5px solid #cbd5e1',
+                borderRadius: '0',
+                padding: '8px 2px',
+                fontSize: '0.92rem',
+                color: '#1e293b',
+                fontWeight: 500,
+                outline: 'none',
+                background: 'transparent',
+                transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
+                boxSizing: 'border-box'
+              }}
+              onFocus={(e) => {
+                e.target.style.borderBottomColor = '#059669';
+                e.target.style.boxShadow = '0 1px 0 0 #059669';
+              }}
+              onBlur={(e) => {
+                e.target.style.borderBottomColor = '#cbd5e1';
+                e.target.style.boxShadow = 'none';
+              }}
+            />
+          </div>
+
+          {/* Password Field */}
+          <div style={{ position: 'relative' }}>
+            <label 
+              style={{
+                display: 'block',
+                fontSize: '0.78rem',
+                color: '#64748b',
+                fontWeight: 600,
+                marginBottom: '4px'
+              }}
+            >
+              Password
+            </label>
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              <input
+                type={showPassword ? 'text' : 'password'}
+                required
+                className="login-underline-input"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Masukkan Password"
                 style={{
-                  background: '#ffffff',
-                  border: `1.5px solid ${acc.borderColor}`,
-                  borderRadius: '10px',
-                  padding: '12px 14px',
+                  width: '100%',
+                  border: 'none',
+                  borderBottom: '1.5px solid #cbd5e1',
+                  borderRadius: '0',
+                  padding: '8px 30px 8px 2px',
+                  fontSize: '0.92rem',
+                  color: '#1e293b',
+                  fontWeight: 500,
+                  outline: 'none',
+                  background: 'transparent',
+                  transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
+                  boxSizing: 'border-box'
+                }}
+                onFocus={(e) => {
+                  e.target.style.borderBottomColor = '#059669';
+                  e.target.style.boxShadow = '0 1px 0 0 #059669';
+                }}
+                onBlur={(e) => {
+                  e.target.style.borderBottomColor = '#cbd5e1';
+                  e.target.style.boxShadow = 'none';
+                }}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                style={{
+                  position: 'absolute',
+                  right: '2px',
+                  bottom: '8px',
+                  background: 'none',
+                  border: 'none',
                   cursor: 'pointer',
-                  transition: 'all 0.2s',
+                  color: '#94a3b8',
+                  padding: '2px',
                   display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  boxShadow: '0 2px 6px rgba(0,0,0,0.03)'
+                  alignItems: 'center'
                 }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = 'translateY(-2px)';
-                  e.currentTarget.style.boxShadow = '0 6px 16px rgba(0,0,0,0.08)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = 'translateY(0)';
-                  e.currentTarget.style.boxShadow = '0 2px 6px rgba(0,0,0,0.03)';
-                }}
+                title={showPassword ? "Sembunyikan password" : "Tampilkan password"}
               >
-                <div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '3px' }}>
-                    <span style={{
-                      background: acc.badgeBg,
-                      color: acc.badgeColor,
-                      fontSize: '0.68rem',
-                      fontWeight: 800,
-                      padding: '2px 8px',
-                      borderRadius: '4px',
-                      letterSpacing: '0.3px'
-                    }}>
-                      {acc.roleTag}
-                    </span>
-                    <strong style={{ fontSize: '0.85rem', color: '#1e293b' }}>{acc.title}</strong>
-                  </div>
-                  <div style={{ fontSize: '0.72rem', color: '#64748b' }}>
-                    {acc.desc}
-                  </div>
-                  <div style={{ fontSize: '0.7rem', color: '#94a3b8', marginTop: '3px' }}>
-                    User: <code>{acc.nip}</code> | Pass: <code>{acc.pass}</code>
-                  </div>
-                </div>
-
-                <div style={{
-                  width: '32px',
-                  height: '32px',
-                  borderRadius: '50%',
-                  background: '#f1f5f9',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: '#16a34a',
-                  flexShrink: 0
-                }}>
-                  <ArrowRight size={16} />
-                </div>
-              </div>
-            ))}
+                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+              </button>
+            </div>
           </div>
 
-          <div style={{ marginTop: 'auto', paddingTop: '1.25rem', fontSize: '0.75rem', color: '#64748b' }}>
-            💡 <em>Di dalam aplikasi nanti, Anda juga bisa mengganti peran kapan saja melalui tombol <strong>"Ganti Peran"</strong> di pojok kanan atas.</em>
-          </div>
-        </div>
+          {/* Signin Button (Enhanced Edges, Crisp Border & High Contrast Elevation) */}
+          <button
+            type="submit"
+            disabled={loading}
+            style={{
+              width: '100%',
+              marginTop: '0.75rem',
+              padding: '12px 20px',
+              background: 'linear-gradient(180deg, #059669 0%, #047857 50%, #064e3b 100%)',
+              color: '#ffffff',
+              fontSize: '1rem',
+              fontWeight: 700,
+              letterSpacing: '0.02em',
+              borderRadius: '10px',
+              border: '2px solid #064e3b', // Sisi button diperjelas dan tegas
+              outline: '1px solid rgba(255, 255, 255, 0.2)', // Double stroke highlight
+              boxShadow: '0 4px 12px rgba(6, 78, 59, 0.35), 0 2px 4px rgba(0, 0, 0, 0.1)',
+              cursor: loading ? 'not-allowed' : 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px',
+              transition: 'all 0.2s ease-in-out'
+            }}
+            onMouseEnter={(e) => {
+              if (!loading) {
+                e.currentTarget.style.background = 'linear-gradient(180deg, #047857 0%, #064e3b 100%)';
+                e.currentTarget.style.borderColor = '#022c22';
+                e.currentTarget.style.transform = 'translateY(-1px)';
+                e.currentTarget.style.boxShadow = '0 8px 20px rgba(6, 78, 59, 0.45), 0 4px 6px rgba(0, 0, 0, 0.15)';
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (!loading) {
+                e.currentTarget.style.background = 'linear-gradient(180deg, #059669 0%, #047857 50%, #064e3b 100%)';
+                e.currentTarget.style.borderColor = '#064e3b';
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = '0 4px 12px rgba(6, 78, 59, 0.35), 0 2px 4px rgba(0, 0, 0, 0.1)';
+              }
+            }}
+            onMouseDown={(e) => {
+              if (!loading) {
+                e.currentTarget.style.transform = 'translateY(1px)';
+                e.currentTarget.style.boxShadow = '0 2px 6px rgba(6, 78, 59, 0.3)';
+              }
+            }}
+          >
+            {loading ? (
+              <span>Memproses...</span>
+            ) : (
+              <span>Signin</span>
+            )}
+          </button>
+        </form>
+      </div>
 
+      {/* Footer Branding Text */}
+      <div 
+        style={{
+          marginTop: '1.5rem',
+          fontSize: '0.75rem',
+          color: 'rgba(255, 255, 255, 0.85)',
+          textAlign: 'center',
+          letterSpacing: '0.02em',
+          fontWeight: 600
+        }}
+      >
+        Balai Besar Penerapan Modernisasi Pertanian Daerah Istimewa Yogyakarta
       </div>
     </div>
   );

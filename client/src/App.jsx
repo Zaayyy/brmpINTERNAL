@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import Navbar from './components/Navbar';
 import Sidebar from './components/Sidebar';
 import Login from './components/Login';
@@ -9,7 +9,8 @@ import AdmsMonitor from './components/AdmsMonitor';
 import PengajuanCuti from './components/PengajuanCuti';
 import PengaturanAkun from './components/PengaturanAkun';
 import SptProgram from './spt/SptProgram';
-import { AdminDashboard, AdminLogin } from './admin';
+import AdminDashboard from './admin/AdminDashboard';
+import AdminLogin from './admin/AdminLogin';
 import { getStoredAvatar } from './services/api';
 import { 
   LayoutDashboard, 
@@ -165,7 +166,7 @@ export default function App() {
 
   return (
     <div className="app-shell" style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', background: 'var(--bg-app)' }}>
-      {/* Top Header Navbar with Quick Role Switcher */}
+      {/* Top Header Navbar */}
       <Navbar 
         user={user} 
         currentView={currentView}
@@ -198,12 +199,23 @@ export default function App() {
           isUserAdmin={isUserAdmin}
           isOpen={isMobileMenuOpen}
           onClose={() => setIsMobileMenuOpen(false)}
+          onLogout={handleLogout}
         />
 
         {/* Dynamic Main View */}
         <main className={`main-content ${isSptView ? 'flush-view' : ''}`}>
           {currentView === 'dashboard' && (
-            <DashboardView user={user} onNavigate={setCurrentView} />
+            (isUserAdmin && isAdminRoute) ? (
+              <AdminDashboard 
+                user={user} 
+                onNavigate={setCurrentView} 
+                onUpdateUser={handleSwitchUser} 
+                onLogout={handleLogout} 
+                initialTab="dashboard" 
+              />
+            ) : (
+              <DashboardView user={user} onNavigate={setCurrentView} />
+            )
           )}
 
           {/* Admin Dashboard & Management Views */}

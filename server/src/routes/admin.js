@@ -1,2 +1,3 @@
-export { default } from '../admin/routes.js';
-export * from '../admin/routes.js';
+// Re-export router dari server/src/admin untuk backward-compatibility
+export { default } from '../admin/index.js';
+export * from '../admin/index.js';

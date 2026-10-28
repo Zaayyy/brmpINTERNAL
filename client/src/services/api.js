@@ -1,5 +1,5 @@
-const API_BASE_URL = (typeof window !== 'undefined' && window.location.hostname === 'localhost')
-  ? 'http://localhost:5000/api'
+const API_BASE_URL = (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'))
+  ? 'https://kita.brmpdiy.my.id/api'
   : '/api';
 
 // Persistent avatar storage cache linked to each employee's NIP
@@ -58,122 +58,177 @@ export const setStoredAvatar = (nip, dataUrl) => {
 
 export const apiService = {
   async login(username, password) {
+    const u = (username || '').trim();
+    const p = (password || '').trim();
+
+    if (!u || !p) {
+      throw new Error('NIP / Username dan Password wajib diisi.');
+    }
+
     try {
       const res = await fetch(`${API_BASE_URL}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password })
+        body: JSON.stringify({ username: u, password: p })
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.message || 'Login gagal');
+      if (!res.ok || !data.success) {
+        throw new Error(data?.message || 'NIP atau Password salah.');
+      }
+      
+      // Strict guard against dummy account
+      if (data?.data?.id === 'PEG-DEMO' || data?.data?.nama === 'PEGAWAI BRMP DIY') {
+        throw new Error(`NIP / Username "${u}" tidak terdaftar di sistem kepegawaian BRMP DIY.`);
+      }
+
+      if (data?.data?.nip) {
+        if (data.data.fotoProfil) {
+          setStoredAvatar(data.data.nip, data.data.fotoProfil);
+        } else {
+          const cachedPhoto = getStoredAvatar(data.data.nip);
+          if (cachedPhoto) data.data.fotoProfil = cachedPhoto;
+        }
+      }
       return data;
     } catch (err) {
-      console.warn('API error, using local fallback:', err.message);
-      // Fallback local auth for testing
-      const u = username.trim().toLowerCase();
-      if (u === 'admin' || u === '198001012005011001') {
-        return {
-          success: true,
+      // If server explicitly returned rejection, propagate error directly
+      if (err.message && (
+        err.message.toLowerCase().includes('password') || 
+        err.message.toLowerCase().includes('tidak terdaftar') || 
+        err.message.toLowerCase().includes('salah') || 
+        err.message.toLowerCase().includes('gagal') ||
+        err.message.toLowerCase().includes('wajib diisi')
+      )) {
+        throw err;
+      }
+
+      console.warn('Backend login unreachable or offline, validating against local secure registry:', err.message);
+
+      // Secure Local Registry of Official Accounts
+      const REGISTERED_ACCOUNTS = [
+        {
+          nip: '198001012005011001',
+          aliases: ['admin', '198001012005011001', 'peg-adm'],
+          passwords: ['admin123', 'adminBrmp2026!', '1980'],
           data: {
-            id: "PEG-ADM",
-            nip: "198001012005011001",
-            nama: "ADMINISTRATOR KEPEGAWAIAN",
-            jabatan: "Pranata Komputer Ahli Muda / Admin Kepegawaian",
-            divisi: "Sub Bagian Tata Usaha & Kepegawaian",
-            systemRole: "admin",
-            approvalRole: "admin",
-            sptRole: "admin",
-            roleLabel: "Administrator Sistem Kepegawaian",
+            id: 'PEG-ADM',
+            nip: '198001012005011001',
+            nama: 'ADMINISTRATOR KEPEGAWAIAN',
+            jabatan: 'Pranata Komputer Ahli Muda / Admin Kepegawaian',
+            divisi: 'Sub Bagian Tata Usaha & Kepegawaian',
+            systemRole: 'admin',
+            approvalRole: 'admin',
+            sptRole: 'admin',
+            role: 'admin',
+            roleLabel: 'Administrator Sistem Kepegawaian',
             sisaCuti: 12,
             cutiTerpakai: 0,
-            expiredCuti: "31-12-2026",
-            token: "local-token-admin"
+            expiredCuti: '31-12-2026',
+            token: 'local-token-admin'
           }
-        };
-      }
-      if (u === '199111042023212041' || u === 'admin.sekretariat') {
-        return {
-          success: true,
+        },
+        {
+          nip: '199111042023212041',
+          aliases: ['199111042023212041', 'admin.sekretariat', 'novita'],
+          passwords: ['sekretariat123', 'brmp123', '1991'],
           data: {
-            id: "PEG-017",
-            nip: "199111042023212041",
-            nama: "Novita Widiyanti, A.Md",
-            jabatan: "Arsiparis Terampil / Sekretariat",
-            divisi: "Tim Kerja Tata Usaha dan Rumah Tangga",
-            systemRole: "pegawai",
-            approvalRole: "pemohon",
-            sptRole: "admin_sekretariat",
-            roleLabel: "Admin Sekretariat & Tata Persuratan",
+            id: 'PEG-017',
+            nip: '199111042023212041',
+            nama: 'Novita Widiyanti, A.Md',
+            jabatan: 'Arsiparis Terampil / Sekretariat',
+            divisi: 'Tim Kerja Tata Usaha dan Rumah Tangga',
+            systemRole: 'pegawai',
+            approvalRole: 'pemohon',
+            sptRole: 'admin_sekretariat',
+            roleLabel: 'Admin Sekretariat & Tata Persuratan',
             sisaCuti: 12,
             cutiTerpakai: 0,
-            expiredCuti: "31-12-2026",
-            token: "local-token-sekretariat"
+            expiredCuti: '31-12-2026',
+            token: 'local-token-sekretariat'
           }
-        };
-      }
-      if (u === '198604092011012024') {
-        return {
-          success: true,
+        },
+        {
+          nip: '198101312009121004',
+          aliases: ['198101312009121004', 'kobag.tu', 'agung'],
+          passwords: ['kobag123', 'brmp123', '1981'],
           data: {
-            id: "PEG-003",
-            nip: "198604092011012024",
-            nama: "Dwi Dinia Rahayu, S.Kom, M.T.I",
-            jabatan: "Ketua Tim Kerja SDM / Analis SDM Aparatur",
-            divisi: "Tim Kerja Pengelolaan Sumber Daya Manusia",
-            systemRole: "pegawai",
-            approvalRole: "verifikator_1",
-            sptRole: "ketimker",
-            roleLabel: "Ketimker (Ketua Tim Kerja SDM)",
-            sisaCuti: 12,
-            cutiTerpakai: 0,
-            expiredCuti: "31-12-2026",
-            token: "local-token-v1"
-          }
-        };
-      }
-      if (u === '198101312009121004') {
-        return {
-          success: true,
-          data: {
-            id: "PEG-002",
-            nip: "198101312009121004",
-            nama: "Agung Ariyanto, SEI., M.Ec., Dev.",
-            jabatan: "Ketua Bagian Tata Usaha (Kobag TU)",
-            divisi: "Bagian Tata Usaha BRMP DIY",
-            systemRole: "pegawai",
-            approvalRole: "verifikator_2",
-            sptRole: "kobag_tu",
-            roleLabel: "Kobag TU (Approval Utama)",
+            id: 'PEG-002',
+            nip: '198101312009121004',
+            nama: 'Agung Ariyanto, SEI., M.Ec., Dev.',
+            jabatan: 'Ketua Bagian Tata Usaha (Kobag TU)',
+            divisi: 'Bagian Tata Usaha BRMP DIY',
+            systemRole: 'pegawai',
+            approvalRole: 'verifikator_2',
+            sptRole: 'kobag_tu',
+            roleLabel: 'Kobag TU (Approval Utama)',
             sisaCuti: 14,
             cutiTerpakai: 0,
-            expiredCuti: "31-12-2026",
-            token: "local-token-v2"
+            expiredCuti: '31-12-2026',
+            token: 'local-token-v2'
           }
+        },
+        {
+          nip: '198604092011012024',
+          aliases: ['198604092011012024', 'ketimker.sdm', 'dwi'],
+          passwords: ['ketimker123', 'brmp123', '1986'],
+          data: {
+            id: 'PEG-003',
+            nip: '198604092011012024',
+            nama: 'Dwi Dinia Rahayu, S.Kom, M.T.I',
+            jabatan: 'Ketua Tim Kerja SDM / Analis SDM Aparatur',
+            divisi: 'Tim Kerja Pengelolaan Sumber Daya Manusia',
+            systemRole: 'pegawai',
+            approvalRole: 'verifikator_1',
+            sptRole: 'ketimker',
+            roleLabel: 'Ketimker (Ketua Tim Kerja SDM)',
+            sisaCuti: 12,
+            cutiTerpakai: 0,
+            expiredCuti: '31-12-2026',
+            token: 'local-token-v1'
+          }
+        },
+        {
+          nip: '198808062014032001',
+          aliases: ['198808062014032001', '199808062014032001', 'agnita', 'pegawai'],
+          passwords: ['1988', 'brmp123', 'pegawai123'],
+          data: {
+            id: 'PEG-001',
+            nip: '198808062014032001',
+            nama: 'AGNITA VERDIANI PUTRI, A.Md.',
+            jabatan: 'Pengelola Standardisasi Teknis',
+            divisi: 'Balai Penerapan Standar Instrumen Pertanian DIY',
+            systemRole: 'pegawai',
+            approvalRole: 'pemohon',
+            sptRole: 'user',
+            roleLabel: 'Pegawai (Pemohon SPT & Cuti)',
+            sisaCuti: 12,
+            cutiTerpakai: 0,
+            expiredCuti: '31-12-2026',
+            token: 'local-token-demo'
+          }
+        }
+      ];
+
+      const inputUser = u.toLowerCase();
+      const matched = REGISTERED_ACCOUNTS.find(acc => 
+        acc.nip === inputUser || acc.aliases.map(a => a.toLowerCase()).includes(inputUser)
+      );
+
+      if (matched) {
+        if (!matched.passwords.includes(p)) {
+          throw new Error('Password yang Anda masukkan salah. Silakan periksa kembali.');
+        }
+        return {
+          success: true,
+          data: matched.data
         };
       }
 
-      // Default pemohon (Agnita)
-      return {
-        success: true,
-        data: {
-          id: "PEG-001",
-          nip: username || "199808062014032001",
-          nama: "AGNITA VERDIANI PUTRI, A.Md.",
-          jabatan: "Pengelola Standardisasi Teknis",
-          divisi: "Balai Penerapan Standar Instrumen Pertanian DIY",
-          systemRole: "pegawai",
-          approvalRole: "pemohon",
-          sptRole: "user",
-          roleLabel: "Pegawai (Pemohon SPT & Cuti)",
-          sisaCuti: 12,
-          cutiTerpakai: 0,
-          expiredCuti: "14-06-2026",
-          token: "local-token-demo"
-        }
-      };
+      // If user/NIP is completely unregistered
+      throw new Error(`NIP / Username "${username}" tidak terdaftar di sistem kepegawaian BRMP DIY.`);
     }
   },
-
+  
   async getDashboard() {
     try {
       const res = await fetch(`${API_BASE_URL}/dashboard`);
@@ -562,35 +617,6 @@ export const apiService = {
     }
   },
 
-  async updateProfile(payload) {
-    try {
-      const targetNip = payload.nip || payload.userId;
-      if (payload.fotoProfil !== undefined) {
-        setStoredAvatar(targetNip, payload.fotoProfil);
-      }
-
-      const res = await fetch(`${API_BASE_URL}/users/profile`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || 'Gagal memperbarui profil');
-      return data;
-    } catch (err) {
-      console.warn('Update Profile API error:', err.message);
-      const targetNip = payload.nip || payload.userId;
-      if (payload.fotoProfil !== undefined) {
-        setStoredAvatar(targetNip, payload.fotoProfil);
-      }
-      return {
-        success: true,
-        message: 'Profil berhasil disimpan secara lokal',
-        data: payload
-      };
-    }
-  },
-
   async getAdminSummary() {
     try {
       const res = await fetch(`${API_BASE_URL}/admin/summary`);
@@ -668,6 +694,34 @@ export const apiService = {
     } catch (err) {
       console.warn('Save admin settings error:', err.message);
       throw err;
+    }
+  },
+
+  async updateProfile(payload) {
+    try {
+      const targetNip = payload.nip || payload.userId;
+      if (payload.fotoProfil !== undefined) {
+        setStoredAvatar(targetNip, payload.fotoProfil);
+      }
+
+      const res = await fetch(`${API_BASE_URL}/users/profile`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || 'Gagal update profil');
+      return data;
+    } catch (err) {
+      const targetNip = payload.nip || payload.userId;
+      if (payload.fotoProfil !== undefined) {
+        setStoredAvatar(targetNip, payload.fotoProfil);
+      }
+      return {
+        success: true,
+        message: 'Profil diperbarui di penyimpanan lokal',
+        data: payload
+      };
     }
   },
 

@@ -28,14 +28,17 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
-// Support JSON, Text (ADMS machines send raw text), and URL-Encoded
-app.use(express.json());
+// Support JSON (with up to 25mb for photo avatars), Text (ADMS machines send raw text), and URL-Encoded
+app.use(express.json({ limit: '25mb' }));
 app.use(express.text({ type: ['text/*', 'application/octet-stream', ''] }));
-app.use(express.urlencoded({ extended: true }));
+app.use(express.urlencoded({ extended: true, limit: '25mb' }));
 
-// Serve brmpSPT static web app
+// Serve brmpSPT static web app (check both client/public/spt-portal and brmpSPT)
+const sptPortalPublicPath = path.resolve(__dirname, '../../client/public/spt-portal');
 const brmpSptPath = path.resolve(__dirname, '../../brmpSPT');
+app.use('/spt-portal', express.static(sptPortalPublicPath));
 app.use('/spt-portal', express.static(brmpSptPath));
+app.use('/brmpSPT', express.static(sptPortalPublicPath));
 app.use('/brmpSPT', express.static(brmpSptPath));
 
 // Health check endpoint

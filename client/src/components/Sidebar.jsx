@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import { resolveSptRole } from '../spt/SptProgram';
+import React, { useState, useEffect } from 'react';
+import { resolveSptRole } from './SptProgram';
+import AdminSidebar from '../admin/AdminSidebar';
 import { 
   LayoutDashboard, 
   CalendarCheck2, 
@@ -14,23 +15,55 @@ import {
   ShieldCheck,
   BookOpen,
   Settings,
+  Settings2,
+  X,
+  Users,
   UserCheck,
-  Eye,
-  X
+  Zap,
+  Calendar,
+  Palmtree,
+  Files,
+  Fingerprint,
+  CalendarHeart,
+  ScrollText,
+  FileStack,
+  FileBadge2,
+  FolderKanban,
+  CalendarDays,
+  Sliders,
+  Gauge,
+  LogOut,
+  Bell,
+  ArrowUpRight
 } from 'lucide-react';
 
-export default function Sidebar({ currentView, setCurrentView, user, isUserAdmin = false, isOpen, onClose }) {
-  const checkIsAdmin = Boolean(
-    isUserAdmin || (
-      user && (
-        user.systemRole === 'admin' ||
-        user.role === 'admin' ||
-        user.approvalRole === 'admin' ||
-        user.nip === '198001012005011001' ||
-        user.id === 'PEG-ADM'
-      )
-    )
-  );
+export default function Sidebar({ currentView, setCurrentView, user, isOpen, onClose, onLogout }) {
+  // Dynamic live Indonesian formatted date that updates automatically with day changes
+  const [currentDateString, setCurrentDateString] = useState(() => {
+    const today = new Date();
+    const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+    const months = [
+      'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 
+      'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+    ];
+    return `${days[today.getDay()]}, ${today.getDate()} ${months[today.getMonth()]} ${today.getFullYear()}`;
+  });
+
+  useEffect(() => {
+    const updateDate = () => {
+      const today = new Date();
+      const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+      const months = [
+        'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 
+        'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+      ];
+      setCurrentDateString(`${days[today.getDay()]}, ${today.getDate()} ${months[today.getMonth()]} ${today.getFullYear()}`);
+    };
+
+    // Check & update automatically every minute
+    const timer = setInterval(updateDate, 60000);
+    return () => clearInterval(timer);
+  }, []);
 
   // Accordion state for submenus
   const [openAbsensi, setOpenAbsensi] = useState(
@@ -58,13 +91,29 @@ export default function Sidebar({ currentView, setCurrentView, user, isUserAdmin
     }
   };
 
+  const isAdmin = true; // Admin Web Portal selalu menggunakan Sidebar Administrator
+
+  // If Admin mode, delegate to modular AdminSidebar
+  if (isAdmin) {
+    return (
+      <AdminSidebar 
+        currentView={currentView}
+        setCurrentView={setCurrentView}
+        user={user}
+        isOpen={isOpen}
+        onClose={onClose}
+        onLogout={onLogout}
+      />
+    );
+  }
+
   return (
     <aside className={`app-sidebar no-print ${isOpen ? 'sidebar-open' : ''}`}>
       {/* Mobile Close Button Header */}
       <div className="sidebar-mobile-header">
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <ShieldCheck size={20} style={{ color: '#4ade80' }} />
-          <span style={{ fontWeight: 800, fontSize: '0.9rem', color: '#ffffff' }}>KITA BRMP DIY</span>
+          <ShieldCheck size={20} className="text-blue-600" />
+          <span style={{ fontWeight: 800, fontSize: '0.9rem', color: '#1e3a8a' }}>KITA BRMP DIY</span>
         </div>
         <button 
           className="sidebar-close-btn"
@@ -95,7 +144,7 @@ export default function Sidebar({ currentView, setCurrentView, user, isUserAdmin
             <div 
               className="profile-avatar"
               style={{
-                background: 'linear-gradient(135deg, #15803d, #16a34a)',
+                background: 'linear-gradient(135deg, #1d4ed8, #2563eb)',
                 color: '#ffffff',
                 display: 'flex',
                 alignItems: 'center',
@@ -114,86 +163,18 @@ export default function Sidebar({ currentView, setCurrentView, user, isUserAdmin
               })()}
             </div>
           )}
-          {/* Online green presence indicator */}
-          <span style={{
-            position: 'absolute',
-            bottom: '2px',
-            right: '2px',
-            width: '14px',
-            height: '14px',
-            borderRadius: '50%',
-            background: '#10b981',
-            border: '2.5px solid #ffffff',
-            boxShadow: '0 0 8px rgba(16, 185, 129, 0.6)'
-          }} />
         </div>
         <h3 className="profile-name">{user?.nama || 'Agnita Verdiani Putri'}</h3>
-        <span className="profile-date" style={{ fontSize: '0.72rem' }}>
+        <span className="profile-date" style={{ fontSize: '0.72rem', color: '#64748b', display: 'block', marginBottom: '4px' }}>
           {user?.jabatan || 'Pegawai BRMP DIY'}
         </span>
-        <div style={{ marginTop: '6px' }}>
-          <span style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '4px',
-            fontSize: '0.65rem',
-            color: '#4ade80',
-            background: 'rgba(74, 222, 128, 0.15)',
-            padding: '2px 8px',
-            borderRadius: '9999px',
-            fontWeight: 700,
-            border: '1px solid rgba(74, 222, 128, 0.25)'
-          }}>
-            <span style={{ width: '5px', height: '5px', borderRadius: '50%', background: '#22c55e', boxShadow: '0 0 5px rgba(34, 197, 94, 0.6)' }}></span>
-            <span>Siap Dinas</span>
-          </span>
-        </div>
+        <span style={{ fontSize: '0.7rem', color: '#047857', background: '#ecfdf5', padding: '2px 8px', borderRadius: '10px', fontWeight: 700, border: '1px solid #bbf7d0', display: 'inline-block' }}>
+          {currentDateString}
+        </span>
       </div>
 
       {/* Navigation */}
       <nav className="sidebar-nav">
-        {/* Administrator Portal Button (For Admin Users) */}
-        {checkIsAdmin && (
-          <button 
-            className="nav-item-btn"
-            onClick={() => navigateTo(currentView.startsWith('admin') ? 'dashboard' : 'admin-dashboard')}
-            style={{
-              background: currentView.startsWith('admin') 
-                ? 'linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(37, 99, 235, 0.25))'
-                : 'linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(5, 150, 105, 0.3))',
-              border: currentView.startsWith('admin')
-                ? '1px solid rgba(96, 165, 250, 0.45)'
-                : '1px solid rgba(16, 185, 129, 0.45)',
-              marginBottom: '6px'
-            }}
-          >
-            <div className="nav-item-left">
-              {currentView.startsWith('admin') ? (
-                <>
-                  <UserCheck size={18} style={{ color: '#93c5fd' }} />
-                  <span style={{ fontWeight: 700, color: '#eff6ff' }}>Mode Pegawai</span>
-                </>
-              ) : (
-                <>
-                  <ShieldCheck size={18} style={{ color: '#4ade80' }} />
-                  <span style={{ fontWeight: 700, color: '#ecfdf5' }}>Portal Admin</span>
-                </>
-              )}
-            </div>
-            <span style={{
-              fontSize: '9px',
-              fontWeight: 800,
-              background: currentView.startsWith('admin') ? '#2563eb' : '#059669',
-              color: '#ffffff',
-              padding: '2px 6px',
-              borderRadius: '6px',
-              letterSpacing: '0.5px'
-            }}>
-              {currentView.startsWith('admin') ? 'CEK' : 'SI-AP'}
-            </span>
-          </button>
-        )}
-
         {/* Dashboard */}
         <button 
           className={`nav-item-btn ${currentView === 'dashboard' ? 'active' : ''}`}
@@ -300,7 +281,7 @@ export default function Sidebar({ currentView, setCurrentView, user, isUserAdmin
                     <span>Dashboard SPT</span>
                   </div>
                   <span className="submenu-badge" style={{ 
-                    background: isSuperAdmin ? '#dc2626' : isAdminSekretariat ? '#0284c7' : role === 'kobag_tu' ? '#7c3aed' : role === 'ketimker' ? '#16a34a' : role === 'kopoks' ? '#d97706' : '#16a34a' 
+                    background: isSuperAdmin ? '#dc2626' : isAdminSekretariat ? '#0284c7' : role === 'kobag_tu' ? '#7c3aed' : role === 'ketimker' ? '#16a34a' : role === 'kopoks' ? '#d97706' : '#2563eb' 
                   }}>
                     {isSuperAdmin ? 'Super Admin' : isAdminSekretariat ? 'Sekretariat' : role === 'kobag_tu' ? 'Kobag TU' : role === 'ketimker' ? 'Ketimker' : role === 'kopoks' ? 'Kopoks' : 'Pegawai'}
                   </span>

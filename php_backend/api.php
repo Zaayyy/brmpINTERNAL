@@ -1124,18 +1124,69 @@ if ($route === 'adms/api/machines' || $route === 'adms/machines') {
         } catch (Exception $e) {}
     }
 
+    // POST - Tambah Mesin Baru
+    if ($method === 'POST') {
+        $body = getJsonBody();
+        $sn = strtoupper(trim($body['sn'] ?? ''));
+        $namaMesin = trim($body['namaMesin'] ?? '');
+        $ip = trim($body['ip'] ?? '192.168.2.100');
+        $port = trim($body['port'] ?? '4370');
+        $lokasi = trim($body['lokasi'] ?? 'Kantor BRMP DIY');
+
+        if (!$sn || !$namaMesin) {
+            jsonResponse(['success' => false, 'message' => 'Serial Number (SN) dan Nama Mesin wajib diisi'], 400);
+        }
+
+        if ($useMysql && $pdo) {
+            try {
+                $stmt = $pdo->prepare("INSERT INTO tweb_mesin (SERIAL_NUMBER, NAMA, NOMOR_IP, PORT, LOKASI, TANGGAL_SINC) VALUES (?, ?, ?, ?, ?, NOW())");
+                $stmt->execute([$sn, $namaMesin, $ip, $port, $lokasi]);
+            } catch (Exception $e) {}
+        }
+
+        $machineItem = [
+            'sn' => $sn,
+            'namaMesin' => $namaMesin,
+            'ip' => $ip,
+            'port' => $port,
+            'lokasi' => $lokasi,
+            'lastSync' => date('Y-m-d H:i:s'),
+            'status' => 'Online',
+            'totalLogs' => 0
+        ];
+
+        // Save to json fallback
+        $machinesFile = __DIR__ . '/admsMachines.json';
+        $currentMachines = file_exists($machinesFile) ? (json_decode(file_get_contents($machinesFile), true) ?: []) : [];
+        $currentMachines[] = $machineItem;
+        file_put_contents($machinesFile, json_encode($currentMachines, JSON_PRETTY_PRINT));
+
+        jsonResponse([
+            'success' => true,
+            'message' => "Mesin '$namaMesin' ($sn) berhasil ditambahkan!",
+            'data' => $machineItem
+        ], 201);
+    }
+
+    // Default GET fallback
+    $machinesFile = __DIR__ . '/admsMachines.json';
+    $customMachines = file_exists($machinesFile) ? (json_decode(file_get_contents($machinesFile), true) ?: []) : [];
+
+    $defaultList = [
+        [
+            'sn' => 'UCR6235200084',
+            'namaMesin' => 'Mesin Absensi Lobi Utama BRMP DIY',
+            'ip' => '192.168.2.73',
+            'lastSync' => date('Y-m-d H:i:s'),
+            'status' => 'Online',
+            'totalLogs' => 24
+        ]
+    ];
+
+    $merged = array_merge($defaultList, $customMachines);
     jsonResponse([
         'success' => true,
-        'data' => [
-            [
-                'sn' => 'UCR6235200084',
-                'namaMesin' => 'Mesin Absensi Lobi Utama BRMP DIY',
-                'ip' => '192.168.2.73',
-                'lastSync' => date('Y-m-d H:i:s'),
-                'status' => 'Online',
-                'totalLogs' => 24
-            ]
-        ]
+        'data' => $merged
     ]);
 }
 

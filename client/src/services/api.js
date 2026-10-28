@@ -435,6 +435,36 @@ export const apiService = {
     }
   },
 
+  async createAdmsMachine(payload) {
+    try {
+      const res = await fetch(`${API_BASE_URL}/adms/api/machines`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message);
+      return data;
+    } catch (err) {
+      console.warn('Create ADMS machine error:', err.message);
+      throw err;
+    }
+  },
+
+  async deleteAdmsMachine(sn) {
+    try {
+      const res = await fetch(`${API_BASE_URL}/adms/api/machines/${encodeURIComponent(sn)}`, {
+        method: 'DELETE'
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message);
+      return data;
+    } catch (err) {
+      console.warn('Delete ADMS machine error:', err.message);
+      throw err;
+    }
+  },
+
   async simulateAdmsScan(payload) {
     try {
       const res = await fetch(`${API_BASE_URL}/adms/api/simulate`, {
@@ -683,7 +713,6 @@ export const apiService = {
       if (!res.ok) throw new Error(data.message || 'Gagal update profil');
       return data;
     } catch (err) {
-      console.warn('updateProfile API error, fallback to local storage:', err.message);
       const targetNip = payload.nip || payload.userId;
       if (payload.fotoProfil !== undefined) {
         setStoredAvatar(targetNip, payload.fotoProfil);

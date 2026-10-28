@@ -10,13 +10,15 @@ import {
   AlertCircle,
   RefreshCw,
   Terminal,
-  Play,
-  ArrowRight,
   ShieldCheck,
   Server,
   Search,
   Filter,
-  Users
+  Users,
+  Plus,
+  Trash2,
+  MapPin,
+  HardDrive
 } from 'lucide-react';
 
 export default function AdmsMonitor({ user }) {
@@ -24,7 +26,6 @@ export default function AdmsMonitor({ user }) {
   const [logs, setLogs] = useState([]);
   const [allUsers, setAllUsers] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [simLoading, setSimLoading] = useState(false);
   const [successMsg, setSuccessMsg] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
 
@@ -40,16 +41,16 @@ export default function AdmsMonitor({ user }) {
   const [filterStatus, setFilterStatus] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
 
-  // Simulator states (for Pegawai: locked to user.nip; for Admin: selectable)
-  const [simPin, setSimPin] = useState(user?.nip || '199808062014032001');
-  const [simStatus, setSimStatus] = useState('Masuk');
-
-  const defaultEmployees = [
-    { nip: "199808062014032001", nama: "AGNITA VERDIANI PUTRI, A.Md." },
-    { nip: "198906012015032004", nama: "Devi Eka Nuvitasari, S.H." },
-    { nip: "198604092011012024", nama: "Dwi Dinia Rahayu, S.Kom, M.T.I" },
-    { nip: "198101312009121004", nama: "Agung Ariyanto, SEI., M.Ec., Dev." }
-  ];
+  // State Form Tambah Mesin Baru
+  const [newMachine, setNewMachine] = useState({
+    sn: '',
+    namaMesin: '',
+    ip: '',
+    port: '4370',
+    lokasi: 'Kantor BRMP DIY'
+  });
+  const [machineLoading, setMachineLoading] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(null);
 
   const loadData = async () => {
     try {
@@ -83,33 +84,54 @@ export default function AdmsMonitor({ user }) {
     }
   }, [isAdmin]);
 
-  // Keep simulator PIN synced when user changes
-  useEffect(() => {
-    if (!isAdmin && user?.nip) {
-      setSimPin(user.nip);
-    }
-  }, [user?.nip, isAdmin]);
-
-  const handleSimulate = async (e) => {
+  const handleAddMachine = async (e) => {
     e.preventDefault();
+    if (!newMachine.sn.trim() || !newMachine.namaMesin.trim()) {
+      setErrorMsg('Serial Number (SN) dan Nama Mesin wajib diisi.');
+      return;
+    }
     setSuccessMsg('');
     setErrorMsg('');
-    setSimLoading(true);
+    setMachineLoading(true);
 
     try {
-      const res = await apiService.simulateAdmsScan({
-        pin: simPin,
-        statusAbsen: simStatus
-      });
-
+      const res = await apiService.createAdmsMachine(newMachine);
       if (res.success) {
-        setSuccessMsg(res.message);
+        setSuccessMsg(res.message || 'Mesin absensi berhasil ditambahkan!');
+        setNewMachine({
+          sn: '',
+          namaMesin: '',
+          ip: '',
+          port: '4370',
+          lokasi: 'Kantor BRMP DIY'
+        });
         await loadData();
       }
     } catch (err) {
-      setErrorMsg(err.message || 'Gagal mengirim simulasi tap mesin.');
+      setErrorMsg(err.message || 'Gagal menambahkan mesin absensi.');
     } finally {
-      setSimLoading(false);
+      setMachineLoading(false);
+    }
+  };
+
+  const handleDeleteMachine = async (sn, namaMesin) => {
+    if (!window.confirm(`Apakah Anda yakin ingin menghapus mesin "${namaMesin}" (${sn})?`)) {
+      return;
+    }
+    setSuccessMsg('');
+    setErrorMsg('');
+    setDeleteLoading(sn);
+
+    try {
+      const res = await apiService.deleteAdmsMachine(sn);
+      if (res.success) {
+        setSuccessMsg(res.message || `Mesin ${sn} berhasil dihapus.`);
+        await loadData();
+      }
+    } catch (err) {
+      setErrorMsg(err.message || 'Gagal menghapus mesin.');
+    } finally {
+      setDeleteLoading(null);
     }
   };
 
@@ -158,7 +180,7 @@ export default function AdmsMonitor({ user }) {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', flexWrap: 'wrap', gap: '1rem' }}>
           <div>
             <h1 className="breadcrumb-title">
-              <Cpu size={24} className="text-blue-600" />
+              <Cpu size={24} style={{ color: 'var(--primary-600)' }} />
               <span>Monitoring Integrasi Mesin Absensi (ADMS)</span>
             </h1>
             <div className="breadcrumb-path">
@@ -166,7 +188,7 @@ export default function AdmsMonitor({ user }) {
               <span>/</span>
               <span>Info Absensi</span>
               <span>/</span>
-              <span style={{ color: '#2563eb', fontWeight: 600 }}>Protokol ADMS Cloud</span>
+              <span style={{ color: 'var(--primary-700)', fontWeight: 700 }}>Protokol ADMS Cloud</span>
             </div>
           </div>
 
@@ -195,9 +217,9 @@ export default function AdmsMonitor({ user }) {
       {/* Alert Messages */}
       {successMsg && (
         <div style={{
-          background: '#dcfce7',
-          border: '1px solid #86efac',
-          color: '#166534',
+          background: 'var(--primary-50)',
+          border: '1px solid var(--primary-300)',
+          color: 'var(--primary-900)',
           padding: '12px 16px',
           borderRadius: '8px',
           fontSize: '0.875rem',
@@ -206,7 +228,7 @@ export default function AdmsMonitor({ user }) {
           alignItems: 'center',
           gap: '10px'
         }}>
-          <CheckCircle2 size={18} />
+          <CheckCircle2 size={18} style={{ color: 'var(--primary-600)' }} />
           <span>{successMsg}</span>
         </div>
       )}
@@ -229,148 +251,240 @@ export default function AdmsMonitor({ user }) {
         </div>
       )}
 
-      {/* Grid: Status Mesin & Simulator */}
+      {/* Grid: Status Mesin & Tambah Mesin Baru */}
       <div className="adms-grid">
 
-        {/* Left: Info Konfigurasi Mesin di Kantor */}
+        {/* Left: Info Konfigurasi & Mesin yang Terkoneksi */}
         <div className="brmp-card" style={{ padding: '1.5rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '1.25rem', paddingBottom: '0.75rem', borderBottom: '1px solid #f1f5f9' }}>
-            <Server size={20} className="text-blue-600" />
-            <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 800, color: '#1e293b' }}>
-              Pengaturan di Mesin Absensi
-            </h3>
-          </div>
-
-          <p style={{ margin: '0 0 1rem 0', fontSize: '0.8rem', color: '#64748b', lineHeight: 1.5 }}>
-            Masukkan parameter ini ke menu <strong>Cloud Server Setting / ADMS</strong> pada mesin ZKTeco / Solution kantor Anda:
-          </p>
-
-          <div style={{ background: '#f8fafc', padding: '12px', borderRadius: '8px', border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '0.8rem', marginBottom: '1.25rem' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <span style={{ color: '#64748b' }}>Cloud Server:</span>
-              <strong style={{ color: '#15803d' }}>ENABLE / AKTIF</strong>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.25rem', paddingBottom: '0.75rem', borderBottom: '1px solid #f1f5f9' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <HardDrive size={20} style={{ color: 'var(--primary-600)' }} />
+              <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 800, color: '#1e293b' }}>
+                Mesin Presensi Terkoneksi
+              </h3>
             </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <span style={{ color: '#64748b' }}>Server IP / Host:</span>
-              <code style={{ background: '#e2e8f0', padding: '1px 6px', borderRadius: '4px' }}>IP Komputer Ini / Domain</code>
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <span style={{ color: '#64748b' }}>Server Port:</span>
-              <code style={{ background: '#e2e8f0', padding: '1px 6px', borderRadius: '4px' }}>5000</code>
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <span style={{ color: '#64748b' }}>Target URL Jalur:</span>
-              <strong style={{ color: '#2563eb' }}>/iclock/cdata</strong>
-            </div>
+            <span style={{ fontSize: '0.72rem', fontWeight: 700, background: '#ecfdf5', color: '#047857', padding: '2px 8px', borderRadius: '6px', border: '1px solid #bbf7d0' }}>
+              {machines.length} Mesin Aktif
+            </span>
           </div>
 
           {/* Connected Machines List */}
-          <h4 style={{ margin: '0 0 8px 0', fontSize: '0.85rem', fontWeight: 700, color: '#334155' }}>
-            Mesin yang Terdeteksi:
-          </h4>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '1.5rem' }}>
             {machines.map((m, idx) => (
-              <div key={idx} style={{ background: '#ffffff', border: '1px solid #cbd5e1', borderRadius: '8px', padding: '10px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div>
-                  <div style={{ fontWeight: 700, fontSize: '0.85rem', color: '#0f172a' }}>{m.namaMesin}</div>
-                  <div style={{ fontSize: '0.72rem', color: '#64748b' }}>SN: {m.sn} | IP: {m.ip}</div>
-                  <div style={{ fontSize: '0.68rem', color: '#94a3b8' }}>Sync Terakhir: {m.lastSync}</div>
+              <div 
+                key={idx} 
+                style={{ 
+                  background: '#ffffff', 
+                  border: '1.5px solid #e2e8f0', 
+                  borderRadius: '10px', 
+                  padding: '12px 14px', 
+                  display: 'flex', 
+                  justifyContent: 'space-between', 
+                  alignItems: 'center',
+                  boxShadow: '0 2px 6px rgba(0,0,0,0.03)'
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <div style={{
+                    width: '38px',
+                    height: '38px',
+                    borderRadius: '8px',
+                    background: 'linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%)',
+                    border: '1px solid #a7f3d0',
+                    color: '#059669',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0
+                  }}>
+                    <Cpu size={19} />
+                  </div>
+                  <div>
+                    <div style={{ fontWeight: 800, fontSize: '0.88rem', color: '#0f172a' }}>{m.namaMesin}</div>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '3px', fontSize: '0.72rem', color: '#64748b' }}>
+                      <span style={{ background: '#f1f5f9', padding: '1px 6px', borderRadius: '4px', fontWeight: 600 }}>SN: {m.sn}</span>
+                      <span style={{ background: '#f1f5f9', padding: '1px 6px', borderRadius: '4px', fontWeight: 600 }}>IP: {m.ip}:{m.port || '4370'}</span>
+                      {m.lokasi && (
+                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '3px', color: '#047857', fontWeight: 600 }}>
+                          <MapPin size={11} /> {m.lokasi}
+                        </span>
+                      )}
+                    </div>
+                    <div style={{ fontSize: '0.68rem', color: '#94a3b8', marginTop: '2px' }}>
+                      Sync: {m.lastSync ? new Date(m.lastSync).toLocaleString('id-ID') : '-'} &bull; {m.totalLogs || 0} Log Absensi
+                    </div>
+                  </div>
                 </div>
-                <span style={{ background: '#dcfce7', color: '#166534', padding: '3px 8px', borderRadius: '9999px', fontSize: '0.7rem', fontWeight: 800 }}>
-                  ● {m.status}
-                </span>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span style={{ background: '#dcfce7', color: '#166534', padding: '3px 8px', borderRadius: '9999px', fontSize: '0.7rem', fontWeight: 800, border: '1px solid #bbf7d0', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                    <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#22c55e' }}></span>
+                    <span>{m.status || 'Online'}</span>
+                  </span>
+
+                  {isAdmin && (
+                    <button
+                      onClick={() => handleDeleteMachine(m.sn, m.namaMesin)}
+                      disabled={deleteLoading === m.sn}
+                      style={{
+                        background: '#fee2e2',
+                        border: '1px solid #fecaca',
+                        color: '#dc2626',
+                        borderRadius: '6px',
+                        padding: '5px 7px',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        transition: 'all 0.2s'
+                      }}
+                      title="Hapus Mesin Presensi"
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  )}
+                </div>
               </div>
             ))}
           </div>
+
+          {/* Info Parameter Setting di Mesin Fisik */}
+          <div style={{ borderTop: '1px dashed #e2e8f0', paddingTop: '1rem' }}>
+            <h4 style={{ margin: '0 0 6px 0', fontSize: '0.82rem', fontWeight: 700, color: '#334155' }}>
+              Parameter Cloud Server di Mesin Fisik (ZKTeco / Solution):
+            </h4>
+            <div style={{ background: '#f8fafc', padding: '10px 12px', borderRadius: '8px', border: '1px solid #e2e8f0', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '8px', fontSize: '0.75rem' }}>
+              <div>
+                <span style={{ color: '#64748b', display: 'block' }}>Cloud Server:</span>
+                <strong style={{ color: 'var(--primary-700)' }}>ENABLE / AKTIF</strong>
+              </div>
+              <div>
+                <span style={{ color: '#64748b', display: 'block' }}>Server IP / Host:</span>
+                <code style={{ background: '#e2e8f0', padding: '1px 5px', borderRadius: '4px' }}>IP Server / Domain</code>
+              </div>
+              <div>
+                <span style={{ color: '#64748b', display: 'block' }}>Server Port:</span>
+                <code style={{ background: '#e2e8f0', padding: '1px 5px', borderRadius: '4px' }}>5000</code>
+              </div>
+              <div>
+                <span style={{ color: '#64748b', display: 'block' }}>Target Jalur URL:</span>
+                <strong style={{ color: 'var(--primary-700)' }}>/iclock/cdata</strong>
+              </div>
+            </div>
+          </div>
         </div>
 
-        {/* Right: Simulator Tap Absensi Mesin */}
+        {/* Right: Form Tambah Mesin ADMS Baru */}
         <div className="brmp-card" style={{ padding: '1.5rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '1.25rem', paddingBottom: '0.75rem', borderBottom: '1px solid #f1f5f9' }}>
-            <Activity size={20} className="text-emerald-600" />
+            <Plus size={20} style={{ color: 'var(--primary-600)' }} />
             <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 800, color: '#1e293b' }}>
-              Simulator Scan Mesin (Uji Coba Langsung)
+              Tambah Mesin Presensi ADMS
             </h3>
           </div>
 
           <p style={{ margin: '0 0 1.25rem 0', fontSize: '0.8rem', color: '#64748b' }}>
-            Anda dapat mensimulasikan tap sidik jari pegawai seolah-olah mesin fisik sedang mengirim data log absensi ke server:
+            Daftarkan unit mesin presensi fingerprint / face recognition baru ke dalam sistem jaringan BRMP DIY:
           </p>
 
-          <form onSubmit={handleSimulate} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <form onSubmit={handleAddMachine} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             <div className="form-group">
-              <label className="form-label" style={{ fontWeight: 700, fontSize: '0.85rem' }}>Pegawai yang Scan</label>
-              {!isAdmin ? (
-                <div style={{ background: '#f8fafc', padding: '10px 14px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.85rem' }}>
-                  <div style={{ fontWeight: 700, color: '#0f172a' }}>{user?.nama || 'Pegawai BRMP'}</div>
-                  <div style={{ fontSize: '0.75rem', color: '#64748b' }}>NIP: {user?.nip} &bull; PIN Mesin: {user?.pinMesin || '-'}</div>
-                  <div style={{ fontSize: '0.72rem', color: '#15803d', fontWeight: 600, marginTop: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                    <CheckCircle2 size={13} />
-                    <span>Simulasi terkunci khusus untuk akun Anda sendiri</span>
-                  </div>
-                </div>
-              ) : (
-                <select
-                  className="form-input"
-                  value={simPin}
-                  onChange={(e) => setSimPin(e.target.value)}
-                  style={{ height: '42px' }}
-                >
-                  {(allUsers.length > 0 ? allUsers : defaultEmployees).map(p => (
-                    <option key={p.nip || p.id} value={p.nip}>{p.nama} ({p.nip})</option>
-                  ))}
-                </select>
-              )}
+              <label className="form-label" style={{ fontWeight: 700, fontSize: '0.82rem' }}>
+                Nama Mesin Presensi <span style={{ color: '#ef4444' }}>*</span>
+              </label>
+              <input
+                type="text"
+                required
+                className="form-input"
+                placeholder="Contoh: Mesin Fingerprint Lobi Timur Gedung A"
+                value={newMachine.namaMesin}
+                onChange={(e) => setNewMachine({ ...newMachine, namaMesin: e.target.value })}
+                style={{ height: '40px' }}
+              />
             </div>
 
             <div className="form-group">
-              <label className="form-label" style={{ fontWeight: 700, fontSize: '0.85rem' }}>Status Scan</label>
-              <div style={{ display: 'flex', gap: '12px' }}>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.85rem', cursor: 'pointer' }}>
-                  <input
-                    type="radio"
-                    name="simStatus"
-                    value="Masuk"
-                    checked={simStatus === 'Masuk'}
-                    onChange={() => setSimStatus('Masuk')}
-                  />
-                  <span>Absen Masuk (Check-In)</span>
+              <label className="form-label" style={{ fontWeight: 700, fontSize: '0.82rem' }}>
+                Serial Number (SN) Mesin <span style={{ color: '#ef4444' }}>*</span>
+              </label>
+              <input
+                type="text"
+                required
+                className="form-input"
+                placeholder="Contoh: UCR6235200085 (tertera di belakang mesin)"
+                value={newMachine.sn}
+                onChange={(e) => setNewMachine({ ...newMachine, sn: e.target.value.toUpperCase() })}
+                style={{ height: '40px', fontFamily: 'monospace', letterSpacing: '0.5px' }}
+              />
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '10px' }}>
+              <div className="form-group">
+                <label className="form-label" style={{ fontWeight: 700, fontSize: '0.82rem' }}>
+                  IP Address Mesin
                 </label>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.85rem', cursor: 'pointer' }}>
-                  <input
-                    type="radio"
-                    name="simStatus"
-                    value="Pulang"
-                    checked={simStatus === 'Pulang'}
-                    onChange={() => setSimStatus('Pulang')}
-                  />
-                  <span>Absen Pulang (Check-Out)</span>
-                </label>
+                <input
+                  type="text"
+                  className="form-input"
+                  placeholder="192.168.2.75"
+                  value={newMachine.ip}
+                  onChange={(e) => setNewMachine({ ...newMachine, ip: e.target.value })}
+                  style={{ height: '40px', fontFamily: 'monospace' }}
+                />
               </div>
+
+              <div className="form-group">
+                <label className="form-label" style={{ fontWeight: 700, fontSize: '0.82rem' }}>
+                  Port Mesin
+                </label>
+                <input
+                  type="text"
+                  className="form-input"
+                  placeholder="4370"
+                  value={newMachine.port}
+                  onChange={(e) => setNewMachine({ ...newMachine, port: e.target.value })}
+                  style={{ height: '40px', fontFamily: 'monospace' }}
+                />
+              </div>
+            </div>
+
+            <div className="form-group">
+              <label className="form-label" style={{ fontWeight: 700, fontSize: '0.82rem' }}>
+                Lokasi Pemasangan
+              </label>
+              <input
+                type="text"
+                className="form-input"
+                placeholder="Contoh: Pintu Masuk Lobi Utama / Ruang Tata Usaha"
+                value={newMachine.lokasi}
+                onChange={(e) => setNewMachine({ ...newMachine, lokasi: e.target.value })}
+                style={{ height: '40px' }}
+              />
             </div>
 
             <button
               type="submit"
-              disabled={simLoading}
+              disabled={machineLoading}
               style={{
-                background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                background: 'linear-gradient(135deg, #059669 0%, #047857 100%)',
                 color: '#fff',
-                padding: '10px 16px',
+                padding: '11px 18px',
                 borderRadius: '8px',
                 border: 'none',
                 fontWeight: 700,
                 fontSize: '0.9rem',
-                cursor: 'pointer',
+                cursor: machineLoading ? 'not-allowed' : 'pointer',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 gap: '8px',
-                marginTop: '0.5rem',
-                boxShadow: '0 4px 10px rgba(16,185,129,0.25)'
+                marginTop: '0.25rem',
+                boxShadow: '0 4px 12px rgba(5, 150, 105, 0.3)',
+                transition: 'all 0.2s'
               }}
             >
-              <Play size={16} />
-              <span>{simLoading ? 'Mengirim Data...' : 'Kirim Simulasi Tap Mesin ADMS'}</span>
+              <Plus size={18} />
+              <span>{machineLoading ? 'Mendaftarkan Mesin...' : 'Tambah Mesin Presensi'}</span>
             </button>
           </form>
         </div>
@@ -382,7 +496,7 @@ export default function AdmsMonitor({ user }) {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.25rem', flexWrap: 'wrap', gap: '12px' }}>
           <div>
             <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 800, color: '#1e293b', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Clock size={20} className="text-blue-600" />
+              <Clock size={20} style={{ color: 'var(--primary-600)' }} />
               <span>
                 {isAdmin ? 'Log Riwayat Scan Mesin ADMS (Seluruh Pegawai)' : 'Log Riwayat Presensi Pribadi Anda'}
               </span>
@@ -402,8 +516,8 @@ export default function AdmsMonitor({ user }) {
                 <span>Mode Admin ({displayedLogs.length} Data)</span>
               </span>
             ) : (
-              <span style={{ background: '#eff6ff', color: '#2563eb', padding: '4px 10px', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
-                <UserCheck size={14} />
+              <span style={{ background: 'var(--primary-50)', color: 'var(--primary-800)', border: '1px solid var(--primary-200)', padding: '4px 10px', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+                <UserCheck size={14} style={{ color: 'var(--primary-600)' }} />
                 <span>{displayedLogs.length} Riwayat Scan Anda</span>
               </span>
             )}
@@ -424,7 +538,7 @@ export default function AdmsMonitor({ user }) {
             gap: '12px'
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.82rem', fontWeight: 700, color: '#334155' }}>
-              <Filter size={15} className="text-blue-600" />
+              <Filter size={15} style={{ color: 'var(--primary-600)' }} />
               <span>Filter Data:</span>
             </div>
 
@@ -563,7 +677,7 @@ export default function AdmsMonitor({ user }) {
                     <td>
                       <strong style={{ color: '#0f172a' }}>{item.nama}</strong>
                       <div style={{ fontSize: '0.75rem', color: '#64748b' }}>NIP: {item.pin}</div>
-                      <div style={{ fontSize: '0.7rem', color: '#2563eb' }}>{item.jabatan}</div>
+                      <div style={{ fontSize: '0.7rem', color: 'var(--primary-700)', fontWeight: 600 }}>{item.jabatan}</div>
                     </td>
                     <td>
                       <strong style={{ fontSize: '0.9rem', color: '#1e293b' }}>{item.jam}</strong>

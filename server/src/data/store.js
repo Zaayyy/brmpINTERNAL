@@ -17,7 +17,26 @@ try {
 }
 
 if (!users || users.length === 0) {
-  users = [];
+  users = [
+    {
+      id: "PEG-ADM",
+      nip: "198001012005011001",
+      passwordDefaultYear: "1980",
+      nama: "ADMINISTRATOR KEPEGAWAIAN",
+      jabatan: "Pranata Komputer Ahli Muda / Admin Kepegawaian",
+      divisi: "Sub Bagian Tata Usaha & Kepegawaian",
+      systemRole: "admin",
+      approvalRole: "admin",
+      roleLabel: "Administrator Kepegawaian",
+      pinMesin: "999",
+      sisaCuti: 12,
+      cutiTerpakai: 0,
+      expiredCuti: "31-12-2026",
+      jamMasuk: "07:15:00",
+      jamPulang: "16:00:00",
+      jamKerja: "07:30:00 - 16:00:00"
+    }
+  ];
 }
 
 const adminIdx = users.findIndex(u => u.nip === "198001012005011001" || u.id === "PEG-ADM");
@@ -167,7 +186,6 @@ export let disposisiList = [
   { id: "DSP-002", noSurat: "115/OT.050/H.11/06/2025", perihal: "Evaluasi Pelaksanaan Standar Laboratorium Uji Tanah", asalSurat: "BSIP Nasional", tanggal: "2025-06-11", sifat: "Biasa", instruksi: "Siapkan laporan audit internal dan sampel tanah", status: "Selesai", penerima: "Tim Kerja Pengujian" },
   { id: "DSP-003", noSurat: "089/HM.120/H.11/06/2025", perihal: "Undangan Rapat Koordinasi Modernisasi Alsintan DIY", asalSurat: "Dinas Pertanian dan Ketahanan Pangan DIY", tanggal: "2025-06-12", sifat: "Sangat Segera", instruksi: "Hadiri dan laporkan hasil rapat kepada Kepala Balai", status: "Menunggu", penerima: "Kobag TU" }
 ];
-
 
 export const agendaList = [
   { id: 1, date: "2025-06-02", title: "Upacara Hari Lahir Pancasila", type: "event" },

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Clock, 
   Calendar, 
@@ -9,20 +9,34 @@ import {
   ChevronLeft, 
   ChevronRight,
   Sparkles,
-  Info
+  CheckCircle2,
+  TrendingUp,
+  Activity,
+  ArrowUpRight,
+  CalendarDays,
+  Award
 } from 'lucide-react';
 
 export default function DashboardView({ user, onNavigate }) {
   const [currentMonth, setCurrentMonth] = useState('Juni 2025');
   const [calendarViewMode, setCalendarViewMode] = useState('bulan'); // 'bulan', 'minggu', 'agenda'
+  const [liveTime, setLiveTime] = useState('');
+  const [liveDate, setLiveDate] = useState('');
 
-  // Calendar days generation for Juni 2025 (matching screenshots in PDF)
-  // June 2025 starts on Sunday (1) and has 30 days.
-  // In the PDF screenshot, the columns are Sen, Sel, Rab, Kam, Jum, Sab, Min
+  // Live real-time clock ticker
+  useEffect(() => {
+    const updateTime = () => {
+      const now = new Date();
+      setLiveTime(now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) + ' WIB');
+      setLiveDate(now.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }));
+    };
+    updateTime();
+    const timer = setInterval(updateTime, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
   const daysHeader = ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'];
 
-  // June 2025 calendar days matching Monday-start:
-  // May 26..31 are previous month, June 1 is Sunday.
   const calendarCells = [
     { day: 26, isCurrentMonth: false, events: [] },
     { day: 27, isCurrentMonth: false, events: [] },
@@ -34,7 +48,7 @@ export default function DashboardView({ user, onNavigate }) {
     { day: 2, isCurrentMonth: true, events: [] },
     { day: 3, isCurrentMonth: true, events: [] },
     { day: 4, isCurrentMonth: true, events: [] },
-    { day: 5, isCurrentMonth: true, events: [{ title: 'Rakor Teknis Balai', color: '#2563eb' }] },
+    { day: 5, isCurrentMonth: true, events: [{ title: 'Rakor Teknis Balai', color: '#16a34a' }] },
     { day: 6, isCurrentMonth: true, events: [] },
     { day: 7, isCurrentMonth: true, events: [] },
     { day: 8, isCurrentMonth: true, events: [] },
@@ -67,45 +81,91 @@ export default function DashboardView({ user, onNavigate }) {
       <div className="breadcrumb-banner">
         <div>
           <h1 className="breadcrumb-title">
-            <span>Dashboard</span>
+            <Activity size={24} style={{ color: '#16a34a' }} />
+            <span>Dashboard Pegawai</span>
           </h1>
           <div className="breadcrumb-path">
             <span>KITA BRMP DIY</span>
             <span>/</span>
-            <span style={{ color: '#2563eb', fontWeight: 600 }}>Home</span>
+            <span style={{ color: '#16a34a', fontWeight: 700 }}>Beranda Utama</span>
           </div>
+        </div>
+
+        {/* Live Status Pill */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          background: 'rgba(22, 163, 74, 0.1)',
+          border: '1px solid rgba(22, 163, 74, 0.3)',
+          padding: '6px 14px',
+          borderRadius: '9999px',
+          color: '#14532d',
+          fontSize: '0.8rem',
+          fontWeight: 700
+        }}>
+          <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#16a34a', boxShadow: '0 0 8px rgba(22, 163, 74, 0.6)', display: 'inline-block' }}></span>
+          <span>Sistem Presensi & E-SPT Aktif</span>
         </div>
       </div>
 
       {/* Welcome Hero Banner */}
-      <div className="welcome-hero" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
+      <div className="welcome-hero" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1.25rem' }}>
         <div style={{ position: 'relative', zIndex: 2 }}>
-          <div style={{ fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.05em', opacity: 0.9, marginBottom: '4px' }}>
-            Selamat Datang
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.08em', background: 'rgba(255, 255, 255, 0.2)', padding: '3px 10px', borderRadius: '9999px', marginBottom: '8px', fontWeight: 800 }}>
+            <Sparkles size={13} />
+            <span>Selamat Datang di Portal Internal BRMP DIY</span>
           </div>
           <h2 className="welcome-title">{user?.nama || 'AGNITA VERDIANI PUTRI, A.Md.'}</h2>
-          <div className="welcome-sub">
-            <Clock size={16} />
-            <span>Kamis, 12 Juni 2025</span>
-            <span style={{ opacity: 0.6 }}>|</span>
-            <span>Jam Kerja : 07:30:00 - 16:00:00</span>
+          
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '6px' }}>
+            <div className="welcome-sub">
+              <Clock size={15} />
+              <span>{liveDate || 'Kamis, 12 Juni 2025'}</span>
+              <span style={{ opacity: 0.5 }}>•</span>
+              <span style={{ fontWeight: 800, color: '#fef08a' }}>{liveTime || '07:30:00 WIB'}</span>
+            </div>
+
+            <div className="welcome-sub" style={{ background: 'rgba(255, 255, 255, 0.12)' }}>
+              <Award size={15} />
+              <span>Jam Kerja: 07:30 - 16:00 WIB</span>
+            </div>
           </div>
         </div>
 
-        {user?.fotoProfil && (
+        {user?.fotoProfil ? (
           <div style={{ position: 'relative', zIndex: 2, display: 'flex', alignItems: 'center', gap: '12px' }}>
             <img 
               src={user.fotoProfil} 
               alt={user?.nama} 
               style={{
-                width: '64px',
-                height: '64px',
+                width: '74px',
+                height: '74px',
                 borderRadius: '50%',
                 objectFit: 'cover',
-                border: '3px solid rgba(255, 255, 255, 0.45)',
-                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)'
+                border: '3px solid rgba(255, 255, 255, 0.85)',
+                boxShadow: '0 8px 24px rgba(0, 0, 0, 0.25)'
               }}
             />
+          </div>
+        ) : (
+          <div style={{
+            position: 'relative',
+            zIndex: 2,
+            width: '68px',
+            height: '68px',
+            borderRadius: '50%',
+            background: 'rgba(255, 255, 255, 0.2)',
+            backdropFilter: 'blur(10px)',
+            border: '2px solid rgba(255, 255, 255, 0.5)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: '#ffffff',
+            fontSize: '1.6rem',
+            fontWeight: 800
+          }}>
+            {(user?.nama || 'A').charAt(0)}
           </div>
         )}
       </div>
@@ -115,11 +175,17 @@ export default function DashboardView({ user, onNavigate }) {
         {/* Absen Masuk */}
         <div className="stat-box">
           <div className="stat-info">
-            <span className="stat-label">Absen Masuk</span>
+            <span className="stat-label">Absen Masuk Hari Ini</span>
             <span className="stat-value" style={{ color: '#16a34a' }}>07:23:54</span>
-            <span className="stat-badge green">Tepat Waktu</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '6px' }}>
+              <span className="stat-badge green">
+                <CheckCircle2 size={13} />
+                <span>Tepat Waktu</span>
+              </span>
+              <span style={{ fontSize: '0.72rem', color: '#64748b' }}>(-6 Menit)</span>
+            </div>
           </div>
-          <div style={{ background: '#dcfce7', padding: '12px', borderRadius: '12px', color: '#15803d' }}>
+          <div style={{ background: 'linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%)', padding: '14px', borderRadius: '16px', color: '#15803d', boxShadow: '0 4px 12px rgba(22, 163, 74, 0.15)' }}>
             <Clock size={28} />
           </div>
         </div>
@@ -128,52 +194,63 @@ export default function DashboardView({ user, onNavigate }) {
         <div className="stat-box">
           <div className="stat-info">
             <span className="stat-label">Absen Pulang</span>
-            <span className="stat-value" style={{ color: '#2563eb' }}>16:08:55</span>
-            <span className="stat-badge blue">Selesai Kerja</span>
+            <span className="stat-value" style={{ color: 'var(--primary-700)' }}>16:08:55</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '6px' }}>
+              <span className="stat-badge green">
+                <CheckCircle2 size={13} />
+                <span>Selesai Kerja</span>
+              </span>
+              <span style={{ fontSize: '0.72rem', color: '#64748b' }}>(8 Jam 45 Menit)</span>
+            </div>
           </div>
-          <div style={{ background: '#dbeafe', padding: '12px', borderRadius: '12px', color: '#1e40af' }}>
-            <Clock size={28} />
+          <div style={{ background: 'linear-gradient(135deg, var(--primary-100) 0%, var(--primary-200) 100%)', padding: '14px', borderRadius: '16px', color: 'var(--primary-800)', boxShadow: '0 4px 12px rgba(22, 101, 52, 0.15)' }}>
+            <TrendingUp size={28} />
           </div>
         </div>
 
         {/* Sisa Cuti */}
         <div className="stat-box">
           <div className="stat-info">
-            <span className="stat-label">Sisa Cuti Pegawai</span>
+            <span className="stat-label">Sisa Kuota Cuti</span>
             <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px' }}>
               <span className="stat-value" style={{ color: '#ea580c' }}>{user?.sisaCuti ?? 12}</span>
-              <span style={{ fontSize: '0.9rem', color: '#64748b', fontWeight: 600 }}>Hari Tersedia</span>
+              <span style={{ fontSize: '0.9rem', color: '#64748b', fontWeight: 700 }}>Hari Tersedia</span>
             </div>
-            <span className="stat-badge amber">100% Saldo Aktif</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '6px' }}>
+              <span className="stat-badge amber">
+                <Sparkles size={13} />
+                <span>100% Saldo Aktif</span>
+              </span>
+            </div>
           </div>
-          <div style={{ background: '#ffedd5', padding: '12px', borderRadius: '12px', color: '#c2410c' }}>
+          <div style={{ background: 'linear-gradient(135deg, #ffedd5 0%, #fed7aa 100%)', padding: '14px', borderRadius: '16px', color: '#c2410c', boxShadow: '0 4px 12px rgba(234, 88, 12, 0.15)' }}>
             <Palmtree size={28} />
           </div>
         </div>
       </div>
 
-      {/* Quick Action Circles (Bagian B - Point 3 & 4) */}
+      {/* Quick Action Circles */}
       <div className="quick-actions-bar">
         {/* 1. Cuti */}
         <button 
           className="action-circle-btn"
           onClick={() => onNavigate('pengajuan-cuti')}
-          title="Klik untuk Pengajuan Cuti (Point 7 & 8)"
+          title="Klik untuk Form Pengajuan Cuti"
         >
           <div className="circle-icon-wrap cuti">
-            <Palmtree size={24} />
+            <Palmtree size={26} />
           </div>
           <span className="action-label">Cuti</span>
         </button>
 
-        {/* 2. SPT (Surat Perintah Tugas - Poin 9) */}
+        {/* 2. SPT (Surat Perintah Tugas) */}
         <button 
           className="action-circle-btn"
-          onClick={() => onNavigate('pengajuan-spt')}
-          title="Klik untuk Pengajuan SPT (Surat Perintah Tugas)"
+          onClick={() => onNavigate('spt-pengajuan')}
+          title="Klik untuk Form Pengajuan SPT Digital"
         >
           <div className="circle-icon-wrap spt">
-            <FileText size={24} />
+            <FileText size={26} />
           </div>
           <span className="action-label">SPT</span>
         </button>
@@ -181,53 +258,71 @@ export default function DashboardView({ user, onNavigate }) {
         {/* 3. Histori */}
         <button 
           className="action-circle-btn"
-          onClick={() => onNavigate('pengajuan-cuti')}
-          title="Klik untuk melihat Tabel Histori Cuti"
+          onClick={() => onNavigate('absensi-bulanan')}
+          title="Klik untuk Rekap Presensi & Histori"
         >
           <div className="circle-icon-wrap histori">
-            <History size={24} />
+            <History size={26} />
           </div>
           <span className="action-label">Histori</span>
         </button>
 
-        {/* 4. Profile */}
+        {/* 4. Profile / Pengaturan Akun */}
         <button 
           className="action-circle-btn"
-          onClick={() => alert(`Profil Pegawai:\nNama: ${user?.nama}\nNIP: ${user?.nip}\nJabatan: ${user?.jabatan || 'Pengelola Teknis'}\nDivisi: ${user?.divisi || 'BRMP DIY'}`)}
-          title="Profil Pegawai"
+          onClick={() => onNavigate('pengaturan-akun')}
+          title="Klik untuk Pengaturan Akun & Profil Pegawai"
         >
           <div className="circle-icon-wrap profile">
-            <User size={24} />
+            <User size={26} />
           </div>
-          <span className="action-label">Profile</span>
+          <span className="action-label">Profil</span>
         </button>
       </div>
 
-      {/* Agenda Section (Point 3 - no. 4) */}
+      {/* Agenda & Kalender Kegiatan Section */}
       <div className="agenda-section">
         <div className="agenda-header">
           <div className="agenda-title">
-            <Calendar size={22} className="text-blue-600" />
-            <span>AGENDA</span>
+            <CalendarDays size={24} style={{ color: 'var(--primary-600)' }} />
+            <span>Agenda & Kalender Kedinasan</span>
           </div>
 
           <div className="calendar-actions-wrapper">
             <div className="calendar-controls">
               <button 
-                style={{ background: '#f1f5f9', border: '1px solid #cbd5e1', borderRadius: '6px', padding: '6px 10px', cursor: 'pointer' }}
+                style={{
+                  background: '#ffffff',
+                  border: '1px solid #cbd5e1',
+                  borderRadius: '8px',
+                  padding: '6px 10px',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
+                }}
                 onClick={() => {}}
                 aria-label="Bulan sebelumnya"
               >
                 <ChevronLeft size={16} />
               </button>
               <button 
-                style={{ background: '#f1f5f9', border: '1px solid #cbd5e1', borderRadius: '6px', padding: '6px 10px', cursor: 'pointer' }}
+                style={{
+                  background: '#ffffff',
+                  border: '1px solid #cbd5e1',
+                  borderRadius: '8px',
+                  padding: '6px 10px',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
+                }}
                 onClick={() => {}}
                 aria-label="Bulan berikutnya"
               >
                 <ChevronRight size={16} />
               </button>
-              <span style={{ fontSize: '0.92rem', fontWeight: 700, marginLeft: '4px', color: '#1e293b' }}>
+              <span style={{ fontSize: '0.95rem', fontWeight: 800, marginLeft: '6px', color: '#0f172a' }}>
                 {currentMonth}
               </span>
             </div>
@@ -261,7 +356,7 @@ export default function DashboardView({ user, onNavigate }) {
                     {cell.events.map((ev, eIdx) => (
                       <div key={eIdx} className="agenda-item-card" style={{ borderLeftColor: ev.color }}>
                         <span className="agenda-item-title">{ev.title}</span>
-                        <span className="agenda-item-time">08:00 - 15:30 WIB • Kantor Balai</span>
+                        <span className="agenda-item-time">08:00 - 15:30 WIB • Balai Penerapan Standar Instrumen Pertanian DIY</span>
                       </div>
                     ))}
                   </div>
@@ -270,29 +365,29 @@ export default function DashboardView({ user, onNavigate }) {
           </div>
         ) : (
           <div className="calendar-grid">
-          {daysHeader.map((d) => (
-            <div key={d} className="calendar-day-header">{d}</div>
-          ))}
+            {daysHeader.map((d) => (
+              <div key={d} className="calendar-day-header">{d}</div>
+            ))}
 
-          {calendarCells.map((cell, idx) => (
-            <div 
-              key={idx} 
-              className={`calendar-cell ${!cell.isCurrentMonth ? 'other-month' : ''}`}
-            >
-              <span className="calendar-cell-date">{cell.day}</span>
-              {cell.events.map((ev, eIdx) => (
-                <div 
-                  key={eIdx} 
-                  className="calendar-event-pill"
-                  style={{ backgroundColor: ev.color }}
-                  title={ev.title}
-                >
-                  {ev.title}
-                </div>
-              ))}
-            </div>
-          ))}
-        </div>
+            {calendarCells.map((cell, idx) => (
+              <div 
+                key={idx} 
+                className={`calendar-cell ${!cell.isCurrentMonth ? 'other-month' : ''}`}
+              >
+                <span className="calendar-cell-date">{cell.day}</span>
+                {cell.events.map((ev, eIdx) => (
+                  <div 
+                    key={eIdx} 
+                    className="calendar-event-pill"
+                    style={{ backgroundColor: ev.color }}
+                    title={ev.title}
+                  >
+                    {ev.title}
+                  </div>
+                ))}
+              </div>
+            ))}
+          </div>
         )}
       </div>
     </div>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import Navbar from './components/Navbar';
 import Sidebar from './components/Sidebar';
 import Login from './components/Login';
@@ -8,7 +8,10 @@ import AbsensiChart from './components/AbsensiChart';
 import AdmsMonitor from './components/AdmsMonitor';
 import PengajuanCuti from './components/PengajuanCuti';
 import PengaturanAkun from './components/PengaturanAkun';
-import SptProgram from './components/SptProgram';
+import SptProgram from './spt/SptProgram';
+import AdminDashboard from './admin/AdminDashboard';
+import AdminLogin from './admin/AdminLogin';
+import { getStoredAvatar } from './services/api';
 import { 
   LayoutDashboard, 
   CalendarCheck2, 
@@ -16,9 +19,6 @@ import {
   FileText, 
   Menu 
 } from 'lucide-react';
-import AdminDashboard from './admin/AdminDashboard';
-import AdminLogin from './admin/AdminLogin';
-import { getStoredAvatar } from './services/api';
 
 export default function App() {
   const [user, setUser] = useState(() => {
@@ -47,6 +47,7 @@ export default function App() {
 
   // Detect whether current route is the Secret Admin Portal (/admin or #/admin)
   const checkIsAdminRoute = () => {
+    if (typeof window === 'undefined') return false;
     const path = window.location.pathname.toLowerCase();
     const hash = window.location.hash.toLowerCase();
     return path.startsWith('/admin') || hash.startsWith('#/admin') || path.includes('/admin');
@@ -81,12 +82,13 @@ export default function App() {
     user && (
       user.systemRole === 'admin' ||
       user.role === 'admin' ||
+      user.approvalRole === 'admin' ||
       user.nip === '198001012005011001' ||
       user.id === 'PEG-ADM'
     )
   );
 
-  const handleLoginSuccess = (userData) => {
+  const handleLoginSuccess = (userData, fromAdminGate = false) => {
     const targetNip = userData?.nip;
     const cachedPhoto = getStoredAvatar(targetNip);
     const mergedUser = {
@@ -95,15 +97,20 @@ export default function App() {
     };
     setUser(mergedUser);
     localStorage.setItem('brmp_user', JSON.stringify(mergedUser));
-    setCurrentView('dashboard');
+
+    if (fromAdminGate) {
+      // Pintu 1: Login dari Panel Admin -> langsung diarahkan ke Dashboard Admin
+      setCurrentView('admin-dashboard');
+      if (typeof window !== 'undefined' && window.location.hash !== '#/admin' && !window.location.pathname.includes('/admin')) {
+        window.history.pushState(null, '', '#/admin');
+      }
+    } else {
+      // Pintu 2: Login dari Gerbang Biasa (/) -> diarahkan ke Halaman Biasa Pegawai untuk cek tampilan
+      setCurrentView('dashboard');
+    }
   };
 
   const handleLogout = () => {
-    setUser(null);
-    localStorage.removeItem('brmp_user');
-  };
-
-  const handleAdminLogout = () => {
     setUser(null);
     localStorage.removeItem('brmp_user');
   };
@@ -118,35 +125,28 @@ export default function App() {
     };
     setUser(mergedUser);
     localStorage.setItem('brmp_user', JSON.stringify(mergedUser));
-    setCurrentView('dashboard');
   };
 
-  // ==========================================
-  // 1. GERBANG PORTAL ADMIN RAHASIA (/admin)
-  // ==========================================
+  // 1. GERBANG PORTAL ADMIN (/admin atau #/admin)
   if (isAdminRoute && (!user || !isUserAdmin)) {
     return (
       <AdminLogin 
         onLoginSuccess={(adminUser) => {
-          const targetNip = adminUser?.nip;
-          const cachedPhoto = getStoredAvatar(targetNip);
-          const merged = {
-            ...adminUser,
-            fotoProfil: adminUser.fotoProfil || cachedPhoto || null
-          };
-          setUser(merged);
-          localStorage.setItem('brmp_user', JSON.stringify(merged));
-          setCurrentView('admin-dashboard');
+          handleLoginSuccess(adminUser, true);
         }} 
       />
     );
   }
 
-  // ==========================================
   // 2. GERBANG PORTAL PEGAWAI BIASA (/)
-  // ==========================================
   if (!user) {
-    return <Login onLoginSuccess={handleLoginSuccess} />;
+    return (
+      <Login 
+        onLoginSuccess={(regUser) => {
+          handleLoginSuccess(regUser, false);
+        }} 
+      />
+    );
   }
 
   // Map currentView to the SPT target view in the brmpSPT program
@@ -165,10 +165,12 @@ export default function App() {
   const isSptView = currentView.includes('spt');
 
   return (
-    <div className="app-shell" style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', background: '#f8fafc' }}>
-      {/* Top Header Navbar with Quick Role Switcher */}
+    <div className="app-shell" style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', background: 'var(--bg-app)' }}>
+      {/* Top Header Navbar */}
       <Navbar 
         user={user} 
+        currentView={currentView}
+        isUserAdmin={isUserAdmin}
         onLogout={handleLogout} 
         onSwitchUser={handleSwitchUser} 
         onNavigate={setCurrentView}
@@ -176,7 +178,7 @@ export default function App() {
         onToggleMobileMenu={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
       />
 
-      <div style={{ display: 'flex', flex: 1, position: 'relative' }}>
+      <div style={{ display: 'flex', flex: 1, position: 'relative', width: '100%', minWidth: 0 }}>
         {/* Mobile Backdrop Overlay */}
         {isMobileMenuOpen && (
           <div 
@@ -194,6 +196,7 @@ export default function App() {
             setIsMobileMenuOpen(false);
           }} 
           user={user} 
+          isUserAdmin={isUserAdmin}
           isOpen={isMobileMenuOpen}
           onClose={() => setIsMobileMenuOpen(false)}
           onLogout={handleLogout}
@@ -215,6 +218,7 @@ export default function App() {
             )
           )}
 
+          {/* Admin Dashboard & Management Views */}
           {currentView.startsWith('admin') && (
             isUserAdmin ? (
               <AdminDashboard 
@@ -312,4 +316,3 @@ export default function App() {
     </div>
   );
 }
-

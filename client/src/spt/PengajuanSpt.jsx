@@ -97,15 +97,9 @@ export default function PengajuanSpt({ user, onNavigateToReport }) {
 
       if (pegRes && pegRes.length > 0) {
         setPegawaiList(pegRes);
-
-        // Cari pegawai pertama untuk personil pelaksana
-        const firstPeg = pegRes[0];
-        const secondPeg = pegRes[1] || pegRes[0];
-
-        setSelectedPegawai([
-          { ...firstPeg, peranDalamTugas: 'Penanggung Jawab (PJ)' },
-          { ...secondPeg, peranDalamTugas: 'Anggota Pelaksana' }
-        ]);
+        // Ketentuan: Nama Panitera TIDAK otomatis tertambah di dalam SPT
+        // Panitera memilih sendiri personil yang akan ditugaskan
+        setSelectedPegawai([]);
       }
     } catch (err) {
       console.error('Error loading initial SPT data:', err);
@@ -138,19 +132,15 @@ export default function PengajuanSpt({ user, onNavigateToReport }) {
     return diff > 0 ? diff : 1;
   };
 
-  // Toggle Member selection
+  // Toggle Member selection (Nama Panitera tidak otomatis tertambah)
   const toggleMember = (peg) => {
     const exists = selectedPegawai.find(p => p.nip === peg.nip);
     if (exists) {
-      if (selectedPegawai.length === 1) {
-        alert('Minimal harus ada 1 personil pelaksana dalam penugasan SPT.');
-        return;
-      }
       setSelectedPegawai(selectedPegawai.filter(p => p.nip !== peg.nip));
     } else {
       setSelectedPegawai([
         ...selectedPegawai,
-        { ...peg, peranDalamTugas: 'Anggota Pelaksana' }
+        { ...peg, peranDalamTugas: selectedPegawai.length === 0 ? 'Penanggung Jawab (PJ)' : 'Anggota Pelaksana' }
       ]);
     }
   };
@@ -235,7 +225,7 @@ export default function PengajuanSpt({ user, onNavigateToReport }) {
         untukMelaksanakan: uraianTugas,
         paniteraPengaju: activePanitera,
         pemohon: {
-          id: selectedPegawai[0]?.id || user?.id || 'usr-active',
+          id: selectedPegawai[0]?.id || selectedPegawai[0]?.pegawaiId || 'PEG-001',
           nama: selectedPegawai[0]?.nama || 'Pegawai Bertugas',
           nip: selectedPegawai[0]?.nip || '-',
           unitKerja: selectedPegawai[0]?.unitKerja || 'Balai Penerapan Standar Instrumen Pertanian DIY'
@@ -529,59 +519,71 @@ export default function PengajuanSpt({ user, onNavigateToReport }) {
               </div>
             </div>
 
-            {/* Selected Members Table */}
-            <div style={{ border: '1px solid #e2e8f0', borderRadius: '10px', overflow: 'hidden', marginBottom: '16px' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
-                <thead style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0', color: '#475569', textAlign: 'left' }}>
-                  <tr>
-                    <th style={{ padding: '10px 14px' }}>No</th>
-                    <th style={{ padding: '10px 14px' }}>Nama & NIP Pegawai</th>
-                    <th style={{ padding: '10px 14px' }}>Jabatan & Unit Kerja</th>
-                    <th style={{ padding: '10px 14px' }}>Peran dalam SPT</th>
-                    <th style={{ padding: '10px 14px', textAlign: 'center' }}>Aksi</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {selectedPegawai.map((peg, index) => (
-                    <tr key={peg.nip || index} style={{ borderBottom: '1px solid #f1f5f9' }}>
-                      <td style={{ padding: '10px 14px', color: '#64748b' }}>{index + 1}</td>
-                      <td style={{ padding: '10px 14px' }}>
-                        <div style={{ fontWeight: 600, color: '#0f172a' }}>{peg.nama}</div>
-                        <div style={{ fontSize: '11px', color: '#64748b' }}>NIP. {peg.nip}</div>
-                      </td>
-                      <td style={{ padding: '10px 14px' }}>
-                        <div style={{ color: '#334155' }}>{peg.jabatan || 'Pegawai'}</div>
-                        <div style={{ fontSize: '11.5px', color: '#64748b' }}>{peg.unitKerja}</div>
-                      </td>
-                      <td style={{ padding: '10px 14px' }}>
-                        <select 
-                          className="form-control"
-                          value={peg.peranDalamTugas || (index === 0 ? 'Penanggung Jawab (PJ)' : 'Anggota Pelaksana')}
-                          onChange={(e) => updateMemberRole(peg.nip, e.target.value)}
-                          style={{ padding: '4px 8px', fontSize: '12px' }}
-                        >
-                          <option value="Penanggung Jawab (PJ)">Penanggung Jawab (PJ)</option>
-                          <option value="Anggota Pelaksana">Anggota Pelaksana</option>
-                          <option value="Narasumber / Instruktur">Narasumber / Instruktur</option>
-                          <option value="Pendamping Lapangan">Pendamping Lapangan</option>
-                          <option value="Pengemudi Kedinasan">Pengemudi Kedinasan</option>
-                        </select>
-                      </td>
-                      <td style={{ padding: '10px 14px', textAlign: 'center' }}>
-                        <button 
-                          type="button"
-                          onClick={() => toggleMember(peg)}
-                          style={{ background: '#fee2e2', border: 'none', color: '#ef4444', padding: '6px', borderRadius: '6px', cursor: 'pointer' }}
-                          title="Hapus dari daftar personil"
-                        >
-                          <Trash2 size={14} />
-                        </button>
-                      </td>
+            {/* Selected Members Table or Guidance Placeholder */}
+            {selectedPegawai.length === 0 ? (
+              <div style={{ padding: '28px', textAlign: 'center', background: '#f8fafc', borderRadius: '10px', border: '1px dashed #cbd5e1', marginBottom: '16px' }}>
+                <Users size={32} style={{ margin: '0 auto 8px auto', color: '#94a3b8' }} />
+                <div style={{ fontWeight: 600, color: '#334155', fontSize: '13.5px' }}>
+                  Belum ada personil pelaksana yang dipilih
+                </div>
+                <div style={{ fontSize: '12px', color: '#64748b', marginTop: '3px' }}>
+                  Sesuai ketentuan, <strong>nama Panitera tidak otomatis ditambahkan</strong> ke dalam SPT. Silakan pilih satu atau lebih pegawai dari daftar pencarian di bawah.
+                </div>
+              </div>
+            ) : (
+              <div style={{ border: '1px solid #e2e8f0', borderRadius: '10px', overflow: 'hidden', marginBottom: '16px' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
+                  <thead style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0', color: '#475569', textAlign: 'left' }}>
+                    <tr>
+                      <th style={{ padding: '10px 14px' }}>No</th>
+                      <th style={{ padding: '10px 14px' }}>Nama & NIP Pegawai</th>
+                      <th style={{ padding: '10px 14px' }}>Jabatan & Unit Kerja</th>
+                      <th style={{ padding: '10px 14px' }}>Peran dalam SPT</th>
+                      <th style={{ padding: '10px 14px', textAlign: 'center' }}>Aksi</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody>
+                    {selectedPegawai.map((peg, index) => (
+                      <tr key={peg.nip || index} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                        <td style={{ padding: '10px 14px', color: '#64748b' }}>{index + 1}</td>
+                        <td style={{ padding: '10px 14px' }}>
+                          <div style={{ fontWeight: 600, color: '#0f172a' }}>{peg.nama}</div>
+                          <div style={{ fontSize: '11px', color: '#64748b' }}>NIP. {peg.nip}</div>
+                        </td>
+                        <td style={{ padding: '10px 14px' }}>
+                          <div style={{ color: '#334155' }}>{peg.jabatan || 'Pegawai'}</div>
+                          <div style={{ fontSize: '11.5px', color: '#64748b' }}>{peg.unitKerja}</div>
+                        </td>
+                        <td style={{ padding: '10px 14px' }}>
+                          <select 
+                            className="form-control"
+                            value={peg.peranDalamTugas || (index === 0 ? 'Penanggung Jawab (PJ)' : 'Anggota Pelaksana')}
+                            onChange={(e) => updateMemberRole(peg.nip, e.target.value)}
+                            style={{ padding: '4px 8px', fontSize: '12px' }}
+                          >
+                            <option value="Penanggung Jawab (PJ)">Penanggung Jawab (PJ)</option>
+                            <option value="Anggota Pelaksana">Anggota Pelaksana</option>
+                            <option value="Narasumber / Instruktur">Narasumber / Instruktur</option>
+                            <option value="Pendamping Lapangan">Pendamping Lapangan</option>
+                            <option value="Pengemudi Kedinasan">Pengemudi Kedinasan</option>
+                          </select>
+                        </td>
+                        <td style={{ padding: '10px 14px', textAlign: 'center' }}>
+                          <button 
+                            type="button"
+                            onClick={() => toggleMember(peg)}
+                            style={{ background: '#fee2e2', border: 'none', color: '#ef4444', padding: '6px', borderRadius: '6px', cursor: 'pointer' }}
+                            title="Hapus dari daftar personil"
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
 
             {/* Search Pegawai to Add */}
             <div style={{ background: '#f8fafc', padding: '14px', borderRadius: '10px', border: '1px solid #e2e8f0' }}>

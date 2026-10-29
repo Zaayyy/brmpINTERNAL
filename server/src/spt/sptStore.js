@@ -139,10 +139,10 @@ export let sptList = [
     untukMelaksanakan: "Melaksanakan bimbingan teknis penerapan standar budidaya padi organik dan modernisasi alsintan pompa air irigasi perpompaan.",
     uraian: "Melaksanakan bimbingan teknis penerapan standar budidaya padi organik dan modernisasi alsintan pompa air irigasi perpompaan.",
     paniteraPengaju: {
-      id: "PAN-001",
-      nama: "Devi Eka Nuvitasari, S.H.",
-      nip: "198906012015032004",
-      unitKerja: "Tim Kerja Pengelolaan Sumber Daya Manusia"
+      id: "PAN-002",
+      nama: "Novita Widiyanti, A.Md",
+      nip: "199111042023212041",
+      unitKerja: "Tim Kerja Tata Usaha dan Rumah Tangga"
     },
     pemohon: {
       id: "usr-peg-004",
@@ -614,9 +614,11 @@ export const addSpt = (sptData, submitterUser = null) => {
     untukMelaksanakan: sptData.untukMelaksanakan || sptData.uraian,
     uraian: sptData.uraian || sptData.untukMelaksanakan,
     paniteraPengaju: paniteraInfo,
-    pemohon: sptData.pemohon || {
-      nama: anggotaNormalized[0]?.nama || "Pegawai BRMP DIY",
-      nip: anggotaNormalized[0]?.nip || "-"
+    pemohon: (sptData.pemohon && sptData.pemohon.nama !== paniteraInfo.nama) ? sptData.pemohon : {
+      id: anggotaNormalized[0]?.id || "PEG-001",
+      nama: anggotaNormalized[0]?.nama || "Pegawai Bertugas",
+      nip: anggotaNormalized[0]?.nip || "-",
+      unitKerja: anggotaNormalized[0]?.unitKerja || "Balai Penerapan Standar Instrumen Pertanian DIY"
     },
     anggota: anggotaNormalized,
     pegawaiBertugas: anggotaNormalized,
